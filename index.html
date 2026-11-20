@@ -111,6 +111,7 @@ tr.sum td{font-weight:800;border-bottom:2px solid var(--ink)}
 .gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
 .gcard{border:1px solid var(--line);border-inline-start:5px solid #7b3fe4;border-radius:8px;padding:12px 14px}.gcard:nth-child(4){border-inline-start-color:#1f9d55}
 .gcard h4{margin:0;font-size:17px;font-weight:800}.gsub{margin:0 0 4px;color:var(--mut);font-size:14px}.gcard ul{font-size:15px;margin:4px 0 0}
+.gloc th,.gloc td{white-space:normal;text-align:right;vertical-align:top;position:static;font-size:15px}.gloc td:nth-child(-n+2){font-weight:700;white-space:nowrap}
 .gtl td{white-space:normal;text-align:right;vertical-align:top;position:static}.gtl td:first-child{white-space:nowrap;font-weight:800;width:7.5em}
 .lead2{max-width:75ch;color:var(--mut)}
 .mkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
@@ -217,7 +218,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <section id="guide" hidden>
 <div class="guide">
 <h2 style="margin-top:0">שיתופי פעולה: מול מי, מתי ואיך</h2>
-<p class="lead">הכי חשוב מההתחלה: יצרני מחשבים שאין להם מפעל צ'יפים. הם הלקוחות של הצ'יפים שלנו, והם צריכים צ'יפים בדיוק כשאנחנו מתחילים לייצר. את כל המשא ומתן מוביל המנהל האסטרטגי, והלוואות בין חברות אצל ה־CFO.</p>
+<p class="lead">הכי חשוב מההתחלה: יצרני מחשבים שאין להם מפעל צ'יפים, ובראשם אלה שמייצרים בברזיל. הם הלקוחות של הצ'יפים שלנו, והם צריכים צ'יפים בדיוק כשאנחנו מתחילים לייצר. את כל המשא ומתן מוביל המנהל האסטרטגי, והלוואות בין חברות אצל ה־CFO.</p>
 
 <h3>מה מותר בכלל</h3>
 <ul>
@@ -260,6 +261,20 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <li><b>למה:</b> מכפיל את המידע בלי עלות, ונספר כשיתוף פעולה.</li>
 </ul></article>
 </div>
+
+<h3>איפה הם מייצרים: זה מה שקובע את העסקה</h3>
+<p class="lead">אותו סוג חברה הוא שותף אחר לגמרי לפי האזור שבו המפעלים שלו נמצאים. המיקום קובע כמה עולה השילוח, אם הוא מתחרה בנו באותו שוק, וכמה הוא יכול לשלם.</p>
+<div class="scroll"><table class="gloc"><thead><tr><th>מי</th><th>איפה מייצר</th><th>מה העסקה</th><th>למה</th></tr></thead><tbody>
+<tr><td>יצרן צ'יפים</td><td>ברזיל</td><td>ספק למפעל המחשבים שלנו בברזיל</td><td>שילוח בתוך ברזיל עולה R$1 בים (כ־$0.50) מול $5.25 באוויר מארה"ב. מזמינים רבעון מראש ושולחים בים. מצד שני, הוא מתחרה בנו על יצרני המחשבים בברזיל, הלקוחות הכי טובים של הצ'יפים.</td></tr>
+<tr><td>יצרן צ'יפים</td><td>ארה"ב</td><td>גיבוי, או חלוקת לקוחות לפי אזורים</td><td>הוא המתחרה הישיר שלנו בצ'יפים, עם אותן עלויות. אפשר לסכם שכל אחד מתמקד באזור אחר, או לקנות ממנו כשחסר.</td></tr>
+<tr><td>יצרן צ'יפים</td><td>אירופה</td><td>ספק למפעל המחשבים שלנו באירופה</td><td>באירופה שילוח צ'יפ עולה €0.25 בים ו־€2.40 באוויר, זול מארה"ב. ככה מפעל הצ'יפים שלנו מתפנה ללקוחות בברזיל.</td></tr>
+<tr><td>יצרן מחשבים בלי צ'יפים</td><td>ברזיל</td><td>הלקוח הכי טוב לצ'יפים</td><td>יכול לשלם עד כ־$210 לצ'יפ. אבל הוא מתחרה במחשבים שלנו בברזיל: מוכרים לו את הדרג הקודם.</td></tr>
+<tr><td>יצרן מחשבים בלי צ'יפים</td><td>אירופה</td><td>לקוח בינוני לצ'יפים</td><td>יכול לשלם עד כ־$80. מתחרה בנו באירופה.</td></tr>
+<tr><td>יצרן מחשבים בלי צ'יפים</td><td>ארה"ב</td><td>לקוח בלי קניבליזציה</td><td>יכול לשלם רק עד כ־$70, אבל עד רבעון 6 אנחנו לא מוכרים מחשבים בארה"ב, אז הוא לא מתחרה בנו. השילוח בתוך ארה"ב זול.</td></tr>
+<tr><td>חברה משולבת</td><td>באזור שלנו</td><td>רישיון צולב, החלפת עודפים</td><td>מתחרה ישיר. לא מוכרים לו צ'יפים, אבל אפשר להחליף דרגים ומלאי עודף.</td></tr>
+<tr><td>חברה משולבת</td><td>באזור שאין לנו בו מפעל</td><td>רישיון מוגבל לאזור שלו</td><td>רישיון שתקף רק באזור שלו מכניס כסף בלי ליצור מתחרה בשווקים שלנו.</td></tr>
+</tbody></table></div>
+<p class="fine">איך יודעים מי מייצר איפה: מחקר 40 (כמה מפעלים יש לכל חברה בכל אזור, SF 1K), מחקר 30 (איזה דרג כל חברה מייצרת לרבעון הבא, לפי אזור), מחקר 29 (איזה דרגים יש לכל חברה במלאי), מחקרים 76 ו־77 (יצוא ויבוא לפי אזור), והדוחות הכספיים בחינם (74). ופשוט לשאול: כל החברות צריכות שותפים.</p>
 
 <h3>לוח זמנים</h3>
 <table class="gtl"><tbody>
@@ -689,7 +704,7 @@ function dealList(){
     tg:[['כמות',nu(su)+" יח'"],['מחיר מטרה',fl(tp,'US')],['מינימום',fl(mn,'US')],['הקונה יכול עד',fl(bc,'US')]],
     sub:`הובלה ${fl(+fr.toFixed(2),'US')} לצ'יפ על חשבוננו. ${bc>mn?'מרווח למו"מ '+fl(bc-mn,'US')+' לצ\'יפ':'אין מרווח: המחשב שלהם לא מחזיק את המחיר'}`})});
   R.forEach(d=>{const kb=`buyX-${t}-${d}`;if(r.short[d]>0||D[kb]){const cp=r.cp||1,pn=at(A.pY[d],t+1)*G.fx[d],vc=A.varY[d]*(1+G.gcY*r.gY/100)*G.fx[d],ag=G.agent.Y[d]*G.fx[d],ceil=Math.floor((pn-vc-ag)/cp/G.fx.US);
-   L.push({k:kb,t,ty:'buy',d,title:`קניית צ'יפים X${r.gXs} ל${RN[d]}`,who:"יצרני צ'יפים עם עודף",u:Math.round(r.short[d]),p:r.pB,
+   L.push({k:kb,t,ty:'buy',d,title:`קניית צ'יפים X${r.gXs} ל${RN[d]}`,who:`יצרני צ'יפים ב${RN[d]} קודם (שילוח בתוך האזור, אפשר בים אם מזמינים רבעון מראש), ואחריהם יצרנים מאזורים אחרים`,u:Math.round(r.short[d]),p:r.pB,
     tg:[['כמות',nu(r.short[d])+" יח'"],['מחיר מטרה',fl(r.pB,'US')],['תקרה',fl(ceil,'US')]],sub:`למחשב Y${r.gY}, ${cp} צ'יפ${cp>1?'ים':''} לכל מחשב. מעל התקרה המחשב מפסיד`})}});
   if(nx&&(nx.gX>r.gX||nx.gY>r.gY)){const kl=`lic-${t}`,gl=[nx.gX>r.gX?'X'+nx.gX:'',nx.gY>r.gY?'Y'+nx.gY:''].filter(Boolean).join(' ו־'),tp=(nx.gX>r.gX?+at(A.rdXq,t):0)+(nx.gY>r.gY?+at(A.rdYq,t):0)||100;
    L.push({k:kl,t,ty:'lic',title:`רישיון לפטנט ${gl}`,who:'חברות שכבר מחזיקות בדרג',p:tp,tg:[['מחיר מטרה','עד '+fm(tp)],['שימוש','מרבעון '+(t+1)]],sub:'גיבוי אם המו"פ שלנו לא יגיע בזמן'})}
