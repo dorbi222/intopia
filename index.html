@@ -112,6 +112,17 @@ tr.sum td{font-weight:800;border-bottom:2px solid var(--ink)}
 .gcard{border:1px solid var(--line);border-inline-start:5px solid #7b3fe4;border-radius:8px;padding:12px 14px}.gcard:nth-child(4){border-inline-start-color:#1f9d55}
 .gcard h4{margin:0;font-size:17px;font-weight:800}.gsub{margin:0 0 4px;color:var(--mut);font-size:14px}.gcard ul{font-size:15px;margin:4px 0 0}
 .gtl td{white-space:normal;text-align:right;vertical-align:top;position:static}.gtl td:first-child{white-space:nowrap;font-weight:800;width:7.5em}
+.lead2{max-width:75ch;color:var(--mut)}
+.mkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.mkp{border:1px solid var(--line);border-top:5px solid var(--acc);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.mkp h3{margin:0;font-size:20px;font-weight:800}
+.mkres{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;background:var(--soft);border-radius:6px;padding:8px 10px}
+.mkres span{display:block;font-size:13px;color:var(--mut)}.mkres b{font-size:18px;font-weight:800}
+.bars{display:grid;gap:3px}.bar{display:grid;grid-template-columns:4.5em minmax(0,1fr) 5.5em;gap:6px;align-items:center;font-size:13px}
+.bar i{display:block;height:12px;background:color-mix(in srgb,var(--acc) 35%,transparent);border-radius:2px}.bar.best i{background:var(--acc)}.bar.cur{font-weight:800}
+.bar em{font-style:normal;text-align:left;direction:ltr}
+.mkas{margin-top:18px}
+.sales{width:100%;font-size:14px;margin:0 0 8px}.sales td,.sales th{padding:3px 4px;white-space:normal;position:static;text-align:right}.sales th{color:var(--mut);font-weight:500}
 #gp td,#gp th{text-align:center}#gp td:first-child,#gp th:first-child{text-align:right}#gp input,#gp select{min-width:78px;min-height:40px;padding:4px 6px}
 .gr{font-size:14px;color:var(--mut);margin-top:2px}
 #coop td{white-space:normal;text-align:right;vertical-align:top}
@@ -157,6 +168,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <button role="tab" data-tab="plan" id="t-plan">תוכנית</button>
 <button role="tab" data-tab="deals" id="t-deals">עסקאות</button>
 <button role="tab" data-tab="guide" id="t-guide">שיתופי פעולה</button>
+<button role="tab" data-tab="market" id="t-market">סימולטור שיווק</button>
 <button role="tab" data-tab="assumptions" id="t-assumptions">הנחות</button>
 <button role="tab" data-tab="rules" id="t-rules">הגדרות משחק</button>
 </div>
@@ -268,6 +280,13 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <p class="fine">ההמלצות לכל רבעון לפי התוכנית שלכם נמצאות בטבלת "שיתופי פעולה: מול מי ומתי" בלשונית התוכנית, והכרטיסים עם מחיר יעד, תקרה ושילוח בלשונית העסקאות.</p>
 </div>
 </section>
+<section id="market" hidden>
+<h2 style="margin-top:0">סימולטור שיווק: מחשבים לצרכנים</h2>
+<p class="lead2">כמה משרדי מכירות, איזה פרסום ואיזה מחיר, ומה זה עושה למכירות ולתרומה. 0 משרדים = סוכנים בלבד. השפעת המשרדים, הפרסום והמחיר היא הנחה שלכם: אפשר לכייל אותה עם מחקרי שוק 26 ו־81.</p>
+<div class="mkgrid" id="mkgrid"></div>
+<details class="mkas"><summary>ההנחות של הסימולטור</summary><div class="form" id="mkform"></div>
+<p class="fine">מהחוקים: משרד מכירות מוכר קצת יותר מסוכנים, וכל משרד נוסף מוסיף פחות מהקודם. גמישות הפרסום ברמת החברה היא בערך 0.5 עד 1.0, ומתחת לסף מינימלי הוא כמעט לא עובד. הגמישות למחיר הכי גבוהה בברזיל והכי נמוכה בארה"ב. שינוי במספר המשרדים נכנס לתוקף בסוף הרבעון ועולה כסף, ועלות השינוי גדלה מהר יותר ממספר המשרדים שפותחים בבת אחת.</p></details>
+</section>
 <section id="assumptions" hidden>
 <div class="grp"><h2>מפעלים <button class="btn pri" id="addPlant">הוספת מפעל</button></h2><div class="plants" id="plants"></div><p class="fine">מפעל מייצר מהרבעון שאחרי הבנייה, ומוכרים את התוצרת ברבעון שאחריו. מחשבים צריכים צ'יפים במלאי מרבעון קודם.</p></div>
 <div class="grp"><h2>דרגים ומחירים לפי רבעון <button class="btn" id="fillP">מילוי מחירים לפי הדרגים</button></h2><div class="scroll"><table id="gp" class="gp"></table></div><p class="fine">הדרג הוא מה שמייצרים באותו רבעון, ומה שנמכר הוא הדרג של הרבעון הקודם. מספר הצ'יפים לכל מחשב נקבע לפי טבלת ההמרה מה־Data Log. דרג גבוה דורש פטנט ממו"פ או רישיון. המחירים הם צפי שלכם, ואפשר לשנות כל תא.</p></div>
@@ -307,7 +326,9 @@ const DA={plants:[{r:'US',p:'X',q:1},{r:'EU',p:'Y',q:2},{r:'BR',p:'Y',q:2},{r:'B
  chipCons:{US:2000,EU:0,BR:0},b2b:8000,b2bFrom:3,b2bTo:'auto',extOn:1,extFrom:3,
  ch:{US:{m:'cso',q:6,o:1},EU:{m:'cso',q:4,o:1},BR:{m:'cso',q:4,o:1}},csoVar:{US:12,EU:18,BR:50},switchCost:30,
  ads:{US:60,EU:30,BR:80},rdXq:[80,80,80,80,80,80,80,80],rdYq:[140,140,140,140,140,140,140,140],mr:30,markup:0,
- loan:{amt:4000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},deals:{},team:{ceo:'',coo:'',cmo:'',cfo:'',cso:''}};
+ loan:{amt:4000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},deals:{},team:{ceo:'',coo:'',cmo:'',cfo:'',cso:''},
+ msim:{US:{p:165,n:2,ads:60,d0:21000,sup:21000},EU:{p:130,n:1,ads:30,d0:15000,sup:15300},BR:{p:800,n:1,ads:80,d0:7500,sup:7650}},
+ mk:{csoBase:5,lift1:4,decay:75,pe:{US:1.3,EU:1.6,BR:2.2},ae:{US:0.6,EU:0.5,BR:0.8},thr:{US:40,EU:30,BR:80},chipCost:{US:11,EU:11,BR:13}}};
 const CONV=[[1,2,3,0,0,0,0,0,0,0],[1,1,2,3,4,0,0,0,0,0],[1,1,2,2,3,0,0,0,0,0],[0,1,1,2,2,3,3,5,0,0],[0,1,1,1,2,3,3,4,0,0],[0,0,0,1,1,2,2,3,0,0],[0,0,0,0,0,2,2,2,3,0],[0,0,0,0,0,1,1,2,3,0],[0,0,0,0,0,0,0,1,2,3],[0,0,0,0,0,0,0,0,1,2]];
 const at=(a,t)=>a[Math.max(0,Math.min(t-1,a.length-1))];
 function norm(G,A){const Q=Math.max(1,Math.round(G.quarters)),pad=a=>{while(a.length<Q)a.push(a[a.length-1]??0);return a};
@@ -399,7 +420,7 @@ function run(G,A){
   // PC sales from opening stock
   const pcSold={US:0,EU:0,BR:0};
   R.forEach(r=>{const a=pi[r];if(a<=0)return;const s=Math.round(a*A.sell/100),unit=pv[r]/a,pr=at(A.pY[r],t),rev=s*pr*fx[r]/1000;if(r==='BR'&&gys<=3&&pr>G.brCap)wr.push(`בברזיל המחיר המקסימלי למחשב Y0–Y3 הוא ${fl(G.brCap,'BR')}`);
-   g[r].rev+=rev;g[r].cogs+=s*unit;pi[r]-=s;pv[r]-=s*unit;g[r].car+=pi[r]*G.carry.Y[r]*fx[r]/1000;sched(recv,t,rev,r);soldEver[r]+=s;pcSold[r]=s;F.price[r]=pr;
+   g[r].rev+=rev;g[r].cogs+=s*unit;pi[r]-=s;pv[r]-=s*unit;g[r].car+=pi[r]*G.carry.Y[r]*fx[r]/1000;sched(recv,t,rev,r);soldEver[r]+=s;pcSold[r]=s;F.price[r]=pr;F.pcU=F.pcU||{};F.pcU[r]=s;
    ev.push(['sell',`מוכרים ${nu(s)} מחשבים ב${RN[r]} ב־${fl(pr,r)}: הכנסה ${fm(rev)}`]);
    if(pi[r]>0.25*G.cap.Y[r])wr.push(`נשאר מלאי מחשבים גבוה ב${RN[r]}: ${nu(pi[r])} יחידות`)});
   R.forEach(r=>{if(!made[r])return;const vc=made[r]*A.varY[r]*(1+G.gcY*gy/100)*fx[r]/1000;sched(pay,t,vc,r);pi[r]+=made[r];pv[r]+=vc+pcCost[r];
@@ -419,7 +440,7 @@ function run(G,A){
    b2bU+=tot;if(tot)ev.push(['sell',`${od.c?'עסקה סגורה: ':'מתוכנן: '}מוכרים ${nu(tot)} צ'יפים X${gxs} ליצרני מחשבים ב${RN[od.d]}${od.w?' ('+esc(od.w)+')':''} ב־${fl(+od.p.toFixed(2),'US')}: ${fm(rv)}`])});
   const chipSold={US:0,EU:0,BR:0};
   R.forEach(r=>{const u=Math.min(ci[r],A.chipCons[r]);if(u<=0)return;const v=u*avg(r),x=u*at(A.pX[r],t)*fx[r]/1000;
-   g[r].rev+=x;g[r].cogs+=v;ci[r]-=u;cv[r]-=v;chipSold[r]=u;F.chipPrice[r]=at(A.pX[r],t);sched(recv,t,x,r);ev.push(['sell',`מוכרים ${nu(u)} צ'יפים לצרכנים ב${RN[r]}: ${fm(x)}`])});
+   g[r].rev+=x;g[r].cogs+=v;ci[r]-=u;cv[r]-=v;chipSold[r]=u;F.chipPrice[r]=at(A.pX[r],t);F.chipU=F.chipU||{};F.chipU[r]=u;sched(recv,t,x,r);ev.push(['sell',`מוכרים ${nu(u)} צ'יפים לצרכנים ב${RN[r]}: ${fm(x)}`])});
   const chipLeft=R.reduce((s,r)=>s+ci[r],0);R.forEach(r=>g[r].car+=ci[r]*G.carry.X[r]*fx[r]/1000);
   let chipMade=0;R.forEach(r=>{if(on.X[r])F.prodX[r]=Array(on.X[r]).fill(Math.round(G.cap.X[r]*A.util.X/100/1000)*1000);if(on.Y[r]&&A.chipCons[r]>0)F.reserve[r]=A.chipCons[r]});
   R.forEach(r=>{const u=Math.round(on.X[r]*G.cap.X[r]*A.util.X/100);if(!u)return;const vc=u*A.varX[r]*(1+G.gcX*at(A.gX,t)/100)*fx[r]/1000;ci[r]+=u;cv[r]+=vc;sched(pay,t,vc,r);chipMade+=u;
@@ -581,7 +602,7 @@ function plantsUI(){
 const GPR=[['דרג צ\'יפ שמייצרים','A.gX','g'],['דרג מחשב שמייצרים','A.gY','g'],...R.map(r=>[`מחשב לצרכן, ${RN[r]} (${CUR[r]})`,'A.pY.'+r]),...R.map(r=>[`צ'יפ לצרכן, ${RN[r]} (${CUR[r]})`,'A.pX.'+r]),["מוכרים צ'יפ לחברות, בלי הובלה ($)",'A.pS'],["קונים צ'יפ מחברות ($)",'A.pB'],['מו"פ צ\'יפים (אלפי SF)','A.rdXq'],['מו"פ מחשבים (אלפי SF)','A.rdYq']];
 function gpUI(){norm(S.G,S.A);const q=QO();
  $('#gp').innerHTML=`<thead><tr><th>רבעון</th>${q.map(t=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${GPR.map(([l,k,g])=>`<tr><td>${l}</td>${q.map(t=>{const kk=`${k}.${t-1}`,v=getP(kk);return `<td>${g?`<select aria-label="${l} רבעון ${t}" data-k="${kk}">${[...Array(10)].map((_,i)=>`<option value="${i}"${+v===i?' selected':''}>${k==='A.gX'?'X':'Y'}${i}</option>`).join('')}</select>`:`<input type="number" inputmode="decimal" aria-label="${l} רבעון ${t}" data-k="${kk}" value="${v}">`}</td>`}).join('')}</tr>`).join('')}</tbody>`}
-function buildForms(){teamUI();$('#aform').innerHTML=form(AS);$('#gform').innerHTML=form(GS);plantsUI();gpUI()}
+function buildForms(){teamUI();simForm();$('#aform').innerHTML=form(AS);$('#gform').innerHTML=form(GS);plantsUI();gpUI()}
 
 let res=null,DL={};
 const AN={US:1,EU:2,BR:3},CN={US:1,EU:2,BR:3,SF:4},CNAME={1:'דולר',2:'יורו',3:'ריאל',4:'פרנק'};
@@ -706,7 +727,7 @@ function render(){
  $('#kpis').innerHTML=k('מזומן מינימלי',fm(min.cash),'ברבעון '+min.t,min.cash<0)+k('רווח נקי מצטבר',fm(cum),fp?'רבעון רווחי ראשון: '+fp.t:'אין רבעון רווחי',cum<0)+k('הכנסות מצטברות',fm(rev),'מכירות לצרכנים ולחברות')+k('הון עצמי משוער בסוף',fm(end.eq),'נכסים פחות התחייבויות',end.eq<0)+k('חוב ארוך טווח בסוף',fm(end.loan+end.bond),'הלוואה ואג"ח');
  $('#mini').innerHTML=`<span>מזומן מינ׳ <b class="${min.cash<0?'bad':''}">${fm(min.cash)}</b></span><span>רווח מצטבר <b class="${cum<0?'bad':''}">${fm(cum)}</b></span><span>הון בסוף <b>${fm(end.eq)}</b></span>`;
  $('#cards').innerHTML=rows.map(r=>`<article class="card"><h3>רבעון ${r.t}<button class="btn" data-sq="${r.t}" style="min-height:34px;font-size:14px;padding:0 10px">מה מזינים</button><em>${r.net>=0?'רווח':'הפסד'} ${fm(r.net)}</em></h3>
- <div class="gr">מייצרים צ'יפ X${r.gX} ומחשב Y${r.gY}${r.t>1?` · מוכרים מחשב Y${r.gYs}`:''}</div><div class="nums"><span>הכנסות <b>${fm(r.rev)}</b></span><span>מזומן בסוף <b>${fm(r.cash)}</b></span></div>
+ <div class="gr">מייצרים צ'יפ X${r.gX} ומחשב Y${r.gY}${r.t>1?` · מוכרים מחשב Y${r.gYs}`:''}</div>${salesTbl(r)}<div class="nums"><span>הכנסות <b>${fm(r.rev)}</b></span><span>מזומן בסוף <b>${fm(r.cash)}</b></span></div>
  <ul>${r.ev.filter(e=>e[0]!=='note').concat(r.ev.filter(e=>e[0]==='note')).map(e=>{const k=evRole(e);return `<li class="${e[0]}" data-r="${k}" style="--rc:${RC[k]}">${e[1]}${rchip(k)}</li>`}).join('')}${r.wr.map(w=>`<li class="w" data-r="ceo" style="--rc:var(--acc)">${w}${rchip('ceo')}</li>`).join('')}</ul></article>`).join('');
  $('#rleg').innerHTML='מי אחראי:'+ROLES.map(([k])=>rchip(k)).join('')+'<span style="margin-inline-start:6px">· ה־CEO מפקח על הכל, אזהרות אצלו</span>';
  const L=[['הכנסות חיצוניות','rev'],['עלות המכר','cogs',-1],['מכירה ומשרדים','sell',-1],['פרסום','ads',-1],['קבועות ופחת','fix',-1],['הובלה ומלאי','fr',-1],['מו"פ צ\'יפים','rdX',-1],['מו"פ מחשבים','rdY',-1],['מחקרי שוק ורישיונות','mrl',-1],['ריבית נטו','int',-1],['מס','tax',-1],['רווח נקי','net',1,1],['השקעה במפעלים','capex',-1],['ערבות ברזיל נטו','dep',-1],['מימון שהתקבל','fin'],['החזר קרן','prin',-1],['מזומן בסוף רבעון','cash',1,1]];
@@ -717,9 +738,35 @@ function render(){
  const cl=coop(rows),H=['רבעון','מול איזה סוג חברה','מה סוגרים','למה'];
  $('#coop').innerHTML=`<thead><tr>${H.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${cl.map((c,i)=>`<tr class="${i&&cl[i-1].t!==c.t?'first':''}"><td data-l="${H[0]}">${c.t}</td><td data-l="${H[1]}">${c.w}${rchip(/הלוואה/.test(c.what)?'cfo':'cso')}</td><td data-l="${H[2]}">${c.what}</td><td data-l="${H[3]}">${c.why}</td></tr>`).join('')}</tbody>`;
  dealsUI();
+ simOut();
  if(!$('#sheet').hidden)$('#sheetBody').innerHTML=`<p class="who">מזין במערכת: ${rchip('coo')} · מפקח ומאשר: ${rchip('ceo')} · כל טופס מסומן במי שאחראי על התוכן שלו</p>`+sheetHTML(sheetQ);
  draw();
 }
+function salesTbl(r){const F=r.F,pc=F.pcU||{},ch=F.chipU||{};const rr=R.filter(k=>pc[k]||ch[k]);if(!rr.length&&!r.b2bU)return '';
+ return `<table class="sales"><thead><tr><th>יעד מכירות</th><th>מחשבים</th><th>צ'יפים לצרכן</th></tr></thead><tbody>${rr.map(k=>`<tr><td>${RN[k]}</td><td>${pc[k]?nu(pc[k])+' ב־'+fl(F.price[k],k):'–'}</td><td>${ch[k]?nu(ch[k])+' ב־'+fl(F.chipPrice[k],k):'–'}</td></tr>`).join('')}${r.b2bU?`<tr><td>לחברות</td><td>–</td><td>${nu(r.b2bU)} צ'יפים</td></tr>`:''}</tbody></table>`}
+function simCalc(k,o){const A=S.A,G=S.G,m=A.mk,x={...A.msim[k],...o};const P0=G.base.Y[k];
+ const pf=Math.pow(Math.max(1,x.p)/P0,-m.pe[k]);const thr=m.thr[k],a=+x.ads||0;const af=a<thr?0.92+0.08*a/thr:Math.pow(a/thr,m.ae[k]);
+ let cf=1;if(x.n>0){cf+=m.csoBase/100;for(let i=0;i<x.n;i++)cf+=m.lift1/100*Math.pow(m.decay/100,i)}
+ const dem=x.d0*pf*af*cf,u=Math.round(x.sup>0?Math.min(dem,x.sup):dem);const vc=A.varY[k]+m.chipCost[k]*G.fx.US/G.fx[k];
+ const sell=x.n>0?(G.csoC[k]+G.csoR[k]*x.n)*1000+u*A.csoVar[k]:u*G.agent.Y[k];const ads=a*1000;const rev=u*x.p;const con=rev-u*vc-sell-ads;
+ return {dem,u,rev,sell,ads,con,capped:x.sup>0&&dem>x.sup}}
+function simForm(){const A=S.A;
+ $('#mkgrid').innerHTML=R.map(k=>{const x=A.msim[k];return `<div class="mkp" id="mk-${k}"><h3>${RN[k]}</h3>
+  <div class="fld"><label for="f-A-msim-${k}-n">משרדי מכירות אזוריים <output id="o-f-A-msim-${k}-n" class="n">${x.n}</output></label><input type="range" id="f-A-msim-${k}-n" data-k="A.msim.${k}.n" data-u="" min="0" max="9" step="1" value="${x.n}"></div>
+  <div class="tri">${[['p',`מחיר מחשב (${CUR[k]})`],['ads','פרסום (אלפים)'],['d0','ביקוש בסיס (יח\')']].map(([f,l])=>`<label class="cell" for="f-A-msim-${k}-${f}"><span>${l}</span><input type="number" inputmode="decimal" id="f-A-msim-${k}-${f}" data-k="A.msim.${k}.${f}" value="${x[f]}"></label>`).join('')}</div>
+  <label class="cell" for="f-A-msim-${k}-sup"><span>כמה יש למכור ברבעון (0 = בלי הגבלה)</span><input type="number" inputmode="decimal" id="f-A-msim-${k}-sup" data-k="A.msim.${k}.sup" value="${x.sup}"></label>
+  <div class="mkout" id="mko-${k}"></div>
+  <button class="btn" data-apply="${k}">החלה על התוכנית</button></div>`}).join('');
+ const mf=[{k:'A.mk.csoBase',l:'משרד מכירות מוכר יותר מסוכנים ב־',u:'%',rg:[0,20,1]},{k:'A.mk.lift1',l:'המשרד האזורי הראשון מוסיף',u:'%',rg:[0,15,0.5]},{k:'A.mk.decay',l:'כל משרד נוסף שווה מהקודם',u:'%',rg:[30,100,5]},
+  {k:'A.mk.pe',l:'גמישות למחיר',t:'tri'},{k:'A.mk.ae',l:'גמישות לפרסום',t:'tri'},{k:'A.mk.thr',l:'סף פרסום מינימלי (אלפים, מטבע מקומי)',t:'tri',c:1},{k:'A.mk.chipCost',l:"עלות צ'יפ למחשב כולל הובלה ($)",t:'tri'}];
+ $('#mkform').innerHTML=mf.map(field).join('')}
+function simOut(){R.forEach(k=>{const el=$('#mko-'+k);if(!el)return;const x=S.A.msim[k],c=simCalc(k,{}),base=simCalc(k,{n:0});
+ const all=[...Array(10)].map((_,n)=>simCalc(k,{n}));const best=all.reduce((b,v,i)=>v.con>all[b].con?i:b,0),mx=Math.max(...all.map(v=>Math.abs(v.con)),1);
+ const L=v=>fl(v,k);
+ el.innerHTML=`<div class="mkres"><div><span>מכירות צפויות</span><b>${nu(c.u)}</b>${c.capped?'<span>מוגבל במלאי</span>':''}</div><div><span>הכנסה</span><b>${L(c.rev)}</b></div>
+ <div><span>עלות מכירה (${x.n?'משרדים':'סוכנים'})</span><b>${L(c.sell)}</b></div><div><span>תרומה אחרי ייצור, מכירה ופרסום</span><b>${L(c.con)}</b></div>
+ <div><span>לעומת סוכנים בלבד</span><b>${c.con-base.con>=0?'+':''}${L(c.con-base.con)}</b></div><div><span>מומלץ</span><b>${best?best+' משרדים':'סוכנים'}</b></div></div>
+ <div class="bars">${all.map((v,n)=>`<div class="bar${n===best?' best':''}${n===+x.n?' cur':''}"><span>${n?n+' משרדים':'סוכנים'}</span><i style="width:${Math.max(2,Math.abs(v.con)/mx*100)}%"></i><em>${L(v.con)}</em></div>`).join('')}</div>`})}
 function coop(rows){
  const A=S.A,G=S.G,Q=res.Q,out=[],seen={};
  const xQ1=A.plants.some(p=>p.p==='X'&&+p.q===1),hasX=A.plants.some(p=>p.p==='X'),hasY=A.plants.some(p=>p.p==='Y');
@@ -801,6 +848,7 @@ function onEdit(e){
 document.addEventListener('input',onEdit);
 document.addEventListener('change',e=>{if(e.target.tagName==='SELECT'||e.target.type==='checkbox')onEdit(e)});
 document.addEventListener('click',e=>{
+ const ap=e.target.closest('[data-apply]');if(ap){const k=ap.dataset.apply,x=S.A.msim[k],c=S.A.ch[k];if(x.n>0){c.m='cso';c.o=x.n}else c.m='agents';S.A.ads[k]=+x.ads||0;buildForms();later();ap.textContent='הוחל על התוכנית';return}
  const sq=e.target.closest('[data-sq]');if(sq){openSheet(+sq.dataset.sq);return}
  if(e.target.id==='openSheet'){openSheet(sheetQ);return}
  if(e.target.id==='closeSheet'||e.target.id==='sheet'){$('#sheet').hidden=true;return}
@@ -812,8 +860,8 @@ document.addEventListener('click',e=>{
  if(e.target.id==='resetG'){S.G=clone(DG);buildForms();later()}
  const tb=e.target.closest('[data-tab]');if(tb){location.hash=tb.dataset.tab}
 });
-function route(){const h=(location.hash||'#plan').slice(1),t=['plan','deals','guide','assumptions','rules'].includes(h)?h:'plan';
- ['plan','deals','guide','assumptions','rules'].forEach(x=>{$('#'+x).hidden=x!==t;$('#t-'+x).setAttribute('aria-selected',x===t)});if(t==='plan')draw()}
+function route(){const h=(location.hash||'#plan').slice(1),t=['plan','deals','guide','market','assumptions','rules'].includes(h)?h:'plan';
+ ['plan','deals','guide','market','assumptions','rules'].forEach(x=>{$('#'+x).hidden=x!==t;$('#t-'+x).setAttribute('aria-selected',x===t)});if(t==='plan')draw()}
 window.addEventListener('hashchange',route);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)$('#sheet').hidden=true});
 buildForms();route();render();
