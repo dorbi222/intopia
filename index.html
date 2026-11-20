@@ -321,7 +321,7 @@ const R=['US','EU','BR'];
 const RN={US:'ארה"ב',EU:'אירופה',BR:'ברזיל',HO:'משרד ראשי'};
 const CUR={US:'$',EU:'€',BR:'R$'};
 const PN={X:"צ'יפים",Y:'מחשבים'};
-const DG={quarters:8,capital:8000,fx:{US:1,EU:1.5,BR:0.5},scRate:7,cashRate:0.5,
+const DG={dealFrom:3,quarters:8,capital:8000,fx:{US:1,EU:1.5,BR:0.5},scRate:7,cashRate:0.5,
  plantCost:{X:{US:2000,EU:1000,BR:1600},Y:{US:1800,EU:800,BR:1600}},
  cap:{X:{US:50000,EU:30000,BR:12000},Y:{US:25000,EU:18000,BR:9000}},
  fixed:{X:{US:[80,110,120],EU:[40,54,64],BR:[60,100,120]},Y:{US:[100,125,135],EU:[30,50,60],BR:[60,100,120]}},
@@ -376,7 +376,7 @@ function run(G,A){
  const carry={US:0,EU:0,BR:0,HO:0},soldEver={US:0,EU:0,BR:0};
  const L=A.loan,lr=L.rate/100,term=Math.max(1,Math.round(L.term));
  const pmt=L.type==='amort'&&L.amt>0?L.amt*lr/(1-Math.pow(1+lr,-term)):0;
- const D=A.deals||{},lcf=Array(Q+40).fill(0),lin=Array(Q+40).fill(0);let lentOut=0,borrowedOut=0;
+ const D=Object.fromEntries(Object.entries(A.deals||{}).filter(([k])=>+k.split('-')[1]>=G.dealFrom)),lcf=Array(Q+40).fill(0),lin=Array(Q+40).fill(0);let lentOut=0,borrowedOut=0;
  Object.entries(D).forEach(([k,d])=>{if(d.st!=='closed')return;const [ty,ts]=k.split('-'),t0=+ts,a=+d.u||0,rr=(+d.p||0)/100,n=Math.max(1,Math.round(+d.n||2));if(!a||(ty!=='lend'&&ty!=='borrow'))return;
   const sg=ty==='lend'?1:-1;lcf[t0]-=sg*a;lcf[t0+n]+=sg*a;for(let i=1;i<=n;i++)lin[t0+i]+=sg*a*rr;if(t0+n>Q){if(sg>0)lentOut+=a;else borrowedOut+=a}});
  const rows=[];
@@ -429,7 +429,7 @@ function run(G,A){
   R.forEach(d=>{const dl=D[`buyX-${t}-${d}`];let rem=Math.max(0,need[d]-got[d]);short[d]=rem;
    if(dl&&dl.st==='closed'){const u=+dl.u||0,pr=+dl.p||0;if(u>0){const c=u*pr*fx.US/1000,use=Math.min(u,rem),ex=u-use;sched(pay,t,c,d);pcCost[d]+=c*use/u;got[d]+=use;ci[d]+=ex;cv[d]+=c*ex/u;extU+=u;rem-=use;F.buys.push({d,u,p:pr,c:1,w:dl.w});
      ev.push(['buy',`עסקה סגורה: קונים ${nu(u)} צ'יפים${dl.w?' מ'+esc(dl.w):''} ב־${fl(pr,'US')} ל${RN[d]}`])}}
-   else if((!dl||dl.st!=='lost')&&A.extOn&&t>=A.extFrom&&rem>0){const c=rem*at(A.pB,t)*fx.US/1000;pcCost[d]+=c;sched(pay,t,c,d);got[d]+=rem;extU+=rem;F.buys.push({d,u:rem,p:at(A.pB,t),c:0});ev.push(['buy',`מתוכנן: קונים ${nu(rem)} צ'יפים מחברה אחרת ל${RN[d]} ב־${fl(at(A.pB,t),'US')}`]);rem=0}
+   else if((!dl||dl.st!=='lost')&&A.extOn&&t>=Math.max(A.extFrom,G.dealFrom)&&rem>0){const c=rem*at(A.pB,t)*fx.US/1000;pcCost[d]+=c;sched(pay,t,c,d);got[d]+=rem;extU+=rem;F.buys.push({d,u:rem,p:at(A.pB,t),c:0});ev.push(['buy',`מתוכנן: קונים ${nu(rem)} צ'יפים מחברה אחרת ל${RN[d]} ב־${fl(at(A.pB,t),'US')}`]);rem=0}
    if(rem>0&&got[d]>0&&G.nipOn){const c=rem*at(A.pB,t)*(1+G.nipPrem/100)*fx.US/1000;pcCost[d]+=c;sched(pay,t,c,d);got[d]+=rem;wr.push(`חסרים ${nu(rem)} צ'יפים ב${RN[d]}: משלוח חירום מ־Nippon, ${fm(c)}`)}});
   const made={};R.forEach(r=>{made[r]=cp?Math.min(plan[r],Math.floor(got[r]/cp)):0;
    if(cp&&plan[r]>0&&made[r]<plan[r])wr.push(made[r]===0?`מפעל המחשבים ב${RN[r]} עומד: אין צ'יפים`:`חסרים צ'יפים ב${RN[r]}: מייצרים ${nu(made[r])} מתוך ${nu(plan[r])}`)});
@@ -449,7 +449,7 @@ function run(G,A){
   R.forEach(d=>{buyCeil[d]=(at(A.pY[d],t+1)*fx[d]-A.varY[d]*(1+G.gcY*gy/100)*fx[d]-G.agent.Y[d]*fx[d])/(cp||1);const u=Math.max(1000,Math.min(A.b2b,availB));frU[d]=bfr(org,d,u)/u*fx[org]});
   const rank=[...R].sort((a,b)=>(buyCeil[b]-frU[b])-(buyCeil[a]-frU[a]));
   let orders=R.map(d=>[d,D[`sellX-${t}-${d}`]]).filter(([d,x])=>x&&x.st==='closed').map(([d,x])=>({d,u:+x.u||0,p:+x.p||0,c:1,w:x.w}));
-  if(!orders.length&&t>=A.b2bFrom&&A.b2b>0){const pref=A.b2bTo==='auto'?rank:[A.b2bTo,...rank.filter(x=>x!==A.b2bTo)];const d=pref.find(x=>(D[`sellX-${t}-${x}`]||{}).st!=='lost');if(d)orders=[{d,u:A.b2b,p:at(A.pS,t)+frU[d]/fx.US,c:0}]}
+  if(!orders.length&&t>=Math.max(A.b2bFrom,G.dealFrom)&&A.b2b>0){const pref=A.b2bTo==='auto'?rank:[A.b2bTo,...rank.filter(x=>x!==A.b2bTo)];const d=pref.find(x=>(D[`sellX-${t}-${x}`]||{}).st!=='lost');if(d)orders=[{d,u:A.b2b,p:at(A.pS,t)+frU[d]/fx.US,c:0}]}
   let b2bU=0;orders.forEach(od=>{let left=od.u,tot=0,rv=0;[...R].sort((a,b)=>ci[b]-ci[a]).forEach(o=>{const u=Math.min(ci[o],left);if(u<=0)return;const v=u*avg(o),x=u*od.p*fx.US/1000;
     F.sales.push({o,d:od.d,u,p:od.p,c:od.c,w:od.w,g:gxs});g[o].rev+=x;g[o].cogs+=v;g[o].fr+=bfr(o,od.d,u)*fx[o]/1000;ci[o]-=u;cv[o]-=v;left-=u;tot+=u;rv+=x;sched(recv,t,x,o)});
    if(left>0&&od.c){const c=left*at(A.pB,t)*(1+G.nipPrem/100)*fx.US/1000,x=left*od.p*fx.US/1000;g.US.rev+=x;g.US.cogs+=c;sched(recv,t,x,'US');sched(pay,t,c,'US');rv+=x;tot+=left;wr.push(`אין מספיק צ'יפים לחוזה המכירה ל${RN[od.d]}: ${nu(left)} יחידות מסופקות בייצור חירום יקר`)}
@@ -548,6 +548,7 @@ const GS=[
  {h:'כללי',f:[
   {k:'G.quarters',l:'מספר רבעונים במשחק',s:1},
   {k:'G.capital',l:'הון התחלתי (אלפי SF)',s:500},
+  {k:'G.dealFrom',l:'עסקה ראשונה עם חברה אחרת אפשרית ברבעון',s:1},
   {k:'G.fx',l:'שווי יחידת מטבע מקומי ב־SF',t:'tri',lab:R.map(r=>RN[r]+' '+CUR[r])},
   {k:'G.scRate',l:'ריבית אשראי ספקים לרבעון (%)'},
   {k:'G.cashRate',l:'ריבית על מזומן חיובי (%)'}]},
@@ -700,7 +701,7 @@ function shipLine(x){const G=S.G;
  return 'אין שילוח בעסקה הזאת.'}
 function dealList(){
  const rows=res.rows,A=S.A,G=S.G,Q=res.Q,D=A.deals,L=[];
- rows.forEach((r,i)=>{const t=r.t,nx=rows[i+1];
+ rows.forEach((r,i)=>{const t=r.t,nx=rows[i+1];if(t<G.dealFrom)return;
   const su=Math.min(A.b2b,Math.floor(r.availB/500)*500),anyS=R.some(d=>D[`sellX-${t}-${d}`]);
   if((t>=A.b2bFrom&&su>=1000)||anyS)r.rank.forEach((d,j)=>{const k=`sellX-${t}-${d}`,fr=r.frU[d]/G.fx.US,mn=Math.ceil(r.unitChip/G.fx.US+fr),bc=Math.floor(r.buyCeil[d]/G.fx.US),tp=Math.min(Math.max(bc,mn),Math.max(Math.round(r.pS+fr),Math.round(mn+(bc-mn)*0.4)));
    L.push({k,t,ty:'sell',d,o:'US',best:j===0,title:`מכירת צ'יפים X${r.gXs} ל${RN[d]}`,who:`יצרני מחשבים ב${RN[d]} בלי מפעל צ'יפים`,u:su,p:tp,
@@ -791,7 +792,7 @@ function coop(rows){
  const once=k=>seen[k]?false:(seen[k]=1,true);
  rows.forEach((r,i)=>{const t=r.t,nx=rows[i+1],add=(w,what,why)=>out.push({t,w,what,why});
   if(t===1){
-   if(xQ1)add("יצרני מחשבים שלא בונים מפעל צ'יפים","חוזה אספקת צ'יפים מרבעון 3, לפחות 3K לרבעון לשלושה רבעונים","הצ'יפים הראשונים בשוק יוצאים מייצור של רבעון 2, ומי שבנה מפעל מחשבים צריך אותם. נועלים לקוחות ומחיר לפני שיש להם חלופה");
+   if(xQ1)add("יצרני מחשבים שלא בונים מפעל צ'יפים",`משא ומתן עכשיו, חוזה אספקה שמתחיל ברבעון ${S.G.dealFrom}: לפחות 3K לרבעון לשלושה רבעונים`,"הצ'יפים הראשונים בשוק יוצאים מייצור של רבעון 2, ומי שבנה מפעל מחשבים צריך אותם. נועלים לקוחות ומחיר לפני שיש להם חלופה");
    else if(hasX&&hasY)add("חברות שבנו מפעל צ'יפים ברבעון 1","רכש צ'יפים לרבעונים 3–4","עד שהמפעל שלנו מייצר, אצלם הצ'יפים היחידים בשוק");
    else if(!hasX)add("יצרני צ'יפים","חוזה אספקה ארוך טווח","אין לנו מפעל צ'יפים, והמחשבים תלויים בהם");
    add('כל החברות','החלפת מחקרי שוק ונתונים','מכפיל את המידע בלי עלות, ונספר כשיתוף פעולה')}
@@ -799,10 +800,10 @@ function coop(rows){
   if(r.ext>0)add("יצרני צ'יפים עם עודף",`רכש של ${nu(r.ext)} צ'יפים ב־${fl(at(A.pB,t),'US')}`,"חסרים לנו צ'יפים לייצור המחשבים");
   if(r.b2bU>0&&once('b2b'))add('יצרני מחשבים',`מכירה של ${nu(r.b2bU)} צ'יפים לרבעון ב־${fl(at(A.pS,t),'US')}`,"מכסה את העלות הקבועה של מפעל הצ'יפים ויוצר תלות בנו");
   if(r.chipLeft>3000&&once('left'))add('יצרני מחשבים',`עוד ${nu(r.chipLeft)} צ'יפים פנויים למכירה`,"מלאי צ'יפים עודף עולה כסף ומתיישן");
-  if(nx){const ux=nx.gX>r.gX,uy=nx.gY>r.gY;if(ux||uy)add('חברות שכבר מחזיקות בדרג',`גיבוי: רישיון ל־${[ux?'X'+nx.gX:'',uy?'Y'+nx.gY:''].filter(Boolean).join(' ול־')} אם המו"פ שלנו לא יגיע בזמן`,`הדרג מתוכנן לרבעון ${nx.t}, ורישיון נכנס לשימוש רק רבעון אחרי הרכישה`)}
+  if(nx){const ux=nx.gX>r.gX,uy=nx.gY>r.gY;if((ux||uy)&&t<S.G.dealFrom)add('אין שותף אפשרי',`הדרג ${[ux?'X'+nx.gX:'',uy?'Y'+nx.gY:''].filter(Boolean).join(' ו־')} ברבעון ${nx.t} תלוי רק במו"פ שלנו`,`עסקאות עם חברות אחרות אפשריות רק מרבעון ${S.G.dealFrom}, אז אין רישיון כגיבוי`);else if(ux||uy)add('חברות שכבר מחזיקות בדרג',`גיבוי: רישיון ל־${[ux?'X'+nx.gX:'',uy?'Y'+nx.gY:''].filter(Boolean).join(' ול־')} אם המו"פ שלנו לא יגיע בזמן`,`הדרג מתוכנן לרבעון ${nx.t}, ורישיון נכנס לשימוש רק רבעון אחרי הרכישה`)}
   if(i>0&&(r.gX>rows[i-1].gX||r.gY>rows[i-1].gY)&&t<Q&&once('lic'))add('חברות שמפגרות אחרינו במו"פ','מכירת רישיון מוגבל לדרג הקודם שלנו, לפחות לשני רבעונים','הכנסה מפטנט שכבר שילמנו עליו, בלי לתת את הדרג הכי חדש');
-  if(r.cash>3000&&t<Q&&once('lend'))add('חברות שחסר להן מזומן',`הלוואה בין חברות מתוך ${fm(r.cash)} פנויים`,`ריבית מעל ה־${G.cashRate}% שמזומן מרוויח, ומתחת לאשראי ספקים שלהם`);
-  if(r.cash<0)add('חברות עם עודף מזומן',`הלוואה של כ־${fm(-r.cash)}`,`זול מאשראי ספקים ב־${G.scRate}%`);
+  if(r.cash>3000&&t<Q&&t>=S.G.dealFrom&&once('lend'))add('חברות שחסר להן מזומן',`הלוואה בין חברות מתוך ${fm(r.cash)} פנויים`,`ריבית מעל ה־${G.cashRate}% שמזומן מרוויח, ומתחת לאשראי ספקים שלהם`);
+  if(r.cash<0&&t>=S.G.dealFrom)add('חברות עם עודף מזומן',`הלוואה של כ־${fm(-r.cash)}`,`זול מאשראי ספקים ב־${G.scRate}%`);
   if(t===Q)add('כל השותפים',`חוזים שנמשכים אחרי רבעון ${Q}`,'מעלה את הפוטנציאל העתידי בהערכה')});
  return out;
 }
