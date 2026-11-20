@@ -305,7 +305,7 @@ function run(G,A){
   ev.push(['note',`מו"פ צ'יפים ${k$(rdX)}, מו"פ מחשבים ${k$(rdY)}, מחקרי שוק ${k$(mr)}`]);
   const nX=R.reduce((s,r)=>s+on.X[r],0);
   rows.push({t,ev,wr,net,cash,tax,rev:sum('rev'),capex,chipMade,capT,nX,toPC,shipPC,b2bU,b2bRev,dem,sales,chipLeft,made,pcSold,pcPrice,gX:at(A.gX,t),gY:gy,gxs,gys,cp,
-   F,mrl,mr,rdY,fixX:R.reduce((s,r)=>s+fixR.X[r],0),depX:R.reduce((s,r)=>s+depR.X[r],0),rdX});
+   on,F,mrl,mr,rdY,fixX:R.reduce((s,r)=>s+fixR.X[r],0),depX:R.reduce((s,r)=>s+depR.X[r],0),rdX});
  }
  const ar=R.reduce((s,r)=>s+recvR[r].slice(Q+1).reduce((a,b)=>a+b,0),0),ap=R.reduce((s,r)=>s+payR[r].slice(Q+1).reduce((a,b)=>a+b,0),0);
  const inv=R.reduce((s,r)=>s+cv[r]+pv[r],0),plantNet=P.filter(p=>p.q<=Q).reduce((s,p)=>s+p.cost*Math.max(0,1-Math.max(0,Q-p.on+1)*G.dep[p.p]/100),0);
@@ -365,11 +365,12 @@ function draw(){const s=$('#chart');if(!s||!res||$('#plan').hidden)return;const 
  rows.forEach((r,i)=>{const w=Math.min(44,bw*.5),y0=y(0),y1=y(r.net);g+=`<rect x="${x(i)-w/2}" y="${Math.min(y0,y1)}" width="${w}" height="${Math.max(1,Math.abs(y1-y0))}" fill="${r.net>=0?'var(--acc)':'var(--mut)'}"/><text x="${x(i)}" y="${H-6}" text-anchor="middle">ר${r.t}</text>`});
  g+=`<polyline fill="none" stroke="var(--ink)" stroke-width="2.5" points="${rows.map((r,i)=>x(i)+','+y(r.cash)).join(' ')}"/>`+rows.map((r,i)=>`<circle cx="${x(i)}" cy="${y(r.cash)}" r="4" fill="var(--ink)" stroke="var(--bg)" stroke-width="2"/>`).join('');
  s.innerHTML=`<svg viewBox="0 0 ${W} ${H}" direction="ltr" role="img" aria-label="רווח נקי ומזומן לפי רבעון">${g}</svg>`}
+const pl=(r,p)=>{const t=R.filter(k=>r.on[p][k]).map(k=>`${r.on[p][k]} ב${RN[k]}`).join(', ');return t||'–'};
 function qTable(){const rows=res.rows,h=`<tr><th>רבעון</th>${rows.map(r=>`<th>${r.t}</th>`).join('')}</tr>`;
  const line=(lab,f,cls='')=>`<tr class="${cls}"><td>${lab}</td>${rows.map(r=>`<td>${f(r)}</td>`).join('')}</tr>`,sec=t=>`<tr class="sec"><td>${t}</td>${rows.map(()=>'<td></td>').join('')}</tr>`;
- $('#qt').innerHTML=h+sec("צ'יפים (ארה\"ב)")+line('מפעלים פעילים',r=>r.nX||'–')+line('דרג שנמכר',r=>r.b2bU||r.toPC?'X'+r.gxs:'–')+line('נמכרים לחברות',r=>r.b2bU?nu(r.b2bU):'–')+line('נשלחים למחשבים שלנו',r=>r.toPC?nu(r.toPC):'–')
+ $('#qt').innerHTML=h+sec("צ'יפים")+line('מפעלים פעילים',r=>pl(r,'X'))+line('דרג שנמכר',r=>r.b2bU||r.toPC?'X'+r.gxs:'–')+line('נמכרים לחברות',r=>r.b2bU?nu(r.b2bU):'–')+line('נשלחים למחשבים שלנו',r=>r.toPC?nu(r.toPC):'–')
   +line('מיוצרים לרבעון הבא',r=>r.chipMade?nu(r.chipMade):'–')+line('ניצולת',r=>r.capT?`<span class="n">${Math.round(r.chipMade/r.capT*100)}%</span>`:'–')+line('הכנסה מצ\'יפים',r=>r.b2bRev?k$(r.b2bRev):'–')
-  +sec('מחשבים (ברזיל)')+line('דרג שמייצרים',r=>r.made.BR?'Y'+r.gY:'–')+line('מיוצרים',r=>r.made.BR?nu(r.made.BR):'–')+line('דרג שנמכר',r=>r.pcSold.BR?'<b>Y'+r.gys+'</b>':'–')+line('נמכרים',r=>r.pcSold.BR?nu(r.pcSold.BR):'–')+line('מחיר',r=>r.pcPrice.BR?l$(r.pcPrice.BR,'BR'):'–')
+  +sec('מחשבים')+line('מפעלים פעילים',r=>pl(r,'Y'))+line('דרג שמייצרים',r=>r.made.BR?'Y'+r.gY:'–')+line('מיוצרים',r=>r.made.BR?nu(r.made.BR):'–')+line('דרג שנמכר',r=>r.pcSold.BR?'<b>Y'+r.gys+'</b>':'–')+line('נמכרים',r=>r.pcSold.BR?nu(r.pcSold.BR):'–')+line('מחיר',r=>r.pcPrice.BR?l$(r.pcPrice.BR,'BR'):'–')
   +sec('כסף')+line('הכנסות',r=>k$(r.rev))+line('רווח נקי',r=>k$(r.net),'hi')+line('מזומן בסוף',r=>`<span class="${r.cash<0?'bad':''}">${k$(r.cash)}</span>`)}
 function qCards(){$('#qcards').innerHTML=res.rows.map(r=>`<article class="card"><h3>רבעון ${r.t}<em>${r.net>=0?'רווח':'הפסד'} ${k$(r.net)}</em></h3><p style="margin:0 0 6px"><button class="btn sm" type="button" data-sq="${r.t}">מה מזינים ברבעון ${r.t}</button></p><p class="tip" style="margin:0 0 6px">מחקרי שוק: ${r.mrl.map(x=>x.n).join(', ')} (${k$(r.mr)})</p><ul>${r.ev.map(([c,t])=>`<li class="${c}">${t}</li>`).join('')}${r.wr.map(w=>`<li class="w">${w}</li>`).join('')}</ul></article>`).join('')}
 
