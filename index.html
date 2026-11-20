@@ -101,6 +101,10 @@ tr.sum td{font-weight:800;border-bottom:2px solid var(--ink)}
 .frm table{font-size:15px}.frm td{white-space:normal;text-align:right;padding:4px 6px;position:static}.frm td:first-child{color:var(--mut);font-weight:400;width:45%}
 .frm td b{direction:ltr;unicode-bidi:isolate}
 .snote{font-size:14px;color:var(--mut);margin:6px 0}
+.rc{display:inline-block;font-size:12px;font-weight:700;color:var(--rc);border:1px solid var(--rc);border-radius:99px;padding:0 7px;margin-inline-start:6px;white-space:nowrap;vertical-align:1px}
+.card li[data-r]{border-inline-start:3px solid var(--rc);padding-inline-start:8px;list-style:none;margin-inline-start:-18px}
+.rleg{display:flex;flex-wrap:wrap;gap:6px 4px;margin:-4px 0 12px;font-size:14px;color:var(--mut);align-items:center}
+.who{font-size:14px;color:var(--mut);margin:4px 0 0}
 #gp td,#gp th{text-align:center}#gp td:first-child,#gp th:first-child{text-align:right}#gp input,#gp select{min-width:78px;min-height:40px;padding:4px 6px}
 .gr{font-size:14px;color:var(--mut);margin-top:2px}
 #coop td{white-space:normal;text-align:right;vertical-align:top}
@@ -171,6 +175,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <h2>דרגים ומחירים בכל רבעון</h2>
 <div class="scroll"><table id="gpv"></table></div>
 <h2>מה עושים בכל רבעון</h2>
+<div class="rleg" id="rleg"></div>
 <div class="cards" id="cards"></div>
 <h2>שיתופי פעולה: מול מי ומתי</h2>
 <div class="scroll"><table id="coop" class="stack"></table></div>
@@ -511,7 +516,8 @@ function mrItems(t){const r=res.rows,A=S.A,L=[];const nx=r[t]||null,cur=r[t-1];
  if(R.some(k=>A.ch[k].m==='cso'&&A.ch[k].q-1===t))L.push([81,'כמה משרדי מכירות כדאי לפתוח בכל אזור']);
  L.push([29,'איזה דרגים יש לכל חברה במלאי'],[23,'מלאי סופי לפי חברה: מי צריך צ\'יפים'],[2,'מכירות לצרכנים לפי חברה']);
  const seen=new Set();return L.filter(([n])=>!seen.has(n)&&seen.add(n)).slice(0,3)}
-function frm(code,title,why,rows,flag){if(!rows.length)return '';return `<div class="frm"><h4>${code} · ${title}${flag?`<em>${flag}</em>`:''}</h4>${why?`<p class="why">${why}</p>`:''}<table>${rows.map(([a,b])=>`<tr><td>${a}</td><td><b>${b}</b></td></tr>`).join('')}</table></div>`}
+const FOWN={H3:'cfo',H2:'cfo',W3:'cfo',W1:'cfo',H4:'cfo',A3:'cfo',A1:'cmo',A2:'coo',A4:'coo',H1:'cso',H6:'cso'};
+function frm(code,title,why,rows,flag){if(!rows.length)return '';return `<div class="frm" style="border-inline-start:4px solid ${RC[FOWN[code]]||'var(--line)'}"><h4>${code} · ${title}${flag?`<em>${flag}</em>`:''}${FOWN[code]?rchip(FOWN[code]):''}</h4>${why?`<p class="why">${why}</p>`:''}<table>${rows.map(([a,b])=>`<tr><td>${a}</td><td><b>${b}</b></td></tr>`).join('')}</table></div>`}
 const k0=v=>Math.round(v).toLocaleString('en-US'),u0=v=>(v/1000).toFixed(2).replace(/\.00$/,'');
 function sheetHTML(t){
  const r=res.rows[t-1],F=r.F,A=S.A,G=S.G,D=A.deals||{},own=k=>{const n=(A.team||{})[k];return n?' · '+esc(n):''};let h='';
@@ -519,7 +525,7 @@ function sheetHTML(t){
  let ho='';
  if(F.loan)ho+=frm('H3','הלוואה מהגוף המסדר','רק ברבעון 1, דרך המרצה. לבקש את הסכום והמסלול האלה.',[['סכום (אלפי SF)',k0(F.loan.amt)],['ריבית לרבעון',F.loan.rate.toFixed(2)+'%'],['מסלול',F.loan.type==='balloon'?'בלון: קרן בסוף':'תשלומים שווים'],['תקופה',F.loan.term+' רבעונים']]);
  const mi=mrItems(t);
- ho+=frm('H1','החלטות משרד ראשי','מו"פ בכל מוצר ומחקרי שוק. 17, 28 ו־74 מגיעים בחינם, אז לא בוחרים אותם.',[['R&D for Product X (אלפי SF)',k0(r.rdXv)],['R&D for Product Y (אלפי SF)',k0(r.rdYv)],...mi.map(([n,d],i)=>[`MR Item ${i+1}`,`${n} · ${d}`]),['Dividends','0']]);
+ ho+=frm('H1','החלטות משרד ראשי','מו"פ בכל מוצר ומחקרי שוק. 17, 28 ו־74 מגיעים בחינם, אז לא בוחרים אותם.',[['R&D for Product X (אלפי SF)',k0(r.rdXv)],['R&D for Product Y (אלפי SF)',k0(r.rdYv)],...mi.map(([n,d],i)=>[`MR Item ${i+1} · ${d}`,String(n)]),['Dividends','0']]);
  if(F.bond)ho+=frm('H2','אג"ח','מנפיקים בפרנקים, 10 רבעונים, בלי פירעון מוקדם.',[['Currency','4 (פרנק)'],['Amount (000s)',k0(F.bond)],['Interest %',G.bondRate.toFixed(2)]]);
  const w3=R.filter(k=>F.tr[k]&&F.tr[k].f>0);
  if(w3.length)ho+=frm('W3','המרת מטבע במשרד הראשי','קונים במשרד הראשי את המטבע של כל אזור לפני ההעברה. העמלה פה 0.4%, באזור 0.6–0.8%.',[['Area','H'],...w3.map(k=>[`B · ${CN[k]} (${CNAME[CN[k]]})`,k0(F.tr[k].f)])]);
@@ -551,17 +557,22 @@ function sheetHTML(t){
  // H6
  let h6='';
  F.ship.forEach(x=>{h6+=frm('H6',`העברה פנימית ${RN[x.o]} ← ${RN[x.d]}`,"משלוח צ'יפים בתוך החברה. מחיר העברה לפי עלות והובלה.",[['Seller / Buyer company','שלנו / שלנו'],['Area from → to',`${AN[x.o]} → ${AN[x.d]}`],['Product · Grade',`X · ${x.g}`],['Units (000s)',u0(x.u)],['Currency',`${CN[x.o]} (${CNAME[CN[x.o]]})`],['Unit price',x.tp.toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Mode of transport','A']])});
- F.sales.forEach(x=>{h6+=frm('H6',`מכירת צ'יפים ל${RN[x.d]}${own('cmo')}`,x.c?'עסקה סגורה. אנחנו המוכרים, אז אנחנו מגישים והקונה חותם.':'עוד לא נסגרה: אלה הערכים מהתוכנית. לעדכן בלשונית העסקאות כשנסגר.',[['Buyer company',esc(x.w||'לסגור')],['Area from → to',`${AN[x.o]} → ${AN[x.d]}`],['Product · Grade',`X · ${x.g}`],['Units (000s)',u0(x.u)],['Currency','1 (דולר)'],['Unit price',x.p.toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Mode of transport','A']],x.c?'':'מתוכנן')});
- F.buys.forEach(x=>{h6+=`<p class="snote">קנייה: ${u0(x.u)} אלף צ'יפים ל${RN[x.d]} ב־$${x.p.toFixed(2)}${x.w?' מ־'+esc(x.w):''}. המוכר מגיש H6, אנחנו חותמים.${x.c?'':' עוד לא נסגר.'}${own('coo')}</p>`});
+ F.sales.forEach(x=>{h6+=frm('H6',`מכירת צ'יפים ל${RN[x.d]}${own('cso')}`,x.c?'עסקה סגורה. אנחנו המוכרים, אז אנחנו מגישים והקונה חותם.':'עוד לא נסגרה: אלה הערכים מהתוכנית. לעדכן בלשונית העסקאות כשנסגר.',[['Buyer company',esc(x.w||'לסגור')],['Area from → to',`${AN[x.o]} → ${AN[x.d]}`],['Product · Grade',`X · ${x.g}`],['Units (000s)',u0(x.u)],['Currency','1 (דולר)'],['Unit price',x.p.toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Mode of transport','A']],x.c?'':'מתוכנן')});
+ F.buys.forEach(x=>{h6+=`<p class="snote">קנייה: ${u0(x.u)} אלף צ'יפים ל${RN[x.d]} ב־$${x.p.toFixed(2)}${x.w?' מ־'+esc(x.w):''}. המוכר מגיש H6, אנחנו חותמים.${x.c?'':' עוד לא נסגר.'}${own('cso')}</p>`});
  if(h6)h+=`<section class="sarea"><h3>מכירות והעברות (H6)</h3>${h6}</section>`;
  if(r.wr.length)h+=`<section class="sarea"><h3>לשים לב</h3>${r.wr.map(w=>`<p class="snote" style="color:var(--acc)">${w}</p>`).join('')}</section>`;
  return h;
 }
 function openSheet(t){sheetQ=Math.max(1,Math.min(res.Q,t||sheetQ));$('#sheetT').textContent=`מה מזינים ברבעון ${sheetQ}`;
  $('#qsel').innerHTML=res.rows.map(r=>`<button data-sq="${r.t}" aria-pressed="${r.t===sheetQ}">${r.t}</button>`).join('');
- $('#sheetBody').innerHTML=sheetHTML(sheetQ);$('#sheet').hidden=false;$('#closeSheet').focus()}
-const ROLES=[['ceo','CEO','מנכ"ל: החלטות סופיות והגשה'],['coo','COO','תפעול: מפעלים, ייצור ורכש צ\'יפים'],['cmo','CMO','שיווק: מחירים, ערוצים, פרסום ומכירות'],['cfo','CFO','כספים: מימון, תזרים והלוואות'],['cso','מנהל אסטרטגי','אסטרטגיה: מו"פ, רישיונות ושיתופי פעולה']];
-const OWN={sell:'cmo',buy:'coo',lic:'cso',lend:'cfo',borrow:'cfo'};
+ $('#sheetBody').innerHTML=`<p class="who">מזין במערכת: ${rchip('coo')} · מפקח ומאשר: ${rchip('ceo')} · כל טופס מסומן במי שאחראי על התוכן שלו</p>`+sheetHTML(sheetQ);$('#sheet').hidden=false;$('#closeSheet').focus()}
+const ROLES=[['ceo','CEO','מפקח על הכל ומאשר את ההחלטות'],['coo','COO','מזין את ההחלטות במערכת, מפעלים וייצור'],['cmo','CMO','מחירים, משרדי מכירות ופרסום'],['cfo','CFO','מימון, תזרים, הלוואות ואג"ח'],['cso','מנהל אסטרטגי','משא ומתן עם חברות אחרות, מו"פ ורישיונות']];
+const OWN={sell:'cso',buy:'cso',lic:'cso',lend:'cfo',borrow:'cfo'};
+const RC={ceo:'var(--ink)',coo:'#1d6fe0',cmo:'var(--acc)',cfo:'#1f9d55',cso:'#7b3fe4'};
+const rshort=k=>{const r=ROLES.find(x=>x[0]===k),n=(S.A.team||{})[k];return r?(n?esc(n):r[1]):''};
+const rchip=k=>`<span class="rc" style="--rc:${RC[k]}">${k==='cso'?'אסטרטגי':ROLES.find(x=>x[0]===k)[1]}${(S.A.team||{})[k]?' · '+esc(S.A.team[k]):''}</span>`;
+function evRole(e){const [ty,tx]=e;if(ty==='build'||ty==='prod'||ty==='ship')return 'coo';if(ty==='fin')return 'cfo';if(ty==='ch')return 'cmo';if(ty==='buy')return 'cso';
+ if(ty==='sell')return /לחברות|ליצרני/.test(tx)?'cso':'cmo';if(ty==='note')return /מו"פ/.test(tx)?'cso':/הלוואה/.test(tx)?'cfo':'ceo';return 'ceo'}
 const rname=k=>{const r=ROLES.find(x=>x[0]===k);const n=(S.A.team||{})[k];return r?(n?esc(n)+' ('+r[1]+')':r[1]):''};
 function teamUI(){S.A.team=S.A.team||{};$('#team').innerHTML=ROLES.map(([k,t,d])=>`<div class="fld team"><label for="f-A-team-${k}">${t}</label><input type="text" id="f-A-team-${k}" data-k="A.team.${k}" data-str="1" placeholder="שם" value="${esc(S.A.team[k]||'')}"><span class="fine" style="margin:0">${d}</span></div>`).join('')}
 const ST={open:'פתוח',closed:'נסגר',lost:'נכשל'};
@@ -612,16 +623,17 @@ function render(){
  $('#mini').innerHTML=`<span>מזומן מינ׳ <b class="${min.cash<0?'bad':''}">${fm(min.cash)}</b></span><span>רווח מצטבר <b class="${cum<0?'bad':''}">${fm(cum)}</b></span><span>הון בסוף <b>${fm(end.eq)}</b></span>`;
  $('#cards').innerHTML=rows.map(r=>`<article class="card"><h3>רבעון ${r.t}<button class="btn" data-sq="${r.t}" style="min-height:34px;font-size:14px;padding:0 10px">מה מזינים</button><em>${r.net>=0?'רווח':'הפסד'} ${fm(r.net)}</em></h3>
  <div class="gr">מייצרים צ'יפ X${r.gX} ומחשב Y${r.gY}${r.t>1?` · מוכרים מחשב Y${r.gYs}`:''}</div><div class="nums"><span>הכנסות <b>${fm(r.rev)}</b></span><span>מזומן בסוף <b>${fm(r.cash)}</b></span></div>
- <ul>${r.ev.filter(e=>e[0]!=='note').concat(r.ev.filter(e=>e[0]==='note')).map(e=>`<li class="${e[0]}">${e[1]}</li>`).join('')}${r.wr.map(w=>`<li class="w">${w}</li>`).join('')}</ul></article>`).join('');
+ <ul>${r.ev.filter(e=>e[0]!=='note').concat(r.ev.filter(e=>e[0]==='note')).map(e=>{const k=evRole(e);return `<li class="${e[0]}" data-r="${k}" style="--rc:${RC[k]}">${e[1]}${rchip(k)}</li>`}).join('')}${r.wr.map(w=>`<li class="w" data-r="ceo" style="--rc:var(--acc)">${w}${rchip('ceo')}</li>`).join('')}</ul></article>`).join('');
+ $('#rleg').innerHTML='מי אחראי:'+ROLES.map(([k])=>rchip(k)).join('')+'<span style="margin-inline-start:6px">· ה־CEO מפקח על הכל, אזהרות אצלו</span>';
  const L=[['הכנסות חיצוניות','rev'],['עלות המכר','cogs',-1],['מכירה ומשרדים','sell',-1],['פרסום','ads',-1],['קבועות ופחת','fix',-1],['הובלה ומלאי','fr',-1],['מו"פ צ\'יפים','rdX',-1],['מו"פ מחשבים','rdY',-1],['מחקרי שוק ורישיונות','mrl',-1],['ריבית נטו','int',-1],['מס','tax',-1],['רווח נקי','net',1,1],['השקעה במפעלים','capex',-1],['ערבות ברזיל נטו','dep',-1],['מימון שהתקבל','fin'],['החזר קרן','prin',-1],['מזומן בסוף רבעון','cash',1,1]];
  const cf=v=>Math.round(v).toLocaleString('en-US');
  $('#tbl').innerHTML=`<thead><tr><th>סעיף</th>${rows.map(r=>`<th>ר${r.t}</th>`).join('')}</tr></thead><tbody>${L.map(([l,f,sg,b])=>`<tr class="${b?'sum':''}"><td>${l}</td>${rows.map(r=>{let v=r[f];if(f==='cogs')v=r.cogs-r.intra;if(sg===-1)v=-v;return `<td>${cf(v)}</td>`}).join('')}</tr>`).join('')}</tbody>`;
  const PV=[["דרג צ'יפ מיוצר",r=>'X'+r.gX],['דרג מחשב מיוצר',r=>'Y'+r.gY],['דרג מחשב שנמכר',r=>r.t>1?'Y'+r.gYs:'–'],...R.map(g=>[`מחשב לצרכן, ${RN[g]}`,r=>fl(r.pY[g],g)]),["צ'יפ לצרכן, ארה\"ב",r=>fl(r.pXU,'US')],["מוכרים צ'יפ לחברות",r=>fl(r.pS,'US')],["קונים צ'יפ מחברות",r=>fl(r.pB,'US')],['מו"פ צ\'יפים',r=>fm(r.rdX)],['מו"פ מחשבים',r=>fm(r.rdY)]];
  $('#gpv').innerHTML=`<thead><tr><th>רבעון</th>${rows.map(r=>`<th>${r.t}</th>`).join('')}</tr></thead><tbody>${PV.map(([l,f])=>`<tr><td>${l}</td>${rows.map(r=>`<td>${f(r)}</td>`).join('')}</tr>`).join('')}</tbody>`;
  const cl=coop(rows),H=['רבעון','מול איזה סוג חברה','מה סוגרים','למה'];
- $('#coop').innerHTML=`<thead><tr>${H.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${cl.map((c,i)=>`<tr class="${i&&cl[i-1].t!==c.t?'first':''}"><td data-l="${H[0]}">${c.t}</td><td data-l="${H[1]}">${c.w}</td><td data-l="${H[2]}">${c.what}</td><td data-l="${H[3]}">${c.why}</td></tr>`).join('')}</tbody>`;
+ $('#coop').innerHTML=`<thead><tr>${H.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${cl.map((c,i)=>`<tr class="${i&&cl[i-1].t!==c.t?'first':''}"><td data-l="${H[0]}">${c.t}</td><td data-l="${H[1]}">${c.w}${rchip(/הלוואה/.test(c.what)?'cfo':'cso')}</td><td data-l="${H[2]}">${c.what}</td><td data-l="${H[3]}">${c.why}</td></tr>`).join('')}</tbody>`;
  dealsUI();
- if(!$('#sheet').hidden)$('#sheetBody').innerHTML=sheetHTML(sheetQ);
+ if(!$('#sheet').hidden)$('#sheetBody').innerHTML=`<p class="who">מזין במערכת: ${rchip('coo')} · מפקח ומאשר: ${rchip('ceo')} · כל טופס מסומן במי שאחראי על התוכן שלו</p>`+sheetHTML(sheetQ);
  draw();
 }
 function coop(rows){
