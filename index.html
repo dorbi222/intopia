@@ -26,7 +26,7 @@ h1{font-size:clamp(30px,4.6vw,46px);line-height:1.05;letter-spacing:-.02em;margi
 .n{direction:ltr;unicode-bidi:isolate;white-space:nowrap}
 nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:2px solid var(--ink)}
 nav .band{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding-block:8px}
-.tabs{display:flex;gap:4px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px}
 .tabs button{font:inherit;font-weight:700;font-size:16px;min-height:44px;padding:0 14px;border:0;border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}
 .tabs button[aria-selected=true]{background:var(--ink);color:var(--bg)}
 .tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
@@ -106,6 +106,12 @@ tr.sum td{font-weight:800;border-bottom:2px solid var(--ink)}
 .card li[data-r]{border-inline-start:3px solid var(--rc);padding-inline-start:8px;list-style:none;margin-inline-start:-18px}
 .rleg{display:flex;flex-wrap:wrap;gap:6px 4px;margin:-4px 0 12px;font-size:14px;color:var(--mut);align-items:center}
 .who{font-size:14px;color:var(--mut);margin:4px 0 0}
+.guide{max-width:1000px}.guide .lead{font-size:18px;max-width:70ch}.guide h3{font-size:21px;font-weight:800;margin:26px 0 8px;padding-top:6px;border-top:2px solid var(--ink)}
+.guide ul{padding-inline-start:20px}.guide li{margin:5px 0}
+.gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.gcard{border:1px solid var(--line);border-inline-start:5px solid #7b3fe4;border-radius:8px;padding:12px 14px}.gcard:nth-child(4){border-inline-start-color:#1f9d55}
+.gcard h4{margin:0;font-size:17px;font-weight:800}.gsub{margin:0 0 4px;color:var(--mut);font-size:14px}.gcard ul{font-size:15px;margin:4px 0 0}
+.gtl td{white-space:normal;text-align:right;vertical-align:top;position:static}.gtl td:first-child{white-space:nowrap;font-weight:800;width:7.5em}
 #gp td,#gp th{text-align:center}#gp td:first-child,#gp th:first-child{text-align:right}#gp input,#gp select{min-width:78px;min-height:40px;padding:4px 6px}
 .gr{font-size:14px;color:var(--mut);margin-top:2px}
 #coop td{white-space:normal;text-align:right;vertical-align:top}
@@ -150,6 +156,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <div class="tabs" role="tablist">
 <button role="tab" data-tab="plan" id="t-plan">תוכנית</button>
 <button role="tab" data-tab="deals" id="t-deals">עסקאות</button>
+<button role="tab" data-tab="guide" id="t-guide">שיתופי פעולה</button>
 <button role="tab" data-tab="assumptions" id="t-assumptions">הנחות</button>
 <button role="tab" data-tab="rules" id="t-rules">הגדרות משחק</button>
 </div>
@@ -194,6 +201,72 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <p id="dsum" class="dsum"></p>
 <div id="dlist"></div>
 <p class="fine">הרשימה נבנית מהתוכנית: עודף צ'יפים, חוסר צ'יפים, קפיצות דרג ומזומן. מכירת צ'יפים מוצגת לכל אזור, מהמשתלם ביותר: "הקונה יכול עד" הוא מה שנשאר ליצרן מחשבים באזור אחרי עלות ייצור ועמלת סוכן, לפי המחירים שלכם. מחיר המטרה הוא לפחות הצפי שלכם, ובאזור עם מרווח גדול עד 40% ממנו. עסקה שמסומנת "נסגר" נכנסת למודל עם הכמות והמחיר שהזנתם. "נכשל" מוציא אותה מהמודל, ואז חוסר בצ'יפים מכוסה במשלוח חירום יקר. כל הסכם צריך חתימה של שתי החברות ושל המרצה, וחוזה אספקה נאכף רק מ־3K יחידות לרבעון לשלושה רבעונים.</p>
+</section>
+<section id="guide" hidden>
+<div class="guide">
+<h2 style="margin-top:0">שיתופי פעולה: מול מי, מתי ואיך</h2>
+<p class="lead">הכי חשוב מההתחלה: יצרני מחשבים שאין להם מפעל צ'יפים. הם הלקוחות של הצ'יפים שלנו, והם צריכים צ'יפים בדיוק כשאנחנו מתחילים לייצר. את כל המשא ומתן מוביל המנהל האסטרטגי, והלוואות בין חברות אצל ה־CFO.</p>
+
+<h3>מה מותר בכלל</h3>
+<ul>
+<li>מכירה בין חברות (H6), חוזה אספקה קבוע, הלוואות (H4/L1), רישיונות פטנטים (H5), מכירת מפעל לחברה אחרת (W2) והחלפת מידע ומחקרי שוק. גידור מט"ח (H7) לא רלוונטי, כי השערים קבועים.</li>
+<li>כל הסכם צריך חתימה של שתי החברות ושל המרצה. אסור מיזוג, חלוקת רווחים בין חברות או עסקאות שיוצרות רווח פיקטיבי. גם להיות מפיץ או סיטונאי אסור.</li>
+<li>חוזה אספקה קבוע נאכף רק מ־3,000 יחידות לרבעון לשלושה רבעונים לפחות. המוכר מגיש H6 בכל רבעון, ואם חסר לו מלאי הוא מספק בייצור חירום יקר, על חשבונו.</li>
+<li>רישיון פטנט: אפשר למכור רק רבעון אחרי שהשגת את הדרג, והקונה משתמש בו רק רבעון אחרי שקנה. רישיון מוגבל בזמן או באזור הוא לפחות שני רבעונים, ומשלמים עליו בתמלוגים, לא בסכום חד־פעמי.</li>
+<li>שיתופי פעולה ואתיקה עסקית נספרים בהערכה הסופית.</li>
+</ul>
+
+<h3>סוגי החברות, לפי סדר חשיבות</h3>
+<div class="gcards">
+<article class="gcard"><h4>1. יצרני מחשבים בלי מפעל צ'יפים</h4><p class="gsub">הלקוחות שלנו</p>
+<ul>
+<li><b>מה מוכרים:</b> צ'יפים מרבעון 3. מי שבנה מפעל מחשבים ברבעון 1 או 2 צריך צ'יפים לייצור של רבעון 3, ולפני זה אין אף צ'יפ בשוק.</li>
+<li><b>איפה:</b> בברזיל קודם. שם יצרן מחשבים יכול לשלם עד כ־$210 לצ'יפ, מול כ־$80 באירופה וכ־$70 בארה"ב.</li>
+<li><b>על מה מתמקחים:</b> מחיר עם מדרגה לכל דרג, 100% מזומן או לפחות 70/30, משלוח אווירי, ולפחות שלושה רבעונים. בתמורה הם מקבלים עדיפות באספקה.</li>
+<li><b>הדילמה:</b> יצרן מחשבים בברזיל מתחרה בנו בשוק הכי רווחי שלנו. הוא יקנה צ'יפים ממישהו אחר בכל מקרה, ויותר חברות שמוכרות מגדילות את פוטנציאל השוק. לכן מוכרים, אבל את הדרג הקודם ולא את החדש, ובלי כמויות שמכסות את כל השוק הברזילאי.</li>
+</ul></article>
+<article class="gcard"><h4>2. יצרני צ'יפים</h4><p class="gsub">ספקים לגיבוי</p>
+<ul>
+<li><b>למה:</b> מרבעון 5 התוכנית צריכה יותר צ'יפים ממה שמפעל אחד מייצר.</li>
+<li><b>מה סוגרים:</b> רכש מרבעון 5. סוגרים כבר ברבעון 3–4, כשעוד יש להם עודף ולפני שכולם צריכים. מחיר עד התקרה שבכרטיס העסקה.</li>
+<li><b>חלופה:</b> לקנות מהם מפעל קיים ב־W2, אם מישהו יוצא מצ'יפים. מפעל קנוי מייצר מיד, בלי רבעון של בנייה.</li>
+</ul></article>
+<article class="gcard"><h4>3. חברות חזקות במו"פ</h4><p class="gsub">דרגים מהר יותר</p>
+<ul>
+<li><b>מה:</b> רישיון צולב (הם נותנים לנו דרג מחשב, אנחנו להם דרג צ'יפ), או קניית רישיון כשהמו"פ שלנו מפספס.</li>
+<li><b>מתי:</b> רבעון לפני שהדרג אמור לעלות, בגלל העיכוב של רבעון בשימוש.</li>
+<li><b>בהמשך:</b> כשאנחנו מקדימים, מוכרים רישיון מוגבל לדרג הקודם שלנו לחברות שמפגרות.</li>
+</ul></article>
+<article class="gcard"><h4>4. חברות עם עודף או מחסור במזומן</h4><p class="gsub">מימון בין חברות</p>
+<ul>
+<li><b>למה:</b> מזומן עודף מרוויח בערך 0.5% עד 2% לרבעון, ואשראי ספקים עולה 6% עד 9%. הלוואה בריבית של 3.5% עד 4.5% טובה לשני הצדדים.</li>
+<li><b>אצלנו:</b> סביב רבעונים 4–5 המזומן נמוך, אז כנראה לווים. אחר כך, כשיש עודף, מלווים.</li>
+</ul></article>
+<article class="gcard"><h4>5. כל החברות</h4><p class="gsub">מידע</p>
+<ul>
+<li><b>מה:</b> הסכם להחלפת מחקרי שוק. כל אחד קונה 3 מחקרים אחרים ומשתפים.</li>
+<li><b>למה:</b> מכפיל את המידע בלי עלות, ונספר כשיתוף פעולה.</li>
+</ul></article>
+</div>
+
+<h3>לוח זמנים</h3>
+<table class="gtl"><tbody>
+<tr><td>רבעון 1</td><td>מודיעים בעלון של המשחק שנספק צ'יפים מרבעון 3. קונים מחקרים 40 (מפעלים לכל חברה) ו־30 (איזה דרג כל אחת מייצרת). מדברים עם יצרני המחשבים וסוגרים החלפת מידע.</td></tr>
+<tr><td>רבעון 2</td><td>חותמים על חוזי אספקה לרבעונים 3–5, קודם עם יצרני מחשבים בברזיל, ורושמים אצל המרצה.</td></tr>
+<tr><td>רבעון 3</td><td>משלוחים ראשונים. מדברים על רישיונות לפני קפיצת הדרג ומחפשים ספק צ'יפים לרבעון 5.</td></tr>
+<tr><td>רבעון 4</td><td>סוגרים רכש צ'יפים לרבעון 5, ואולי הלוואה בין חברות אם המזומן נמוך.</td></tr>
+<tr><td>רבעונים 5–7</td><td>מוכרים רישיונות לדרגים ישנים ומחדשים חוזים עם עדכון מחיר לפי דרג.</td></tr>
+<tr><td>רבעון 8</td><td>חוזים שנמשכים אחרי סוף המשחק, כי ההערכה כוללת פוטנציאל עתידי.</td></tr>
+</tbody></table>
+
+<h3>מה לא לעשות</h3>
+<ul>
+<li>לא להיות תלויים בשותף אחד. עדיף תמיד שני ספקים ושני לקוחות.</li>
+<li>לא לחתום על כמויות שאין לנו. על חוסר בחוזה משלמים בייצור חירום.</li>
+<li>לא לתת את הדרג הכי חדש ליצרן מחשבים שמתחרה בנו באותו אזור.</li>
+</ul>
+<p class="fine">ההמלצות לכל רבעון לפי התוכנית שלכם נמצאות בטבלת "שיתופי פעולה: מול מי ומתי" בלשונית התוכנית, והכרטיסים עם מחיר יעד, תקרה ושילוח בלשונית העסקאות.</p>
+</div>
 </section>
 <section id="assumptions" hidden>
 <div class="grp"><h2>מפעלים <button class="btn pri" id="addPlant">הוספת מפעל</button></h2><div class="plants" id="plants"></div><p class="fine">מפעל מייצר מהרבעון שאחרי הבנייה, ומוכרים את התוצרת ברבעון שאחריו. מחשבים צריכים צ'יפים במלאי מרבעון קודם.</p></div>
@@ -739,8 +812,8 @@ document.addEventListener('click',e=>{
  if(e.target.id==='resetG'){S.G=clone(DG);buildForms();later()}
  const tb=e.target.closest('[data-tab]');if(tb){location.hash=tb.dataset.tab}
 });
-function route(){const h=(location.hash||'#plan').slice(1),t=['plan','deals','assumptions','rules'].includes(h)?h:'plan';
- ['plan','deals','assumptions','rules'].forEach(x=>{$('#'+x).hidden=x!==t;$('#t-'+x).setAttribute('aria-selected',x===t)});if(t==='plan')draw()}
+function route(){const h=(location.hash||'#plan').slice(1),t=['plan','deals','guide','assumptions','rules'].includes(h)?h:'plan';
+ ['plan','deals','guide','assumptions','rules'].forEach(x=>{$('#'+x).hidden=x!==t;$('#t-'+x).setAttribute('aria-selected',x===t)});if(t==='plan')draw()}
 window.addEventListener('hashchange',route);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)$('#sheet').hidden=true});
 buildForms();route();render();
