@@ -123,6 +123,9 @@ th.now,td.now{background:color-mix(in srgb,var(--acc) 10%,transparent)}.card.pas
  <h2>מחירון למשא ומתן</h2>
  <p class="lead">כל השכבות בין הייצור שלנו לבין המחיר שהקונה יכול לשלם, לצ'יפ, בדולר, כולל שילוח (אנחנו משלמים אותו). רבעון = רבעון המכירה. הצ'יפ יוצר ברבעון שלפניו.</p>
  <div class="qsel" id="pq"></div>
+ <div class="pbc" style="border-top-color:var(--ink);margin-bottom:14px"><h3>מחשבון רווח לפי מחיר</h3><p class="sub">לרבעון שנבחר למעלה. מחיר כולל שילוח, כמו בחוזה.</p>
+  <div class="grid" id="calcin"></div><div class="kpis" id="calcout" style="font-size:15px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-top:10px"></div>
+  <div class="scroll" style="margin-top:10px"><table id="calct"></table></div></div>
  <div class="pb" id="pbody"></div>
  <h2>טבלת מחירים לכל המשחק</h2>
  <p class="lead">לכל רבעון ואזור: מתחת לרצפה מפסידים על כל צ'יפ. מחיר מוביל = כמה יעלה לקונה לייצר בעצמו, אז מתחתיו אין לו סיבה לבנות מפעל צ'יפים. התקרה = מעל זה המחשב שלו מפסיד.</p>
@@ -209,7 +212,7 @@ const DA={
  rdX:[150,150,150,150,150,150,150,150],rdY:[70,70,70,70,70,70,70,70],mrSel:{},
  mk:{d0:9000,pe:2.2,ae:0.8,thr:80,cso:5,lift:4,decay:75},msim:{p:900,n:1,ads:80},
  loan:{amt:1000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},
- pol:{open:30},mi:{X:[0,20,20,20,20,20,20,20],Y:[0,0,0,0,0,0,0,0]},now:1,act:{},fxq:{EU:[],BR:[]}};
+ pol:{open:30},calc:{d:'EU',u:15000,p:40,n:6},mi:{X:[0,20,20,20,20,20,20,20],Y:[0,0,0,0,0,0,0,0]},now:1,act:{},fxq:{EU:[],BR:[]}};
 function mktY(G,A,r,t){const gy=at(A.gY,Math.max(1,t-1));return Math.round(G.base.Y[r]*(1+G.gpY[r]*gy/100)/G.step.Y[r])*G.step.Y[r]}
 function norm(G,A){const Q=Math.max(1,Math.round(G.quarters)),pad=a=>{while(a.length<Q)a.push(a.length?a[a.length-1]:0);return a};
  ['gX','gY','rdX','rdY'].forEach(k=>pad(A[k]));if(!A.mi)A.mi={X:[],Y:[]};['X','Y'].forEach(k=>{if(!A.mi[k])A.mi[k]=[];pad(A.mi[k])});if(!A.pBR||!A.pBR.length){A.pBR=[];for(let t=1;t<=Q;t++)A.pBR.push(mktY(G,A,'BR',t))}pad(A.pBR);if(!A.fxq)A.fxq={EU:[],BR:[]};['EU','BR'].forEach(k=>{if(!A.fxq[k]||!A.fxq[k].length)A.fxq[k]=Array(Q).fill(G.fx[k]);pad(A.fxq[k])});if(!A.act)A.act={}}
@@ -346,7 +349,7 @@ const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const sh=v=>{const a=Math.abs(v);return a>=1e6?(+(a/1e6).toFixed(2))+'M':a>=1e4?(+(a/1e3).toFixed(0))+'K':(+a.toFixed(2)).toLocaleString('en-US')};
 const k$=v=>`<span class="n">${v<0?'−':''}${Math.abs(v)>=1000?(Math.abs(v)/1000).toFixed(2)+'M':Math.round(Math.abs(v))+'K'} SF</span>`;
 const l$=(v,r)=>`<span class="n">${CUR[r]}${sh(v)}</span>`;
-const u$=v=>`<span class="n">$${(+v).toFixed(2)}</span>`;
+const u$=v=>`<span class="n">${+v<0?'−':''}$${Math.abs(+v).toFixed(2)}</span>`;
 const nu=v=>`<span class="n">${Math.round(v).toLocaleString('en-US')}</span>`;
 const ENG={fxAt,MRN,MRC,mrAuto,mrList,AN,CN,R,RN,CUR,PN,DG,DA,CONV,at,norm,run,price,mktY,airU,esc,k$,l$,u$,nu,sh};
 window.ENG=ENG;
@@ -398,9 +401,17 @@ function qCards(){const N=+S.A.now;$('#qcards').innerHTML=res.rows.map(r=>`<arti
 const volFor=(t,d)=>{const u=S.A.contracts.filter(c=>c.d===d&&c.st!=='lost'&&+c.from<=t&&t<=+c.to).reduce((s,c)=>s+(+c.u||0),0);return u||10000};
 const priceFor=(t,d)=>{const L=S.A.contracts.filter(c=>c.d===d&&c.st!=='lost'&&+c.from<=t&&t<=+c.to&&+c.u>0);if(!L.length)return null;return L.reduce((s,c)=>s+c.p*c.u,0)/L.reduce((s,c)=>s+(+c.u),0)};
 const pQs=()=>QO().filter(t=>res.rows[t-2]&&res.rows[t-2].chipMade>0);
+function calcForm(){$('#calcin').innerHTML=[sel('A.calc.d','איפה הקונה',R.map(r=>[r,RN[r]])),inp('A.calc.u','יחידות לרבעון',{step:500,min:1000}),inp('A.calc.p','מחיר לצ\'יפ ($)',{step:.5}),inp('A.calc.n','לכמה רבעונים',{min:1})].join('')}
+function calcOut(){const c=S.A.calc,p=price(S.G,S.A,res,pq,c.d,+c.u);if(!p){$('#calcout').innerHTML='';$('#calct').innerHTML='';return}const tx=S.G.tax.US/100,u=+c.u,n=+c.n||1;
+ const m=v=>({pre:v-p.full,post:(v-p.full)*(1-tx),pct:v?(v-p.full)/v*100:0,cm:v-p.floor});const x=m(+c.p);
+ $('#calcout').innerHTML=[['עלות מלאה לצ\'יפ',u$(p.full),`רצפה ${u$(p.floor)}`],['רווח לצ\'יפ לפני מס',`<span class="${x.pre<0?'bad':''}">${u$(x.pre)}</span>`,`שולי רווח <span class="n">${x.pct<0?'−':''}${Math.abs(x.pct).toFixed(0)}%</span>`],['רווח לצ\'יפ אחרי מס',u$(x.post),`מס ${S.G.tax.US}% בארה"ב`],['רווח לרבעון אחרי מס',k$(x.post*u/1000),`על ${u.toLocaleString('en-US')} צ'יפים`],[`רווח ל־${n} רבעונים`,k$(x.post*u*n/1000),'אחרי מס'],['תרומה מעל הרצפה',k$(x.cm*u/1000),'לרבעון, לפני מס']]
+  .map(([a,b,d])=>`<div class="k"><span>${a}</span><strong>${b}</strong><small>${d}</small></div>`).join('');
+ const ps=[...new Set([Math.ceil(p.floor),Math.ceil(p.full),p.lead,Math.round((p.lead+p.open)/2),p.open,30,35,40,45,50,60,70,+c.p].map(v=>Math.round(v*2)/2).filter(v=>v>0&&v<=Math.max(p.ceil,+c.p)))].sort((a,b)=>a-b);
+ const tag=v=>v===Math.round(p.lead*2)/2?' · מוביל':v===Math.round(p.open*2)/2?' · פתיחה':v===Math.ceil(p.full)?' · עלות מלאה':v===Math.ceil(p.floor)?' · רצפה':'';
+ $('#calct').innerHTML=`<tr><th>מחיר</th><th>רווח לצ'יפ אחרי מס</th><th>שולי רווח</th><th>לרבעון אחרי מס</th><th>ל־${n} רבעונים</th></tr>`+ps.map(v=>{const y=m(v);return `<tr class="${v===+c.p?'best':''}"><td>${u$(v)}${tag(v)}</td><td class="${y.pre<0?'bad':''}">${u$(y.post)}</td><td><span class="n">${y.pct<0?'−':''}${Math.abs(y.pct).toFixed(0)}%</span></td><td>${k$(y.post*u/1000)}</td><td>${k$(y.post*u*n/1000)}</td></tr>`}).join('')}
 function priceUI(){const qs=pQs();if(!qs.length){$('#pq').innerHTML='';$('#pbody').innerHTML='<p class="lead">אין עדיין ייצור צ\'יפים בתוכנית.</p>';$('#ptable').innerHTML='';return}
  if(!qs.includes(pq))pq=qs[0];
- $('#pq').innerHTML=qs.map(t=>`<button type="button" data-pq="${t}" aria-pressed="${t===pq}">רבעון ${t}</button>`).join('');
+ calcOut();$('#pq').innerHTML=qs.map(t=>`<button type="button" data-pq="${t}" aria-pressed="${t===pq}">רבעון ${t}</button>`).join('');
  $('#pbody').innerHTML=R.map(d=>{const p=price(S.G,S.A,res,pq,d,volFor(pq,d));if(!p)return '';const cur=priceFor(pq,d),prod=p.vr+p.mi+p.fix+p.dep+p.rd;
   const tr=(a,b,c='')=>`<tr class="${c}"><td>${a}</td><td>${b}</td></tr>`;
   const mx=Math.max(p.ceil,cur||0,p.open)*1.02;const rung=(c,lab,v)=>`<div class="rung ${c}"><span>${lab}</span><i style="width:${Math.max(2,v/mx*100)}%"></i><b>$${v.toFixed(v<100?2:0)}</b></div>`;
@@ -454,7 +465,7 @@ function asUI(){plantsUI();
  $('#rules').innerHTML=[inp('G.capital','הון התחלתי (K SF)'),inp('G.fx.EU','שער €'),inp('G.fx.BR','שער R$'),inp('G.tax.US','מס ארה"ב (%)'),inp('G.tax.EU','מס אירופה (%)'),inp('G.tax.BR','מס ברזיל (%)'),inp('G.taxHO','מס משרד ראשי (%)'),
   inp('G.carry.X.US',"החזקת צ'יפ לרבעון ($)",{step:.1}),inp('G.air.US.US','שילוח אווירי בתוך ארה"ב ($)',{step:.1}),inp('G.air.US.EU','שילוח אווירי לאירופה ($)',{step:.1}),inp('G.air.US.BR','שילוח אווירי לברזיל ($)',{step:.1}),
   inp('G.dep.X',"פחת מפעל צ'יפים (% לרבעון)"),inp('G.dep.Y','פחת מפעל מחשבים (% לרבעון)'),inp('G.gcX',"עליית עלות לכל דרג צ'יפ (%)"),inp('G.gcY','עליית עלות לכל דרג מחשב (%)'),inp('G.scRate','אשראי ספקים (% לרבעון)')].join('')}
-function buildForms(){ctrForms();asUI();mkForm();rdForm();miPar();trkForm();const u=$('[data-k="A.useAll"]');if(u)u.value=String(+S.A.useAll)}
+function buildForms(){calcForm();ctrForms();asUI();mkForm();rdForm();miPar();trkForm();const u=$('[data-k="A.useAll"]');if(u)u.value=String(+S.A.useAll)}
 
 // ---------- render ----------
 function render(){norm(S.G,S.A);S.A.now=Math.max(1,Math.min(S.G.quarters,+S.A.now||1));res=run(S.G,S.A);$('#nowQ').textContent=S.A.now;trkOut();kpis();qTable();qCards();draw();priceUI();capUI();ctrInfo();mkOut();rdOut();if(!$('#sheet').hidden)openSheet(sheetQ)}
