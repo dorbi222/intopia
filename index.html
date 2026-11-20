@@ -174,6 +174,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <button role="tab" data-tab="rules" id="t-rules">הגדרות משחק</button>
 </div>
 <button class="btn pri sbtn" id="openSheet">מה מזינים במערכת</button>
+<button class="btn sbtn" id="themeBtn" aria-label="מצב תצוגה">מצב: אוטומטי</button>
 <div class="mini" id="mini"></div>
 <div class="sync" id="sync" role="status" aria-live="polite"><i></i><span>נשמר רק בדפדפן הזה</span></div>
 </div>
@@ -506,6 +507,8 @@ let S={G:clone(DG),A:clone(DA)};
 const deep=(d,v)=>{if(v===undefined)return d;if(d&&typeof d==='object'&&!Array.isArray(d)&&v&&typeof v==='object'&&!Array.isArray(v)){const o={...d};Object.keys(v).forEach(k=>o[k]=deep(d[k],v[k]));return o}return v};
 try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&j.G&&j.A){S.G=deep(clone(DG),j.G);S.A=deep(clone(DA),j.A)}}catch(e){}
 norm(S.G,S.A);
+const THN={auto:'אוטומטי',light:'בהיר',dark:'כהה'};let theme='auto';try{theme=localStorage.getItem('intopia-theme')||'auto'}catch(e){}
+function applyTheme(){if(theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);const b=document.getElementById('themeBtn');if(b)b.textContent='מצב: '+THN[theme];try{localStorage.setItem('intopia-theme',theme)}catch(e){};setTimeout(()=>{try{draw()}catch(e){}},0)}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const getP=k=>k.split('.').reduce((o,x)=>o==null?o:o[x],S);
 const setP=(k,v)=>{const a=k.split('.'),l=a.pop();a.reduce((o,x)=>o[x],S)[l]=v};
@@ -693,7 +696,7 @@ function shipLine(x){const G=S.G;
  if(x.ty==='sell'){const o=x.o||'US',a=shipX(G,'air',o,x.d,x.u),sf=shipX(G,'surf',o,x.d,x.u),c=G.fx[o]/G.fx.US;
   return `<b>שילוח אווירי</b> מ${RN[o]} ל${RN[x.d]}: ${fl(+(a.unit*c).toFixed(2),'US')} ליחידה, ${fm(a.tot*G.fx[o]/1000)} סה"כ, על חשבוננו. הקונה מקבל באותו רבעון ויכול לייצר מיד. חלופה ימית: ${fl(+(sf.unit*c).toFixed(2),'US')} ליחידה (${fm(sf.tot*G.fx[o]/1000)}), אבל הצ'יפים מגיעים רק ברבעון הבא.`}
  if(x.ty==='buy'){const os=R.map(o=>[o,shipX(G,'air',o,x.d,x.u)]).sort((a,b)=>a[1].unit*G.fx[a[0]]-b[1].unit*G.fx[b[0]]);const [o,a]=os[0],c=G.fx[o]/G.fx.US;
-  return `<b>שילוח אווירי</b> ל${RN[x.d]}, על חשבון המוכר וכלול במחיר. ממנו זה עולה לו לפחות ${fl(+(a.unit*c).toFixed(2),'US')} ליחידה (מ${RN[o]}), ${fm(a.tot*G.fx[o]/1000)} סה"כ, אז זה המינימום שהוא יגלם במחיר. ימי לא מתאים: הצ'יפים יגיעו רבעון אחרי הייצור.`}
+  return `<b>שילוח אווירי</b> ל${RN[x.d]}, על חשבון המוכר וכלול במחיר. ממנו זה עולה לו לפחות ${fl(+(a.unit*c).toFixed(2),'US')} ליחידה (מ${RN[o]}), ${fm(a.tot*G.fx[o]/1000)} סה"כ, אז זה המינימום שהוא יגלם במחיר. ימי מאותו רבעון לא מתאים, כי הצ'יפים יגיעו רבעון אחרי הייצור. אבל ספק שמייצר ב${RN[x.d]} יכול לשלוח בים ב־${fl(+(shipX(G,'surf',x.d,x.d,x.u).unit*G.fx[x.d]/G.fx.US).toFixed(2),'US')} ליחידה אם סוגרים איתו רבעון מראש.`}
  return 'אין שילוח בעסקה הזאת.'}
 function dealList(){
  const rows=res.rows,A=S.A,G=S.G,Q=res.Q,D=A.deals,L=[];
@@ -863,6 +866,7 @@ function onEdit(e){
 document.addEventListener('input',onEdit);
 document.addEventListener('change',e=>{if(e.target.tagName==='SELECT'||e.target.type==='checkbox')onEdit(e)});
 document.addEventListener('click',e=>{
+ if(e.target.id==='themeBtn'){theme=theme==='auto'?'light':theme==='light'?'dark':'auto';applyTheme();return}
  const ap=e.target.closest('[data-apply]');if(ap){const k=ap.dataset.apply,x=S.A.msim[k],c=S.A.ch[k];if(x.n>0){c.m='cso';c.o=x.n}else c.m='agents';S.A.ads[k]=+x.ads||0;buildForms();later();ap.textContent='הוחל על התוכנית';return}
  const sq=e.target.closest('[data-sq]');if(sq){openSheet(+sq.dataset.sq);return}
  if(e.target.id==='openSheet'){openSheet(sheetQ);return}
@@ -879,7 +883,7 @@ function route(){const h=(location.hash||'#plan').slice(1),t=['plan','deals','gu
  ['plan','deals','guide','market','assumptions','rules'].forEach(x=>{$('#'+x).hidden=x!==t;$('#t-'+x).setAttribute('aria-selected',x===t)});if(t==='plan')draw()}
 window.addEventListener('hashchange',route);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)$('#sheet').hidden=true});
-buildForms();route();render();
+buildForms();route();render();applyTheme();
 }
 </script>
 </body>
