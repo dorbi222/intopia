@@ -362,10 +362,10 @@ const DG={dealFrom:3,quarters:8,capital:8000,fx:{US:1,EU:1.5,BR:0.5},scRate:7,ca
  air:{US:{US:3,EU:3.6,BR:5.25},EU:{US:2.4,EU:2.4,BR:4},BR:{US:6,EU:6,BR:9}},
  airBp:{US:{US:10000,EU:10000,BR:6000},EU:{US:10000,EU:10000,BR:6000},BR:{US:8000,EU:8000,BR:6000}},
  rdMinX:40,rdMinY:70,surf:{US:{US:0.25,EU:1,BR:2},EU:{US:0.65,EU:0.25,BR:1.4},BR:{US:2,EU:3,BR:1}},surfBp:{US:{US:18000,EU:20000,BR:12000},EU:{US:20000,EU:19000,BR:12000},BR:{US:16000,EU:16000,BR:12000}},bondRate:5.8,bondTerm:10,bondMax:2000};
-const DA={plants:[{r:'US',p:'X',q:1},{r:'EU',p:'Y',q:2},{r:'BR',p:'Y',q:2},{r:'BR',p:'Y',q:4},{r:'BR',p:'X',q:6}],
+const DA={plants:[{r:'US',p:'X',q:1},{r:'EU',p:'Y',q:2},{r:'BR',p:'Y',q:2},{r:'BR',p:'Y',q:4},{r:'US',p:'X',q:6}],
  util:{X:70,Y:85},varX:{US:7,EU:8,BR:30},varY:{US:45,EU:35,BR:220},sell:100,
  gX:[0,0,1,1,2,3,3,4],gY:[0,0,0,0,1,1,2,2],
- chipCons:{US:2000,EU:0,BR:0},b2b:0,b2bFrom:3,xAuto:1,onlyNeeded:1,planV:4,b2bTo:'auto',extOn:1,extFrom:3,
+ chipCons:{US:2000,EU:0,BR:0},b2b:0,b2bFrom:3,xAuto:1,onlyNeeded:1,planV:5,b2bTo:'auto',extOn:1,extFrom:3,
  ch:{US:{m:'agents',q:6,o:1},EU:{m:'cso',q:4,o:1},BR:{m:'cso',q:4,o:1}},csoVar:{US:12,EU:18,BR:50},switchCost:30,
  ads:{US:60,EU:30,BR:80},rdXq:[80,80,80,80,80,80,80,80],rdYq:[140,140,140,140,140,140,140,140],mr:30,markup:0,
  loan:{amt:4000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},deals:{},team:{ceo:'',coo:'',cmo:'',cfo:'',cso:''},mrSel:{},
@@ -559,7 +559,8 @@ const deep=(d,v)=>{if(v===undefined)return d;if(d&&typeof d==='object'&&!Array.i
 try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&j.G&&j.A){S.G=deep(clone(DG),j.G);S.A=deep(clone(DA),j.A);S.A.planV=j.A.planV||0}}catch(e){}
 function migrate(){let ch=false;if((S.A.planV||0)<2){S.A.b2b=0;S.A.sell=100;S.A.xAuto=1;S.A.onlyNeeded=1;S.A.planV=2;ch=true}
  if((S.A.planV||0)<3){S.A.plants=S.A.plants.filter(p=>!(p.r==='US'&&p.p==='Y'));if(S.A.ch&&S.A.ch.US)S.A.ch.US.m='agents';S.A.planV=3;ch=true}
- if((S.A.planV||0)<4){if(S.A.plants.filter(p=>p.p==='X').length<2)S.A.plants.push({r:'BR',p:'X',q:6});S.A.planV=4;ch=true}return ch}
+ if((S.A.planV||0)<4){if(S.A.plants.filter(p=>p.p==='X').length<2)S.A.plants.push({r:'BR',p:'X',q:6});S.A.planV=4;ch=true}
+ if((S.A.planV||0)<5){S.A.plants.forEach(p=>{if(p.p==='X'&&p.r==='BR')p.r='US'});S.A.planV=5;ch=true}return ch}
 norm(S.G,S.A);migrate();
 const THN={auto:'אוטומטי',light:'בהיר',dark:'כהה'};let theme='auto';try{theme=localStorage.getItem('intopia-theme')||'auto'}catch(e){}
 function applyTheme(){if(theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);const b=document.getElementById('themeBtn');if(b)b.textContent='מצב: '+THN[theme];try{localStorage.setItem('intopia-theme',theme)}catch(e){};setTimeout(()=>{try{draw()}catch(e){}},0)}
