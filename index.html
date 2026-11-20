@@ -556,7 +556,7 @@ const {R,RN,CUR,PN,DG,DA,run,fm,fl,nu,norm,fill,at,esc,shipX}=window.ENG;
 const KEY='intopia-site-v1',clone=o=>JSON.parse(JSON.stringify(o)),$=s=>document.querySelector(s);
 let S={G:clone(DG),A:clone(DA)};
 const deep=(d,v)=>{if(v===undefined)return d;if(d&&typeof d==='object'&&!Array.isArray(d)&&v&&typeof v==='object'&&!Array.isArray(v)){const o={...d};Object.keys(v).forEach(k=>o[k]=deep(d[k],v[k]));return o}return v};
-try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&j.G&&j.A){S.G=deep(clone(DG),j.G);S.A=deep(clone(DA),j.A)}}catch(e){}
+try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&j.G&&j.A){S.G=deep(clone(DG),j.G);S.A=deep(clone(DA),j.A);S.A.planV=j.A.planV||0}}catch(e){}
 function migrate(){let ch=false;if((S.A.planV||0)<2){S.A.b2b=0;S.A.sell=100;S.A.xAuto=1;S.A.onlyNeeded=1;S.A.planV=2;ch=true}
  if((S.A.planV||0)<3){S.A.plants=S.A.plants.filter(p=>!(p.r==='US'&&p.p==='Y'));if(S.A.ch&&S.A.ch.US)S.A.ch.US.m='agents';S.A.planV=3;ch=true}return ch}
 norm(S.G,S.A);migrate();
@@ -944,7 +944,7 @@ async function write(){if(SY.writing){SY.again=true;return}SY.writing=true;
  SY.writing=false;if(SY.again){SY.again=false;write()}}
 function applyRemote(d){try{const j=JSON.parse(d.s);if(!j||!j.G||!j.A)return;
  const ae=document.activeElement,fid2=ae&&ae.id,fdk=ae&&ae.dataset&&ae.dataset.dk?[ae.dataset.dk,ae.dataset.df]:null;
- S.G=deep(clone(DG),j.G);S.A=deep(clone(DA),j.A);norm(S.G,S.A);const mg=migrate();save();buildForms();render();if(mg)setTimeout(()=>push(),300);
+ S.G=deep(clone(DG),j.G);S.A=deep(clone(DA),j.A);S.A.planV=j.A.planV||0;norm(S.G,S.A);const mg=migrate();save();buildForms();render();if(mg)setTimeout(()=>push(),300);
  const el=fid2?document.getElementById(fid2):fdk?document.querySelector(`[data-dk="${fdk[0]}"][data-df="${fdk[1]}"]`):null;if(el)el.focus()}catch(e){}}
 (()=>{try{
  if(!window.firebase||FB.apiKey.startsWith('PASTE')){syncUI('','נשמר רק בדפדפן הזה');return}
