@@ -208,7 +208,7 @@ const DA={
  pBR:[],
  rdX:[150,150,150,150,150,150,150,150],rdY:[70,70,70,70,70,70,70,70],mrSel:{},
  mk:{d0:9000,pe:2.2,ae:0.8,thr:80,cso:5,lift:4,decay:75},msim:{p:900,n:1,ads:80},
- loan:{amt:4000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},
+ loan:{amt:1000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},
  pol:{open:30},mi:{X:[0,20,20,20,20,20,20,20],Y:[0,0,0,0,0,0,0,0]},now:1,act:{},fxq:{EU:[],BR:[]}};
 function mktY(G,A,r,t){const gy=at(A.gY,Math.max(1,t-1));return Math.round(G.base.Y[r]*(1+G.gpY[r]*gy/100)/G.step.Y[r])*G.step.Y[r]}
 function norm(G,A){const Q=Math.max(1,Math.round(G.quarters)),pad=a=>{while(a.length<Q)a.push(a.length?a[a.length-1]:0);return a};
