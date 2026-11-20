@@ -362,25 +362,25 @@ const DG={dealFrom:3,quarters:8,capital:8000,fx:{US:1,EU:1.5,BR:0.5},scRate:7,ca
  air:{US:{US:3,EU:3.6,BR:5.25},EU:{US:2.4,EU:2.4,BR:4},BR:{US:6,EU:6,BR:9}},
  airBp:{US:{US:10000,EU:10000,BR:6000},EU:{US:10000,EU:10000,BR:6000},BR:{US:8000,EU:8000,BR:6000}},
  rdMinX:40,rdMinY:70,surf:{US:{US:0.25,EU:1,BR:2},EU:{US:0.65,EU:0.25,BR:1.4},BR:{US:2,EU:3,BR:1}},surfBp:{US:{US:18000,EU:20000,BR:12000},EU:{US:20000,EU:19000,BR:12000},BR:{US:16000,EU:16000,BR:12000}},bondRate:5.8,bondTerm:10,bondMax:2000};
-const DA={plants:[{r:'US',p:'X',q:1},{r:'EU',p:'Y',q:2},{r:'BR',p:'Y',q:2},{r:'BR',p:'Y',q:4},{r:'US',p:'X',q:6}],
+const DA={plants:[{r:'US',p:'X',q:1},{r:'US',p:'Y',q:2},{r:'US',p:'X',q:3}],
  util:{X:70,Y:85},varX:{US:7,EU:8,BR:30},varY:{US:45,EU:35,BR:220},sell:100,
  gX:[0,0,1,1,2,3,3,4],gY:[0,0,0,0,1,1,2,2],
- chipCons:{US:2000,EU:0,BR:0},b2b:0,b2bFrom:3,xAuto:1,onlyNeeded:1,planV:5,b2bTo:'auto',extOn:1,extFrom:3,
- ch:{US:{m:'agents',q:6,o:1},EU:{m:'cso',q:4,o:1},BR:{m:'cso',q:4,o:1}},csoVar:{US:12,EU:18,BR:50},switchCost:30,
- ads:{US:60,EU:30,BR:80},rdXq:[80,80,80,80,80,80,80,80],rdYq:[140,140,140,140,140,140,140,140],mr:30,markup:0,
+ chipCons:{US:2000,EU:0,BR:0},b2b:30000,b2bFrom:3,xAuto:1,onlyNeeded:0,planV:6,dlx:{on:1,from:5,u:4000},b2bTo:'auto',extOn:1,extFrom:3,
+ ch:{US:{m:'cso',q:4,o:2},EU:{m:'agents',q:4,o:1},BR:{m:'agents',q:4,o:1}},csoVar:{US:12,EU:18,BR:50},switchCost:30,
+ ads:{US:60,EU:30,BR:80},rdXq:[120,120,120,120,120,120,120,120],rdYq:[80,80,80,80,80,80,80,80],mr:30,markup:0,
  loan:{amt:4000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},deals:{},team:{ceo:'',coo:'',cmo:'',cfo:'',cso:''},mrSel:{},
  msim:{US:{p:165,n:2,ads:60,d0:21000,sup:21000},EU:{p:130,n:1,ads:30,d0:15000,sup:15300},BR:{p:800,n:1,ads:80,d0:7500,sup:7650}},
  mk:{csoBase:5,lift1:4,decay:75,pe:{US:1.3,EU:1.6,BR:2.2},ae:{US:0.6,EU:0.5,BR:0.8},thr:{US:40,EU:30,BR:80},chipCost:{US:11,EU:11,BR:13}}};
 const CONV=[[1,2,3,0,0,0,0,0,0,0],[1,1,2,3,4,0,0,0,0,0],[1,1,2,2,3,0,0,0,0,0],[0,1,1,2,2,3,3,5,0,0],[0,1,1,1,2,3,3,4,0,0],[0,0,0,1,1,2,2,3,0,0],[0,0,0,0,0,2,2,2,3,0],[0,0,0,0,0,1,1,2,3,0],[0,0,0,0,0,0,0,1,2,3],[0,0,0,0,0,0,0,0,1,2]];
 const at=(a,t)=>a[Math.max(0,Math.min(t-1,a.length-1))];
 function norm(G,A){const Q=Math.max(1,Math.round(G.quarters)),pad=a=>{while(a.length<Q)a.push(a[a.length-1]??0);return a};
- if(!A.rdXq)A.rdXq=[A.rdX??80];if(!A.rdYq)A.rdYq=[A.rdY??140];pad(A.rdXq);pad(A.rdYq);pad(A.gX);pad(A.gY);if(!A.pY){A.pY={};A.pX={};A.pS=[];A.pB=[];fill(G,A)}R.forEach(r=>{pad(A.pY[r]);pad(A.pX[r])});pad(A.pS);pad(A.pB)}
+ if(!A.rdXq)A.rdXq=[A.rdX??80];if(!A.rdYq)A.rdYq=[A.rdY??140];pad(A.rdXq);pad(A.rdYq);if(!A.dlx)A.dlx={on:0,from:5,u:4000};if(!A.pDb){A.pDb=[];A.pDs=[];for(let t=1;t<=Q;t++){const g=at(A.gY,t)+1;A.pDs.push(Math.round(G.base.Y.US*(1+G.gpY.US*g/100)/5)*5+10);A.pDb.push(Math.round(G.base.Y.US*(1+G.gpY.US*g/100)*0.8/5)*5)}}pad(A.pDb);pad(A.pDs);pad(A.gX);pad(A.gY);if(!A.pY){A.pY={};A.pX={};A.pS=[];A.pB=[];fill(G,A)}R.forEach(r=>{pad(A.pY[r]);pad(A.pX[r])});pad(A.pS);pad(A.pB)}
 function fill(G,A){const Q=Math.max(1,Math.round(G.quarters)),rd=(v,s)=>Math.round(v/s)*s;
  R.forEach(r=>{A.pY[r]=[];A.pX[r]=[]});A.pS=[];A.pB=[];
  for(let t=1;t<=Q;t++){const gy=at(A.gY,Math.max(1,t-1)),gx=at(A.gX,Math.max(1,t-1));
   R.forEach(r=>{A.pY[r].push(rd(G.base.Y[r]*(1+G.gpY[r]*gy/100),G.step.Y[r]));A.pX[r].push(rd(G.base.X[r]*(1+G.gpX[r]*gx/100),G.step.X[r]))});
   A.pS.push(Math.round(A.pX.US[t-1]*0.85));A.pB.push(A.pX.US[t-1]+5)}}
-norm(DG,DA);
+norm(DG,DA);DA.pS=DA.pS.map((v,i)=>60+5*at(DA.gX,Math.max(1,i)));
 const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sh=v=>{const a=Math.abs(v);return a>=1e6?(+(a/1e6).toFixed(2))+'M':a>=1e4?(+(a/1e3).toFixed(0))+'K':(+a.toFixed(2)).toLocaleString('en-US')};
 const fm=v=>`<span class="n">${v<0?'−':''}${Math.abs(v)>=1000?(Math.abs(v)/1000).toFixed(2)+'M':Math.round(Math.abs(v))+'K'} SF</span>`;
@@ -412,7 +412,7 @@ function run(G,A){
  const avg=r=>ci[r]>0?cv[r]/ci[r]:0;
  const bfr=(o,d,u)=>{const c=G.air[o][d],bp=G.airBp[o][d];return Math.min(u,bp)*c+Math.max(0,u-bp)*c*2/3};
  const airCost=(o,d,u)=>{if(o===d)return 0;const c=G.air[o][d],bp=G.airBp[o][d];return Math.min(u,bp)*c+Math.max(0,u-bp)*c*2/3};
- let cash=G.capital,taxDue=0,loan=0,bond=0,depHeld=0;
+ let cash=G.capital,taxDue=0,loan=0,bond=0,depHeld=0,dlxStock=0,dlxVal=0;
  const carry={US:0,EU:0,BR:0,HO:0},soldEver={US:0,EU:0,BR:0};
  const L=A.loan,lr=L.rate/100,term=Math.max(1,Math.round(L.term));
  const pmt=L.type==='amort'&&L.amt>0?L.amt*lr/(1-Math.pow(1+lr,-term)):0;
@@ -482,6 +482,13 @@ function run(G,A){
    if(pi[r]>0.25*G.cap.Y[r])wr.push(`נשאר מלאי מחשבים גבוה ב${RN[r]}: ${nu(pi[r])} יחידות`)});
   R.forEach(r=>{INV[r].pProd=made[r]||0;if(!made[r])return;const vc=made[r]*A.varY[r]*(1+G.gcY*gy/100)*fx[r]/1000;sched(pay,t,vc,r);pi[r]+=made[r];pv[r]+=vc+pcCost[r];
    ev.push(['prod',`מייצרים ${nu(made[r])} מחשבים ב${RN[r]}, עלות משתנה ${fm(vc+pcCost[r])} כולל צ'יפים`])});
+  {const dk=D[`buyY-${t}-US`],dOn=A.dlx&&A.dlx.on&&t>=Math.max(A.dlx.from,G.dealFrom);let du=0,dc=at(A.pDb,t),dp=at(A.pDs,t);
+   if(dk&&dk.st==='closed'){du=+dk.u||0;dc=+dk.p||0}else if(dOn&&!(dk&&dk.st==='lost'))du=+A.dlx.u||0;
+   if(du>0&&!on.Y.US){wr.push('קנייה של מחשבים למכירה בארה"ב בלי מפעל מחשבים שלנו שם היא הפצה, ואסורה: הקנייה לא נכנסה');du=0}
+   if(du>0){const c=du*dc/1000;sched(pay,t,c,'US');dlxStock+=du;dlxVal+=c;F.dlx={u:du,cost:dc,price:dp,g:gy+1,c:!!(dk&&dk.st==='closed'),w:dk&&dk.w};ev.push(['buy',`${dk&&dk.st==='closed'?'עסקה סגורה: ':'מתוכנן: '}קונים ${nu(du)} מחשבי Y${gy+1} מחברה אחרת לארה"ב ב־${fl(dc,'US')}, למכירה כדלוקס`])}
+   if(dlxStock>0){const s2=Math.round(dlxStock*A.sell/100),unit=dlxVal/dlxStock,rv=s2*dp/1000;g.US.rev+=rv;g.US.cogs+=s2*unit;dlxStock-=s2;dlxVal-=s2*unit;pcSold.US+=s2;soldEver.US+=s2;sched(recv,t,rv,'US');INV.US.dSold=s2;F.priceD=dp;F.pcUD=s2;
+    ev.push(['sell',`מוכרים ${nu(s2)} מחשבי דלוקס בארה"ב ב־${fl(dp,'US')}: הכנסה ${fm(rv)}`])}
+   INV.US.dEnd=dlxStock}
   R.forEach(r=>{if(soldEver[r]>0){g[r].ads+=A.ads[r]*fx[r];F.ads[r]=A.ads[r]}});
   R.forEach(r=>{const n=on.Y[r];if(n&&made[r]){const per=Math.round(made[r]/n/1000)*1000;F.prodY[r]=Array(n).fill(per)}});
   // chip sales
@@ -502,7 +509,7 @@ function run(G,A){
   let chipMade=0;const xPlan={};
   {const tn=Math.min(t+1,Q+1),gxNow=at(A.gX,t),gyN=at(A.gY,Math.min(tn,Q)),cpN=CONV[gxNow]?.[gyN]||0;
    const onN=r=>P.filter(p=>p.p==='Y'&&p.r===r&&p.on<=tn).length;
-   const needN=R.reduce((a,r)=>a+Math.round(onN(r)*G.cap.Y[r]*A.util.Y/100)*cpN+(onN(r)||r==='US'?A.chipCons[r]:0),0);
+   const needN=R.reduce((a,r)=>a+Math.round(onN(r)*G.cap.Y[r]*A.util.Y/100)*cpN+(onN(r)||r==='US'?A.chipCons[r]:0),0)+(!A.onlyNeeded&&tn>=Math.max(A.b2bFrom,G.dealFrom)?(+A.b2b||0):0);
    const capR={};R.forEach(r=>capR[r]=on.X[r]*G.cap.X[r]);const capT=R.reduce((a,r)=>a+capR[r],0);
    if(A.xAuto&&capT>0){const left=R.reduce((a,r)=>a+ci[r],0);let tgt=Math.max(0,needN-left);if(tgt>capT)wr.push(`ברבעון ${t+1} צריך ${nu(needN)} צ'יפים והמפעלים מייצרים עד ${nu(capT)}: לסגור רכש של ${nu(tgt-capT)} או לבנות מפעל צ'יפים נוסף`);
     tgt=Math.min(tgt,capT);R.forEach(r=>{xPlan[r]=capR[r]?Math.min(capR[r],Math.ceil(tgt*capR[r]/capT/1000)*1000):0})}
@@ -560,7 +567,8 @@ try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&j.G&&j.A){S.G=de
 function migrate(){let ch=false;if((S.A.planV||0)<2){S.A.b2b=0;S.A.sell=100;S.A.xAuto=1;S.A.onlyNeeded=1;S.A.planV=2;ch=true}
  if((S.A.planV||0)<3){S.A.plants=S.A.plants.filter(p=>!(p.r==='US'&&p.p==='Y'));if(S.A.ch&&S.A.ch.US)S.A.ch.US.m='agents';S.A.planV=3;ch=true}
  if((S.A.planV||0)<4){if(S.A.plants.filter(p=>p.p==='X').length<2)S.A.plants.push({r:'BR',p:'X',q:6});S.A.planV=4;ch=true}
- if((S.A.planV||0)<5){S.A.plants.forEach(p=>{if(p.p==='X'&&p.r==='BR')p.r='US'});S.A.planV=5;ch=true}return ch}
+ if((S.A.planV||0)<5){S.A.plants.forEach(p=>{if(p.p==='X'&&p.r==='BR')p.r='US'});S.A.planV=5;ch=true}
+ if((S.A.planV||0)<6){S.A.plants=JSON.parse(JSON.stringify(DA.plants));S.A.b2b=30000;S.A.pS=DA.pS.slice();S.A.b2bFrom=3;S.A.onlyNeeded=0;S.A.b2bTo='auto';S.A.dlx={on:1,from:5,u:4000};S.A.ch=JSON.parse(JSON.stringify(DA.ch));S.A.rdXq=DA.rdXq.slice();S.A.rdYq=DA.rdYq.slice();S.A.planV=6;ch=true}return ch}
 norm(S.G,S.A);migrate();
 const THN={auto:'אוטומטי',light:'בהיר',dark:'כהה'};let theme='auto';try{theme=localStorage.getItem('intopia-theme')||'auto'}catch(e){}
 function applyTheme(){if(theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);const b=document.getElementById('themeBtn');if(b)b.textContent='מצב: '+THN[theme];try{localStorage.setItem('intopia-theme',theme)}catch(e){};setTimeout(()=>{try{draw()}catch(e){}},0)}
@@ -582,6 +590,9 @@ const AS=[
   {k:'A.chipCons',l:"צ'יפים לצרכנים, יחידות לרבעון",t:'tri'},
   {k:'A.b2b',l:"צ'יפים לחברות אחרות, יחידות לרבעון",s:1000},
   {k:'A.b2bFrom',l:'מכירה לחברות אחרות מרבעון',s:1},
+  {k:'A.dlx.on',l:'קונים מחשבים לדלוקס בארה"ב',t:'sel',o:[[1,'כן'],[0,'לא']]},
+  {k:'A.dlx.from',l:'קונים דלוקס מרבעון',s:1},
+  {k:'A.dlx.u',l:'כמה מחשבי דלוקס לקנות ברבעון',s:500},
   {k:'A.onlyNeeded',l:'עסקאות עם חברות אחרות',t:'sel',o:[[1,'רק מה שחייבים'],[0,'כל ההזדמנויות']]},
   {k:'A.b2bTo',l:"לאן מוכרים צ'יפים בתוכנית",t:'sel',str:1,o:[['auto','לאזור הכי משתלם'],['US','ארה"ב'],['EU','אירופה'],['BR','ברזיל']]},
   {k:'A.extOn',l:"קונים צ'יפים מבחוץ כשחסר",t:'sel',o:[[1,'כן'],[0,'לא']]},
@@ -677,7 +688,7 @@ function plantsUI(){
  <span class="cost">${fl(G.plantCost[p.p][p.r]*1000,p.r)} · ${nu(G.cap[p.p][p.r])} יח'</span>
  <button class="btn x" data-rm="${i}" aria-label="מחיקת מפעל">×</button></div>`).join('')||'<p class="fine">אין מפעלים. הוסיפו מפעל כדי להתחיל.</p>';
 }
-const GPR=[['דרג צ\'יפ שמייצרים','A.gX','g'],['דרג מחשב שמייצרים','A.gY','g'],...R.map(r=>[`מחשב לצרכן, ${RN[r]} (${CUR[r]})`,'A.pY.'+r]),...R.map(r=>[`צ'יפ לצרכן, ${RN[r]} (${CUR[r]})`,'A.pX.'+r]),["מוכרים צ'יפ לחברות, בלי הובלה ($)",'A.pS'],["קונים צ'יפ מחברות ($)",'A.pB'],['מו"פ צ\'יפים (אלפי SF)','A.rdXq'],['מו"פ מחשבים (אלפי SF)','A.rdYq']];
+const GPR=[['דרג צ\'יפ שמייצרים','A.gX','g'],['דרג מחשב שמייצרים','A.gY','g'],...R.map(r=>[`מחשב לצרכן, ${RN[r]} (${CUR[r]})`,'A.pY.'+r]),...R.map(r=>[`צ'יפ לצרכן, ${RN[r]} (${CUR[r]})`,'A.pX.'+r]),["מוכרים צ'יפ לחברות, בלי הובלה ($)",'A.pS'],["קונים צ'יפ מחברות ($)",'A.pB'],["קונים מחשב דלוקס לארה\"ב ($)",'A.pDb'],["מוכרים מחשב דלוקס בארה\"ב ($)",'A.pDs'],['מו"פ צ\'יפים (אלפי SF)','A.rdXq'],['מו"פ מחשבים (אלפי SF)','A.rdYq']];
 function gpUI(){norm(S.G,S.A);const q=QO();
  $('#gp').innerHTML=`<thead><tr><th>רבעון</th>${q.map(t=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${GPR.map(([l,k,g])=>`<tr><td>${l}</td>${q.map(t=>{const kk=`${k}.${t-1}`,v=getP(kk);return `<td>${g?`<select aria-label="${l} רבעון ${t}" data-k="${kk}">${[...Array(10)].map((_,i)=>`<option value="${i}"${+v===i?' selected':''}>${k==='A.gX'?'X':'Y'}${i}</option>`).join('')}</select>`:`<input type="number" inputmode="decimal" aria-label="${l} רבעון ${t}" data-k="${kk}" value="${v}">`}</td>`}).join('')}</tr>`).join('')}</tbody>`}
 function buildForms(){teamUI();simForm();$('#aform').innerHTML=form(AS);$('#gform').innerHTML=form(GS);plantsUI();gpUI()}
@@ -757,6 +768,7 @@ function sheetHTML(t){
  R.forEach(k=>{let a='';const cur=CN[k];
   const a1=[];if(F.office[k])a1.push(['Regional Sales Offices',`O · ${F.office[k]} משרדים`]);
   if(F.price[k])a1.push(['Price Standard Model, Y',`${k0(F.price[k])} ${CNAME[cur]}`]);
+  if(k==='US'&&F.priceD)a1.push(['Price Deluxe Model, Y',`${k0(F.priceD)} דולר`]);
   if(F.chipPrice[k])a1.push(['Price Standard Model, X',`${k0(F.chipPrice[k])} ${CNAME[cur]}`]);
   if(F.ads[k])a1.push(['Advertising Y (000s)',k0(F.ads[k])]);
   a+=frm('A1','שיווק',F.price[k]?'מחיר רק לדגם הסטנדרט: יש לנו דרג אחד למכירה.':'',a1);
@@ -776,6 +788,7 @@ function sheetHTML(t){
  let h6='';
  F.ship.forEach(x=>{h6+=frm('H6',`העברה פנימית ${RN[x.o]} ← ${RN[x.d]}`,"משלוח צ'יפים בתוך החברה. מחיר העברה לפי עלות והובלה.",[['Seller / Buyer company','שלנו / שלנו'],['Area from → to',`${AN[x.o]} → ${AN[x.d]}`],['Product · Grade',`X · ${x.g}`],['Units (000s)',u0(x.u)],['Currency',`${CN[x.o]} (${CNAME[CN[x.o]]})`],['Unit price',x.tp.toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Mode of transport','A (אווירי)'],['עלות שילוח, כלולה במחיר',fm(shipX(S.G,'air',x.o,x.d,x.u).tot*S.G.fx[x.o]/1000)]])});
  F.sales.forEach(x=>{h6+=frm('H6',`מכירת צ'יפים ל${RN[x.d]}${own('cso')}`,x.c?'עסקה סגורה. אנחנו המוכרים, אז אנחנו מגישים והקונה חותם.':'עוד לא נסגרה: אלה הערכים מהתוכנית. לעדכן בלשונית העסקאות כשנסגר.',[['Buyer company',esc(x.w||'לסגור')],['Area from → to',`${AN[x.o]} → ${AN[x.d]}`],['Product · Grade',`X · ${x.g}`],['Units (000s)',u0(x.u)],['Currency','1 (דולר)'],['Unit price',x.p.toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Mode of transport','A (אווירי)'],['עלות שילוח, עלינו',fm(shipX(S.G,'air',x.o,x.d,x.u).tot*S.G.fx[x.o]/1000)]],x.c?'':'מתוכנן')});
+ if(F.dlx)h6+=`<p class="snote">קניית מחשבים: ${u0(F.dlx.u)} אלף מחשבי Y${F.dlx.g} לארה"ב ב־$${F.dlx.cost}${F.dlx.w?' מ־'+esc(F.dlx.w):''}. המוכר מגיש H6 באוויר, אנחנו חותמים.${F.dlx.c?'':' עוד לא נסגר.'}</p>`;
  F.buys.forEach(x=>{h6+=`<p class="snote">קנייה: ${u0(x.u)} אלף צ'יפים ל${RN[x.d]} ב־$${x.p.toFixed(2)}${x.w?' מ־'+esc(x.w):''}. המוכר מגיש H6, אנחנו חותמים.${x.c?'':' עוד לא נסגר.'}${own('cso')}</p>`});
  if(h6)h+=`<section class="sarea"><h3>מכירות והעברות (H6)</h3>${h6}</section>`;
  if(r.wr.length)h+=`<section class="sarea"><h3>לשים לב</h3>${r.wr.map(w=>`<p class="snote" style="color:var(--acc)">${w}</p>`).join('')}</section>`;
@@ -785,7 +798,7 @@ function openSheet(t){sheetQ=Math.max(1,Math.min(res.Q,t||sheetQ));$('#sheetT').
  $('#qsel').innerHTML=res.rows.map(r=>`<button data-sq="${r.t}" aria-pressed="${r.t===sheetQ}">${r.t}</button>`).join('');
  $('#sheetBody').innerHTML=`<p class="who">מזין במערכת: ${rchip('coo')} · מפקח ומאשר: ${rchip('ceo')} · כל טופס מסומן במי שאחראי על התוכן שלו</p>`+sheetHTML(sheetQ);$('#sheet').hidden=false;$('#closeSheet').focus()}
 const ROLES=[['ceo','CEO','מפקח על הכל ומאשר את ההחלטות'],['coo','COO','מזין את ההחלטות במערכת, מפעלים וייצור'],['cmo','CMO','מחירים, משרדי מכירות ופרסום'],['cfo','CFO','מימון, תזרים, הלוואות ואג"ח'],['cso','מנהל אסטרטגי','משא ומתן עם חברות אחרות, מו"פ ורישיונות']];
-const OWN={sell:'cso',buy:'cso',lic:'cso',lend:'cfo',borrow:'cfo'};
+const OWN={buyY:'cso',sell:'cso',buy:'cso',lic:'cso',lend:'cfo',borrow:'cfo'};
 const RC={ceo:'var(--ink)',coo:'#1d6fe0',cmo:'var(--acc)',cfo:'#1f9d55',cso:'#7b3fe4'};
 const rshort=k=>{const r=ROLES.find(x=>x[0]===k),n=(S.A.team||{})[k];return r?(n?esc(n):r[1]):''};
 const rchip=k=>`<span class="rc" style="--rc:${RC[k]}">${k==='cso'?'אסטרטגי':ROLES.find(x=>x[0]===k)[1]}${(S.A.team||{})[k]?' · '+esc(S.A.team[k]):''}</span>`;
@@ -797,6 +810,7 @@ const ST={open:'פתוח',closed:'נסגר',lost:'נכשל'};
 function shipLine(x){const G=S.G;
  if(x.ty==='sell'){const o=x.o||'US',a=shipX(G,'air',o,x.d,x.u),sf=shipX(G,'surf',o,x.d,x.u),c=G.fx[o]/G.fx.US;
   return `<b>שילוח אווירי</b> מ${RN[o]} ל${RN[x.d]}: ${fl(+(a.unit*c).toFixed(2),'US')} ליחידה, ${fm(a.tot*G.fx[o]/1000)} סה"כ, על חשבוננו. הקונה מקבל באותו רבעון ויכול לייצר מיד. חלופה ימית: ${fl(+(sf.unit*c).toFixed(2),'US')} ליחידה (${fm(sf.tot*G.fx[o]/1000)}), אבל הצ'יפים מגיעים רק ברבעון הבא.`}
+ if(x.ty==='buyY'){const os=R.map(o=>[o,o==='US'?{unit:G.air.US.US*10/3}:{unit:o==='EU'?35:120}]);return `<b>שילוח אווירי</b> לארה"ב, על חשבון המוכר וכלול במחיר. ממוכר בארה"ב בערך $30 למחשב, מאירופה €35 (כ־$52). מגיע באותו רבעון ונמכר מיד.`}
  if(x.ty==='buy'){const os=R.map(o=>[o,shipX(G,'air',o,x.d,x.u)]).sort((a,b)=>a[1].unit*G.fx[a[0]]-b[1].unit*G.fx[b[0]]);const [o,a]=os[0],c=G.fx[o]/G.fx.US;
   return `<b>שילוח אווירי</b> ל${RN[x.d]}, על חשבון המוכר וכלול במחיר. ממנו זה עולה לו לפחות ${fl(+(a.unit*c).toFixed(2),'US')} ליחידה (מ${RN[o]}), ${fm(a.tot*G.fx[o]/1000)} סה"כ, אז זה המינימום שהוא יגלם במחיר. ימי מאותו רבעון לא מתאים, כי הצ'יפים יגיעו רבעון אחרי הייצור. אבל ספק שמייצר ב${RN[x.d]} יכול לשלוח בים ב־${fl(+(shipX(G,'surf',x.d,x.d,x.u).unit*G.fx[x.d]/G.fx.US).toFixed(2),'US')} ליחידה אם סוגרים איתו רבעון מראש.`}
  return 'אין שילוח בעסקה הזאת.'}
@@ -811,6 +825,8 @@ function dealList(){
   R.forEach(d=>{const kb=`buyX-${t}-${d}`;if(r.short[d]>0||D[kb]){const cp=r.cp||1,pn=at(A.pY[d],t+1)*G.fx[d],vc=A.varY[d]*(1+G.gcY*r.gY/100)*G.fx[d],ag=G.agent.Y[d]*G.fx[d],ceil=Math.floor((pn-vc-ag)/cp/G.fx.US);
    L.push({k:kb,t,ty:'buy',d,title:`קניית צ'יפים X${r.gXs} ל${RN[d]}`,who:`יצרני צ'יפים ב${RN[d]} קודם (שילוח בתוך האזור, אפשר בים אם מזמינים רבעון מראש), ואחריהם יצרנים מאזורים אחרים`,u:Math.round(r.short[d]),p:r.pB,
     tg:[['כמות',nu(r.short[d])+" יח'"],['מחיר מטרה',fl(r.pB,'US')],['תקרה',fl(ceil,'US')]],sub:`למחשב Y${r.gY}, ${cp} צ'יפ${cp>1?'ים':''} לכל מחשב. מעל התקרה המחשב מפסיד`})}});
+  {const kd=`buyY-${t}-US`;const dOn=A.dlx&&A.dlx.on&&t>=A.dlx.from;if(dOn||D[kd]){const dp=at(A.pDs,t),db=at(A.pDb,t),cv=A.ch.US.m==='cso'&&t>=A.ch.US.q?A.csoVar.US:G.agent.Y.US,ceil=Math.floor(dp-cv-5);
+   L.push({k:kd,t,ty:'buyY',d:'US',title:`קניית מחשבי Y${r.gY+1} לדלוקס בארה"ב`,who:'יצרני מחשבים בארה"ב או באירופה עם דרג גבוה משלנו',u:+A.dlx.u||0,p:db,tg:[['כמות',nu(+A.dlx.u||0)+" יח'"],['מחיר מטרה',fl(db,'US')],['תקרה',fl(ceil,'US')],['מוכרים ב',fl(dp,'US')]],sub:'רמת מחיר שנייה בארה"ב. מותר רק כשמפעל המחשבים שלנו בארה"ב פעיל, אחרת זו הפצה'})}}
   if(nx&&(nx.gX>r.gX||nx.gY>r.gY)&&(!A.onlyNeeded||D[`lic-${t}`])){const kl=`lic-${t}`,gl=[nx.gX>r.gX?'X'+nx.gX:'',nx.gY>r.gY?'Y'+nx.gY:''].filter(Boolean).join(' ו־'),tp=(nx.gX>r.gX?+at(A.rdXq,t):0)+(nx.gY>r.gY?+at(A.rdYq,t):0)||100;
    L.push({k:kl,t,ty:'lic',title:`רישיון לפטנט ${gl}`,who:'חברות שכבר מחזיקות בדרג',p:tp,tg:[['מחיר מטרה','עד '+fm(tp)],['שימוש','מרבעון '+(t+1)]],sub:'גיבוי אם המו"פ שלנו לא יגיע בזמן'})}
   const kn=`lend-${t}`;if((!A.onlyNeeded&&r.cash>3000&&t<Q)||D[kn]){const a=Math.max(250,Math.floor((r.cash-2000)/250)*250);
