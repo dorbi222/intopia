@@ -561,12 +561,12 @@ const chartRO=new ResizeObserver(draw);chartRO.observe($('#chart'));
 let raf=0;const later=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{render();save();push()})};
 // shared save through Firebase Firestore
 const FB={
-  apiKey:"PASTE_API_KEY",
-  authDomain:"PASTE.firebaseapp.com",
-  projectId:"PASTE",
-  storageBucket:"PASTE.firebasestorage.app",
-  messagingSenderId:"PASTE",
-  appId:"PASTE"
+  apiKey:"AIzaSyDzZCtwsfmQAuTX9JC8gjACHnemRYFQtDg",
+  authDomain:"intopia-planner.firebaseapp.com",
+  projectId:"intopia-planner",
+  storageBucket:"intopia-planner.firebasestorage.app",
+  messagingSenderId:"1073216274261",
+  appId:"1:1073216274261:web:95620a3596d78569b7f9dc"
 };
 const SY={ref:null,can:true,lastV:null,timer:0,writing:false,again:false,at:0};
 function syncUI(st,txt){const el=$('#sync');el.className='sync '+(st==='ok'?'ok':st==='busy'?'busy':st==='ro'?'ro':'');el.querySelector('span').textContent=txt}
