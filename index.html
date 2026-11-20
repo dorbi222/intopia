@@ -124,6 +124,8 @@ tr.sum td{font-weight:800;border-bottom:2px solid var(--ink)}
 .bar em{font-style:normal;text-align:left;direction:ltr}
 .mkas{margin-top:18px}
 .sales{width:100%;font-size:14px;margin:0 0 8px}.sales td,.sales th{padding:3px 4px;white-space:normal;position:static;text-align:right}.sales th{color:var(--mut);font-weight:500}
+.mrl{font-size:14px;margin:2px 0 6px;color:var(--mut)}.mrl b{color:var(--ink)}
+#mrt td{white-space:normal;text-align:right;vertical-align:top;position:static}#mrt td:first-child{font-weight:800}#mrt tr.first td{border-top:2px solid var(--ink)}
 #gp td,#gp th{text-align:center}#gp td:first-child,#gp th:first-child{text-align:right}#gp input,#gp select{min-width:78px;min-height:40px;padding:4px 6px}
 .gr{font-size:14px;color:var(--mut);margin-top:2px}
 #coop td{white-space:normal;text-align:right;vertical-align:top}
@@ -196,6 +198,9 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 </div>
 <h2>דרגים ומחירים בכל רבעון</h2>
 <div class="scroll"><table id="gpv"></table></div>
+<h2>מחקרי שוק לקנות בכל רבעון</h2>
+<p class="fine" style="margin-top:-4px">עד 3 מחקרים ברבעון. 17, 28 ו־74 מגיעים בחינם בכל רבעון, אז לא קונים אותם.</p>
+<div class="scroll"><table id="mrt" class="stack"></table></div>
 <h2>מה עושים בכל רבעון</h2>
 <div class="rleg" id="rleg"></div>
 <div class="cards" id="cards"></div>
@@ -361,6 +366,15 @@ const fm=v=>`<span class="n">${v<0?'−':''}${Math.abs(v)>=1000?(Math.abs(v)/100
 const fl=(v,r)=>`<span class="n">${CUR[r]}${sh(v)}</span>`;
 const nu=v=>`<span class="n">${Math.round(v).toLocaleString('en-US')}</span>`;
 
+const MRC={2:60,3:10,19:5,23:40,24:24,25:2,27:10,29:2,30:5,40:1,76:2,77:2,79:40,81:60};for(let g=1;g<=9;g++){MRC[30+g]=24;MRC[40+g]=24;MRC[50+g]=10;MRC[60+g]=10}
+function mrPick(G,A,t,Q){const L=[],gX=k=>at(A.gX,k),gY=k=>at(A.gY,k);
+ if(t<Q&&gY(t+1)>gY(t)){const g=gY(t+1);L.push([40+g,`בדיקת שוק למחשב Y${g}`,`כמה המחיר עולה ב־Y${g} לפני שמשיקים אותו ברבעון ${t+1}`],[60+g,`עלות ייצור מחשב Y${g}`,'כדי לדעת אם הדרג רווחי'])}
+ if(t<Q&&gX(t+1)>gX(t)){const g=gX(t+1);L.push([30+g,`בדיקת שוק לצ'יפ X${g}`,`כמה שווה צ'יפ X${g} לפני שמייצרים אותו ברבעון ${t+1}`],[50+g,`עלות ייצור צ'יפ X${g}`,'כדי לתמחר נכון מול חברות אחרות'])}
+ if(R.some(k=>A.ch[k].m==='cso'&&A.ch[k].q-1===t))L.push([81,'אופטימיזציה של משרדי מכירות','כמה משרדים כדאי לפתוח, לפני ההחלטה ברבעון הזה']);
+ if(t===1)L.push([40,'מספר מפעלים לכל חברה בכל אזור','מי יצרן מחשבים בלי מפעל צ\'יפים, ואיפה כל אחד מייצר'],[30,'איזה דרג כל חברה מייצרת לרבעון הבא','מי יצטרך איזה צ\'יפ'],[24,'היקף ייצור אופטימלי','לקבוע ניצולת למפעלים']);
+ if(t>=G.dealFrom-1)L.push([29,'דרגים במלאי לפי חברה','למי חסר איזה צ\'יפ לפני משא ומתן'],[77,'יבוא לפי אזור ומוצר','מי קונה צ\'יפים מבחוץ ובאיזה מחיר'],[23,'מלאי סופי לפי חברה','מי בלחץ למכור ומי צריך לקנות']);
+ L.push([40,'מספר מפעלים לכל חברה בכל אזור','לעקוב אחרי מפעלים חדשים של מתחרים'],[2,'מכירות לצרכנים לפי חברה','נתח שוק אמיתי לפי אזור']);
+ const seen=new Set();return L.filter(([n])=>!seen.has(n)&&seen.add(n)).slice(0,3).map(([n,d,w])=>({n,d,w,c:MRC[n]||10}))}
 function run(G,A){
  const Q=Math.max(1,Math.min(16,Math.round(G.quarters))),fx=G.fx;norm(G,A);
  const P=A.plants.map(p=>({...p,q:+p.q,on:+p.q+1,cost:G.plantCost[p.p][p.r]*fx[p.r]}));
@@ -382,7 +396,7 @@ function run(G,A){
  const rows=[];
  for(let t=1;t<=Q;t++){
   const ev=[],wr=[],g={};R.forEach(r=>g[r]={rev:0,intra:0,cogs:0,sell:0,ads:0,fix:0,dep:0,fr:0,car:0,oth:0,inc:0});
-  const rdX=+at(A.rdXq,t)||0,rdY=+at(A.rdYq,t)||0,h={rd:rdX+rdY,mr:A.mr,int:0,inc:0,lic:0};
+  const rdX=+at(A.rdXq,t)||0,rdY=+at(A.rdYq,t)||0,mrList=mrPick(G,A,t,Q),h={rd:rdX+rdY,mr:(A.mrAuto===0?(+A.mr||0):mrList.reduce((a,x)=>a+x.c,0))+(+A.mrExtra||0),int:0,inc:0,lic:0};
   if(rdX>0&&rdX<G.rdMinX)wr.push(`מו"פ צ'יפים מתחת למינימום של ${fm(G.rdMinX)}: אין סיכוי לפטנט`);
   if(rdY>0&&rdY<G.rdMinY)wr.push(`מו"פ מחשבים מתחת למינימום של ${fm(G.rdMinY)}: אין סיכוי לפטנט`);
   if(t<Q&&at(A.gX,t+1)>at(A.gX,t)&&A.rdXq.slice(0,t).every(v=>!+v))wr.push(`דרג הצ'יפ עולה ברבעון ${t+1} בלי מו"פ צ'יפים: רק דרך רישיון`);
@@ -485,7 +499,7 @@ function run(G,A){
   if(cash<0)wr.push(`המזומן יורד ל־${fm(cash)}: אשראי ספקים ב־${G.scRate}% לרבעון, צריך עוד מימון`);
   if(t===Q)ev.push(['note','רבעון אחרון: משאירים מלאי סביר, מו"פ פעיל וחוזים, כאילו המשחק ממשיך']);
   ev.push(['note',`מו"פ צ'יפים ${fm(rdX)}, מו"פ מחשבים ${fm(rdY)}, מחקרי שוק ${fm(h.mr)}`]);
-  rows.push({t,ev,wr,rev:sum('rev'),cogs:sum('cogs')+0,intra:sum('intra'),sell:sum('sell')+sum('oth'),ads:sum('ads'),fix:sum('fix')+sum('dep'),fr:sum('fr')+sum('car'),rd:h.rd+h.mr+h.lic,rdX,rdY,mrl:h.mr+h.lic,int:h.int-h.inc-sum('inc'),tax,net,capex,dep:depOut-depBack,fin,prin,paidTax,cash,chipMade,ext:extU,b2bU,chipLeft,short,availB,unitChip,cp,buyCeil,frU,rank,gX:at(A.gX,t),gY:gy,gYs:gys,gXs:gxs,F,rdXv:rdX,rdYv:rdY,pY:{US:at(A.pY.US,t),EU:at(A.pY.EU,t),BR:at(A.pY.BR,t)},pXU:at(A.pX.US,t),pS:at(A.pS,t),pB:at(A.pB,t)});
+  rows.push({t,ev,wr,rev:sum('rev'),cogs:sum('cogs')+0,intra:sum('intra'),sell:sum('sell')+sum('oth'),ads:sum('ads'),fix:sum('fix')+sum('dep'),fr:sum('fr')+sum('car'),rd:h.rd+h.mr+h.lic,rdX,rdY,mrl:h.mr+h.lic,int:h.int-h.inc-sum('inc'),tax,net,capex,dep:depOut-depBack,fin,prin,paidTax,cash,chipMade,ext:extU,b2bU,chipLeft,short,availB,unitChip,cp,buyCeil,frU,rank,gX:at(A.gX,t),gY:gy,gYs:gys,gXs:gxs,F,mrList,mrCost:h.mr,rdXv:rdX,rdYv:rdY,pY:{US:at(A.pY.US,t),EU:at(A.pY.EU,t),BR:at(A.pY.BR,t)},pXU:at(A.pX.US,t),pS:at(A.pS,t),pB:at(A.pB,t)});
  }
  const ar=recv.slice(Q+1).reduce((a,b)=>a+b,0),ap=pay.slice(Q+1).reduce((a,b)=>a+b,0);
  const inv=R.reduce((s,r)=>s+cv[r]+pv[r],0);
@@ -494,7 +508,7 @@ function run(G,A){
  return {rows,end,Q};
 }
 function shipX(G,mode,o,d,u){const c=(mode==='air'?G.air:G.surf)[o][d],bp=(mode==='air'?G.airBp:G.surfBp)[o][d],disc=mode==='air'?2/3:0.5;const tot=Math.min(u,bp)*c+Math.max(0,u-bp)*c*disc;return {unit:u?tot/u:c,tot}}
-window.ENG={shipX,R,RN,CUR,PN,DG,DA,run,fm,fl,nu,sh,norm,fill,at,CONV,esc};
+window.ENG={mrPick,MRC,shipX,R,RN,CUR,PN,DG,DA,run,fm,fl,nu,sh,norm,fill,at,CONV,esc};
 }
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -535,7 +549,9 @@ const AS=[
   {k:'A.switchCost',l:'עלות מעבר לסוכנים→משרד (אלפי SF)',s:5},
   {k:'A.ads',l:'פרסום לרבעון (אלפים)',t:'tri',c:1}]},
  {h:'מו"פ, מחקר ומחירי העברה',f:[
-  {k:'A.mr',l:'מחקרי שוק לרבעון (אלפי SF)',s:5},
+  {k:'A.mrAuto',l:'מחקרי שוק',t:'sel',o:[[1,'לפי ההמלצה בכל רבעון'],[0,'סכום קבוע']]},
+  {k:'A.mr',l:'סכום קבוע למחקרי שוק (אלפי SF)',s:5},
+  {k:'A.mrExtra',l:'ייעוץ מיוחד נוסף לרבעון (אלפי SF)',s:5},
   {k:'A.markup',l:'תוספת על העלות במחיר העברה בין אזורים',u:'%',rg:[0,100,5]}]},
  {h:'מימון',f:[
   {k:'A.loan.amt',l:'הלוואה מהגוף המסדר ברבעון 1, 1M עד 5M (אלפי SF)',u:'K',rg:[0,5000,250]},
@@ -626,7 +642,8 @@ function buildForms(){teamUI();simForm();$('#aform').innerHTML=form(AS);$('#gfor
 let res=null,DL={};
 const AN={US:1,EU:2,BR:3},CN={US:1,EU:2,BR:3,SF:4},CNAME={1:'דולר',2:'יורו',3:'ריאל',4:'פרנק'};
 let sheetQ=1;
-function mrItems(t){const r=res.rows,A=S.A,L=[];const nx=r[t]||null,cur=r[t-1];
+function mrItems(t){return res.rows[t-1].mrList.map(x=>[x.n,x.d])}
+function mrItemsOld(t){const r=res.rows,A=S.A,L=[];const nx=r[t]||null,cur=r[t-1];
  if(t===1)L.push([40,"מספר מפעלים לכל חברה: מי יצרן מחשבים בלי מפעל צ'יפים"],[24,'היקף ייצור אופטימלי לפי אזור'],[30,'איזה דרג כל חברה מייצרת לרבעון הבא']);
  if(nx&&nx.gY>cur.gY)L.push([40+nx.gY,`בדיקת שוק למחשב Y${nx.gY}: כמה המחיר עולה`],[60+nx.gY,`עלות ייצור מחשב Y${nx.gY}`]);
  if(nx&&nx.gX>cur.gX)L.push([30+nx.gX,`בדיקת שוק לצ'יפ X${nx.gX}`],[50+nx.gX,`עלות ייצור צ'יפ X${nx.gX}`]);
@@ -746,7 +763,7 @@ function render(){
  $('#kpis').innerHTML=k('מזומן מינימלי',fm(min.cash),'ברבעון '+min.t,min.cash<0)+k('רווח נקי מצטבר',fm(cum),fp?'רבעון רווחי ראשון: '+fp.t:'אין רבעון רווחי',cum<0)+k('הכנסות מצטברות',fm(rev),'מכירות לצרכנים ולחברות')+k('הון עצמי משוער בסוף',fm(end.eq),'נכסים פחות התחייבויות',end.eq<0)+k('חוב ארוך טווח בסוף',fm(end.loan+end.bond),'הלוואה ואג"ח');
  $('#mini').innerHTML=`<span>מזומן מינ׳ <b class="${min.cash<0?'bad':''}">${fm(min.cash)}</b></span><span>רווח מצטבר <b class="${cum<0?'bad':''}">${fm(cum)}</b></span><span>הון בסוף <b>${fm(end.eq)}</b></span>`;
  $('#cards').innerHTML=rows.map(r=>`<article class="card"><h3>רבעון ${r.t}<button class="btn" data-sq="${r.t}" style="min-height:34px;font-size:14px;padding:0 10px">מה מזינים</button><em>${r.net>=0?'רווח':'הפסד'} ${fm(r.net)}</em></h3>
- <div class="gr">מייצרים צ'יפ X${r.gX} ומחשב Y${r.gY}${r.t>1?` · מוכרים מחשב Y${r.gYs}`:''}</div>${salesTbl(r)}<div class="nums"><span>הכנסות <b>${fm(r.rev)}</b></span><span>מזומן בסוף <b>${fm(r.cash)}</b></span></div>
+ <div class="gr">מייצרים צ'יפ X${r.gX} ומחשב Y${r.gY}${r.t>1?` · מוכרים מחשב Y${r.gYs}`:''}</div>${salesTbl(r)}<p class="mrl"><b>מחקרי שוק:</b> ${r.mrList.map(x=>`<span title="${esc(x.w)}">${x.n} · ${x.d}</span>`).join('، ').replace(/،/g,',')} <span class="n">(${fm(r.mrCost)})</span>${rchip('cso')}</p><div class="nums"><span>הכנסות <b>${fm(r.rev)}</b></span><span>מזומן בסוף <b>${fm(r.cash)}</b></span></div>
  <ul>${r.ev.filter(e=>e[0]!=='note').concat(r.ev.filter(e=>e[0]==='note')).map(e=>{const k=evRole(e);return `<li class="${e[0]}" data-r="${k}" style="--rc:${RC[k]}">${e[1]}${rchip(k)}</li>`}).join('')}${r.wr.map(w=>`<li class="w" data-r="ceo" style="--rc:var(--acc)">${w}${rchip('ceo')}</li>`).join('')}</ul></article>`).join('');
  $('#rleg').innerHTML='מי אחראי:'+ROLES.map(([k])=>rchip(k)).join('')+'<span style="margin-inline-start:6px">· ה־CEO מפקח על הכל, אזהרות אצלו</span>';
  const L=[['הכנסות חיצוניות','rev'],['עלות המכר','cogs',-1],['מכירה ומשרדים','sell',-1],['פרסום','ads',-1],['קבועות ופחת','fix',-1],['הובלה ומלאי','fr',-1],['מו"פ צ\'יפים','rdX',-1],['מו"פ מחשבים','rdY',-1],['מחקרי שוק ורישיונות','mrl',-1],['ריבית נטו','int',-1],['מס','tax',-1],['רווח נקי','net',1,1],['השקעה במפעלים','capex',-1],['ערבות ברזיל נטו','dep',-1],['מימון שהתקבל','fin'],['החזר קרן','prin',-1],['מזומן בסוף רבעון','cash',1,1]];
@@ -754,6 +771,7 @@ function render(){
  $('#tbl').innerHTML=`<thead><tr><th>סעיף</th>${rows.map(r=>`<th>ר${r.t}</th>`).join('')}</tr></thead><tbody>${L.map(([l,f,sg,b])=>`<tr class="${b?'sum':''}"><td>${l}</td>${rows.map(r=>{let v=r[f];if(f==='cogs')v=r.cogs-r.intra;if(sg===-1)v=-v;return `<td>${cf(v)}</td>`}).join('')}</tr>`).join('')}</tbody>`;
  const PV=[["דרג צ'יפ מיוצר",r=>'X'+r.gX],['דרג מחשב מיוצר',r=>'Y'+r.gY],['דרג מחשב שנמכר',r=>r.t>1?'Y'+r.gYs:'–'],...R.map(g=>[`מחשב לצרכן, ${RN[g]}`,r=>fl(r.pY[g],g)]),["צ'יפ לצרכן, ארה\"ב",r=>fl(r.pXU,'US')],["מוכרים צ'יפ לחברות",r=>fl(r.pS,'US')],["קונים צ'יפ מחברות",r=>fl(r.pB,'US')],['מו"פ צ\'יפים',r=>fm(r.rdX)],['מו"פ מחשבים',r=>fm(r.rdY)]];
  $('#gpv').innerHTML=`<thead><tr><th>רבעון</th>${rows.map(r=>`<th>${r.t}</th>`).join('')}</tr></thead><tbody>${PV.map(([l,f])=>`<tr><td>${l}</td>${rows.map(r=>`<td>${f(r)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+ const MH=['רבעון','מחקר','מה מקבלים','למה עכשיו','עלות'];$('#mrt').innerHTML=`<thead><tr>${MH.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.flatMap(r=>r.mrList.map((x,i)=>`<tr class="${i===0&&r.t>1?'first':''}"><td data-l="${MH[0]}">${i===0?r.t:''}</td><td data-l="${MH[1]}">${x.n}</td><td data-l="${MH[2]}">${x.d}</td><td data-l="${MH[3]}">${x.w}</td><td data-l="${MH[4]}">${fm(x.c)}</td></tr>`)).join('')}</tbody>`;
  const cl=coop(rows),H=['רבעון','מול איזה סוג חברה','מה סוגרים','למה'];
  $('#coop').innerHTML=`<thead><tr>${H.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${cl.map((c,i)=>`<tr class="${i&&cl[i-1].t!==c.t?'first':''}"><td data-l="${H[0]}">${c.t}</td><td data-l="${H[1]}">${c.w}${rchip(/הלוואה/.test(c.what)?'cfo':'cso')}</td><td data-l="${H[2]}">${c.what}</td><td data-l="${H[3]}">${c.why}</td></tr>`).join('')}</tbody>`;
  dealsUI();
