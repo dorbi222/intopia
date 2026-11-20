@@ -126,6 +126,11 @@ tr.sum td{font-weight:800;border-bottom:2px solid var(--ink)}
 .sales{width:100%;font-size:14px;margin:0 0 8px}.sales td,.sales th{padding:3px 4px;white-space:normal;position:static;text-align:right}.sales th{color:var(--mut);font-weight:500}
 .mrl{font-size:14px;margin:2px 0 6px;color:var(--mut)}.mrl b{color:var(--ink)}
 #mrt td{white-space:normal;text-align:right;vertical-align:top;position:static}#mrt td:first-child{font-weight:800}#mrt tr.first td{border-top:2px solid var(--ink)}
+.mrsel{border:1px solid var(--line);border-radius:8px;margin-bottom:14px}.mrsel .qsel{border-bottom:1px solid var(--line);padding-top:10px}
+.mrhead{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 18px;font-size:15px}.mrhead .bad{color:var(--acc);font-weight:700}
+.mrlist{max-height:340px;overflow:auto;padding:0 18px 12px}.mrlist h5{margin:12px 0 4px;font-size:14px;color:var(--mut);position:sticky;top:0;background:var(--bg);padding:4px 0}
+.mri{display:grid;grid-template-columns:auto 2.5em minmax(0,1fr) auto;gap:8px;align-items:center;min-height:40px;border-bottom:1px solid var(--line);font-size:15px;cursor:pointer}
+.mri input{width:20px;height:20px;accent-color:var(--acc)}.mri .num{font-weight:800}.mri .rec{margin-inline-start:6px}
 #gp td,#gp th{text-align:center}#gp td:first-child,#gp th:first-child{text-align:right}#gp input,#gp select{min-width:78px;min-height:40px;padding:4px 6px}
 .gr{font-size:14px;color:var(--mut);margin-top:2px}
 #coop td{white-space:normal;text-align:right;vertical-align:top}
@@ -199,7 +204,8 @@ input[type=range]{width:100%;height:44px;accent-color:var(--acc)}
 <h2>דרגים ומחירים בכל רבעון</h2>
 <div class="scroll"><table id="gpv"></table></div>
 <h2>מחקרי שוק לקנות בכל רבעון</h2>
-<p class="fine" style="margin-top:-4px">עד 3 מחקרים ברבעון. 17, 28 ו־74 מגיעים בחינם בכל רבעון, אז לא קונים אותם.</p>
+<p class="fine" style="margin-top:-4px">בוחרים רבעון ומסמנים מחקרים מהרשימה. העלות נכנסת לתוכנית. במערכת אפשר 3 מחקרים ברבעון, ו־17, 28 ו־74 מגיעים בחינם. ברבעונים 1–2 עוד אין מכירות, אז גודל השוק מוערך מהיקף הייצור האופטימלי (24) ומספר המוכרים בכל שוק (40): לפי החוקים, השוק לכל חברה הוא קצת יותר ממפעל אחד בקיבולת אופטימלית לכל דגם, וגדל עם מספר החברות שמוכרות.</p>
+<div class="mrsel"><div class="qsel" id="mrq"></div><div class="mrhead" id="mrhead"></div><div class="mrlist" id="mrlist"></div></div>
 <div class="scroll"><table id="mrt" class="stack"></table></div>
 <h2>מה עושים בכל רבעון</h2>
 <div class="rleg" id="rleg"></div>
@@ -347,7 +353,7 @@ const DA={plants:[{r:'US',p:'X',q:1},{r:'EU',p:'Y',q:2},{r:'BR',p:'Y',q:2},{r:'B
  chipCons:{US:2000,EU:0,BR:0},b2b:8000,b2bFrom:3,b2bTo:'auto',extOn:1,extFrom:3,
  ch:{US:{m:'cso',q:6,o:1},EU:{m:'cso',q:4,o:1},BR:{m:'cso',q:4,o:1}},csoVar:{US:12,EU:18,BR:50},switchCost:30,
  ads:{US:60,EU:30,BR:80},rdXq:[80,80,80,80,80,80,80,80],rdYq:[140,140,140,140,140,140,140,140],mr:30,markup:0,
- loan:{amt:4000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},deals:{},team:{ceo:'',coo:'',cmo:'',cfo:'',cso:''},
+ loan:{amt:4000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},deals:{},team:{ceo:'',coo:'',cmo:'',cfo:'',cso:''},mrSel:{},
  msim:{US:{p:165,n:2,ads:60,d0:21000,sup:21000},EU:{p:130,n:1,ads:30,d0:15000,sup:15300},BR:{p:800,n:1,ads:80,d0:7500,sup:7650}},
  mk:{csoBase:5,lift1:4,decay:75,pe:{US:1.3,EU:1.6,BR:2.2},ae:{US:0.6,EU:0.5,BR:0.8},thr:{US:40,EU:30,BR:80},chipCost:{US:11,EU:11,BR:13}}};
 const CONV=[[1,2,3,0,0,0,0,0,0,0],[1,1,2,3,4,0,0,0,0,0],[1,1,2,2,3,0,0,0,0,0],[0,1,1,2,2,3,3,5,0,0],[0,1,1,1,2,3,3,4,0,0],[0,0,0,1,1,2,2,3,0,0],[0,0,0,0,0,2,2,2,3,0],[0,0,0,0,0,1,1,2,3,0],[0,0,0,0,0,0,0,1,2,3],[0,0,0,0,0,0,0,0,1,2]];
@@ -366,12 +372,17 @@ const fm=v=>`<span class="n">${v<0?'−':''}${Math.abs(v)>=1000?(Math.abs(v)/100
 const fl=(v,r)=>`<span class="n">${CUR[r]}${sh(v)}</span>`;
 const nu=v=>`<span class="n">${Math.round(v).toLocaleString('en-US')}</span>`;
 
-const MRC={2:60,3:10,19:5,23:40,24:24,25:2,27:10,29:2,30:5,40:1,76:2,77:2,79:40,81:60};for(let g=1;g<=9;g++){MRC[30+g]=24;MRC[40+g]=24;MRC[50+g]=10;MRC[60+g]=10}
+const MRN={2:'מכירות לצרכנים לפי חברה, מוצר, דגם ואזור',3:'סה"כ מכירות לשוק לפי אזור ומוצר',4:'כמה חברות פרסמו בכל שוק',5:'סה"כ פרסום בתעשייה',6:'פרסום לפי חברה ומוצר',7:'כמה חברות השקיעו בשיפור שיטות',8:'סה"כ שיפור שיטות בתעשייה',9:'ממוצע שיפור שיטות, 3 רבעונים',11:'כמה חברות מוכרות לצרכנים, לפי אזור ומוצר',12:'כמה חברות משקיעות במו"פ',13:'סה"כ מו"פ לפי מוצר',14:'השקעה ממוצעת במו"פ לחברה',15:'כמה חברות קונות מחקרי שוק',16:'סה"כ השקעה במחקרי שוק',18:'התיישנות מפעלים, אומדן',19:'מלאי סופי בתעשייה לפי אזור',23:'מלאי סופי לפי חברה, אזור ודגם',24:'היקף ייצור אופטימלי לפי אזור',25:'משרדי מכירות לכל חברה',27:'יחסים פיננסיים של החברה שלנו',29:'דרגים במלאי לפי חברה',30:'איזה דרג כל חברה מייצרת לרבעון הבא',40:'מספר מפעלים לכל חברה ואזור',71:'דוחות מאוחדים בדולר',72:'דוחות מאוחדים ביורו',73:'דוחות מאוחדים בריאל',76:'יצוא לפי אזור ומוצר',77:'יבוא לפי אזור ומוצר',79:'אינדיקטורים לכל חברה: נתח שוק ורמה טכנולוגית',81:'אופטימיזציה של משרדי מכירות'};
+for(let g=1;g<=9;g++){MRN[30+g]=`בדיקת שוק לצ'יפ X${g}: עליית מחיר`;MRN[40+g]=`בדיקת שוק למחשב Y${g}: עליית מחיר`;MRN[50+g]=`עלות ייצור צ'יפ X${g}`;MRN[60+g]=`עלות ייצור מחשב Y${g}`}
+const MRC={2:60,3:10,4:2,5:10,6:24,7:2,8:2,9:5,11:1,12:1,13:1,14:10,15:1,16:1,18:24,19:5,23:40,24:24,25:2,27:10,29:2,30:5,40:1,71:10,72:10,73:10,76:2,77:2,79:40,81:60};for(let g=1;g<=9;g++){MRC[30+g]=24;MRC[40+g]=24;MRC[50+g]=10;MRC[60+g]=10}
+const MRG=[['גודל שוק ומכירות',[3,2,11,19,24]],['מתחרים',[40,30,29,23,25,79,76,77,71,72,73]],['מחיר לפי דרג',[31,32,33,34,35,36,37,38,39,41,42,43,44,45,46,47,48,49]],['עלויות ייצור',[51,52,53,54,55,56,57,58,59,61,62,63,64,65,66,67,68,69,18,7,8,9]],['פרסום, מו"פ ומשרדי מכירות',[81,4,5,6,12,13,14,15,16,27]]];
 function mrPick(G,A,t,Q){const L=[],gX=k=>at(A.gX,k),gY=k=>at(A.gY,k);
  if(t<Q&&gY(t+1)>gY(t)){const g=gY(t+1);L.push([40+g,`בדיקת שוק למחשב Y${g}`,`כמה המחיר עולה ב־Y${g} לפני שמשיקים אותו ברבעון ${t+1}`],[60+g,`עלות ייצור מחשב Y${g}`,'כדי לדעת אם הדרג רווחי'])}
  if(t<Q&&gX(t+1)>gX(t)){const g=gX(t+1);L.push([30+g,`בדיקת שוק לצ'יפ X${g}`,`כמה שווה צ'יפ X${g} לפני שמייצרים אותו ברבעון ${t+1}`],[50+g,`עלות ייצור צ'יפ X${g}`,'כדי לתמחר נכון מול חברות אחרות'])}
  if(R.some(k=>A.ch[k].m==='cso'&&A.ch[k].q-1===t))L.push([81,'אופטימיזציה של משרדי מכירות','כמה משרדים כדאי לפתוח, לפני ההחלטה ברבעון הזה']);
- if(t===1)L.push([40,'מספר מפעלים לכל חברה בכל אזור','מי יצרן מחשבים בלי מפעל צ\'יפים, ואיפה כל אחד מייצר'],[30,'איזה דרג כל חברה מייצרת לרבעון הבא','מי יצטרך איזה צ\'יפ'],[24,'היקף ייצור אופטימלי','לקבוע ניצולת למפעלים']);
+ if(t>=3&&t<=5)L.unshift([3,'סה"כ מכירות לשוק לפי אזור ומוצר','גודל השוק בפועל, מהרבעון הראשון שיש בו מכירות']);
+ if(t===1)L.push([24,'היקף ייצור אופטימלי לפי אזור','לפני שיש מכירות, זה האומדן הכי טוב לגודל השוק לכל חברה'],[40,'מספר מפעלים לכל חברה בכל אזור','מי יצרן מחשבים בלי מפעל צ\'יפים, ואיפה כל אחד מייצר'],[30,'איזה דרג כל חברה מייצרת לרבעון הבא','מי יצטרך איזה צ\'יפ']);
+ if(t===2)L.push([40,'מספר מפעלים לכל חברה בכל אזור','כמה חברות ייכנסו לכל שוק: לפי החוקים, השוק גדל עם מספר המוכרים']);
  if(t>=G.dealFrom-1)L.push([29,'דרגים במלאי לפי חברה','למי חסר איזה צ\'יפ לפני משא ומתן'],[77,'יבוא לפי אזור ומוצר','מי קונה צ\'יפים מבחוץ ובאיזה מחיר'],[23,'מלאי סופי לפי חברה','מי בלחץ למכור ומי צריך לקנות']);
  L.push([40,'מספר מפעלים לכל חברה בכל אזור','לעקוב אחרי מפעלים חדשים של מתחרים'],[2,'מכירות לצרכנים לפי חברה','נתח שוק אמיתי לפי אזור']);
  const seen=new Set();return L.filter(([n])=>!seen.has(n)&&seen.add(n)).slice(0,3).map(([n,d,w])=>({n,d,w,c:MRC[n]||10}))}
@@ -396,7 +407,7 @@ function run(G,A){
  const rows=[];
  for(let t=1;t<=Q;t++){
   const ev=[],wr=[],g={};R.forEach(r=>g[r]={rev:0,intra:0,cogs:0,sell:0,ads:0,fix:0,dep:0,fr:0,car:0,oth:0,inc:0});
-  const rdX=+at(A.rdXq,t)||0,rdY=+at(A.rdYq,t)||0,mrList=mrPick(G,A,t,Q),h={rd:rdX+rdY,mr:(A.mrAuto===0?(+A.mr||0):mrList.reduce((a,x)=>a+x.c,0))+(+A.mrExtra||0),int:0,inc:0,lic:0};
+  const rdX=+at(A.rdXq,t)||0,rdY=+at(A.rdYq,t)||0,mrList=(A.mrSel&&Array.isArray(A.mrSel[t]))?A.mrSel[t].map(n=>({n,d:MRN[n]||('מחקר '+n),w:'נבחר ידנית',c:MRC[n]??10})):mrPick(G,A,t,Q),h={rd:rdX+rdY,mr:(A.mrAuto===0?(+A.mr||0):mrList.reduce((a,x)=>a+x.c,0))+(+A.mrExtra||0),int:0,inc:0,lic:0};
   if(rdX>0&&rdX<G.rdMinX)wr.push(`מו"פ צ'יפים מתחת למינימום של ${fm(G.rdMinX)}: אין סיכוי לפטנט`);
   if(rdY>0&&rdY<G.rdMinY)wr.push(`מו"פ מחשבים מתחת למינימום של ${fm(G.rdMinY)}: אין סיכוי לפטנט`);
   if(t<Q&&at(A.gX,t+1)>at(A.gX,t)&&A.rdXq.slice(0,t).every(v=>!+v))wr.push(`דרג הצ'יפ עולה ברבעון ${t+1} בלי מו"פ צ'יפים: רק דרך רישיון`);
@@ -508,13 +519,14 @@ function run(G,A){
  return {rows,end,Q};
 }
 function shipX(G,mode,o,d,u){const c=(mode==='air'?G.air:G.surf)[o][d],bp=(mode==='air'?G.airBp:G.surfBp)[o][d],disc=mode==='air'?2/3:0.5;const tot=Math.min(u,bp)*c+Math.max(0,u-bp)*c*disc;return {unit:u?tot/u:c,tot}}
-window.ENG={mrPick,MRC,shipX,R,RN,CUR,PN,DG,DA,run,fm,fl,nu,sh,norm,fill,at,CONV,esc};
+window.ENG={MRN,MRG,mrPick,MRC,shipX,R,RN,CUR,PN,DG,DA,run,fm,fl,nu,sh,norm,fill,at,CONV,esc};
 }
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 {
+const {MRN,MRG,mrPick,MRC}=window.ENG;
 const {R,RN,CUR,PN,DG,DA,run,fm,fl,nu,norm,fill,at,esc,shipX}=window.ENG;
 const KEY='intopia-site-v1',clone=o=>JSON.parse(JSON.stringify(o)),$=s=>document.querySelector(s);
 let S={G:clone(DG),A:clone(DA)};
@@ -640,6 +652,12 @@ function gpUI(){norm(S.G,S.A);const q=QO();
 function buildForms(){teamUI();simForm();$('#aform').innerHTML=form(AS);$('#gform').innerHTML=form(GS);plantsUI();gpUI()}
 
 let res=null,DL={};
+let mrQ=1;
+function mrUI(){if(!res)return;const Q=res.Q;mrQ=Math.min(mrQ,Q);const r=res.rows[mrQ-1],sel=r.mrList.map(x=>x.n),auto=mrPick(S.G,S.A,mrQ,Q).map(x=>x.n),manual=S.A.mrSel&&Array.isArray(S.A.mrSel[mrQ]);
+ $('#mrq').innerHTML=res.rows.map(x=>`<button data-mq="${x.t}" aria-pressed="${x.t===mrQ}">${x.t}</button>`).join('');
+ $('#mrhead').innerHTML=`<span>רבעון ${mrQ}: <b>${sel.length}</b> מחקרים, <b>${fm(r.mrCost)}</b></span>${sel.length>3?'<span class="bad">יותר מ־3: במערכת צריך לבקש ייעוץ מיוחד מהמרצה</span>':''}${manual?'<button class="btn" id="mrReset" style="min-height:34px">חזרה להמלצה</button>':'<span class="fine" style="margin:0">מסומנת ההמלצה של המתכנן</span>'}`;
+ const box=$('#mrlist'),st=box.scrollTop;
+ box.innerHTML=MRG.map(([g,ns])=>`<h5>${g}</h5>`+ns.map(n=>`<label class="mri"><input type="checkbox" data-mr="${n}"${sel.includes(n)?' checked':''}><span class="num">${n}</span><span>${MRN[n]}${auto.includes(n)?'<span class="rec">מומלץ</span>':''}</span><span class="n">${fm(MRC[n]??10)}</span></label>`).join('')).join('');box.scrollTop=st}
 const AN={US:1,EU:2,BR:3},CN={US:1,EU:2,BR:3,SF:4},CNAME={1:'דולר',2:'יורו',3:'ריאל',4:'פרנק'};
 let sheetQ=1;
 function mrItems(t){return res.rows[t-1].mrList.map(x=>[x.n,x.d])}
@@ -775,6 +793,7 @@ function render(){
  const cl=coop(rows),H=['רבעון','מול איזה סוג חברה','מה סוגרים','למה'];
  $('#coop').innerHTML=`<thead><tr>${H.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${cl.map((c,i)=>`<tr class="${i&&cl[i-1].t!==c.t?'first':''}"><td data-l="${H[0]}">${c.t}</td><td data-l="${H[1]}">${c.w}${rchip(/הלוואה/.test(c.what)?'cfo':'cso')}</td><td data-l="${H[2]}">${c.what}</td><td data-l="${H[3]}">${c.why}</td></tr>`).join('')}</tbody>`;
  dealsUI();
+ mrUI();
  simOut();
  if(!$('#sheet').hidden)$('#sheetBody').innerHTML=`<p class="who">מזין במערכת: ${rchip('coo')} · מפקח ומאשר: ${rchip('ceo')} · כל טופס מסומן במי שאחראי על התוכן שלו</p>`+sheetHTML(sheetQ);
  draw();
@@ -877,6 +896,7 @@ function onEdit(e){
   if(f==='st'||f==='w'||f==='o')x[f]=el.value;else{const v=parseFloat(el.value);if(el.value===''){delete x[f]}else if(isNaN(v))return;else x[f]=v}
   if(f==='st'&&el.value==='closed'&&DL[k]){const s0=DL[k];if(x.u==null&&s0.u!=null)x.u=s0.u;if(x.p==null&&s0.p!=null)x.p=s0.p;if(x.n==null&&s0.n!=null)x.n=s0.n}
   later();return}
+ if(el.dataset.mr){S.A.mrSel=S.A.mrSel||{};const cur=res.rows[mrQ-1].mrList.map(x=>x.n),n=+el.dataset.mr;S.A.mrSel[mrQ]=el.checked?[...new Set([...cur,n])]:cur.filter(x=>x!==n);later();return}
  if(el.dataset.pi!==undefined){const p=S.A.plants[+el.dataset.pi],f=el.dataset.f;p[f]=f==='q'?+el.value:el.value;plantsUI();later();return}
  const k=el.dataset.k;if(!k)return;let v=el.value;if(!el.dataset.str){v=parseFloat(v);if(isNaN(v))return}
  setP(k,v);if(el.type==='range'){const o=document.getElementById('o-'+el.id);if(o)o.textContent=v+el.dataset.u}
@@ -887,6 +907,8 @@ document.addEventListener('change',e=>{if(e.target.tagName==='SELECT'||e.target.
 document.addEventListener('click',e=>{
  if(e.target.id==='themeBtn'){theme=theme==='auto'?'light':theme==='light'?'dark':'auto';applyTheme();return}
  const ap=e.target.closest('[data-apply]');if(ap){const k=ap.dataset.apply,x=S.A.msim[k],c=S.A.ch[k];if(x.n>0){c.m='cso';c.o=x.n}else c.m='agents';S.A.ads[k]=+x.ads||0;buildForms();later();ap.textContent='הוחל על התוכנית';return}
+ const mq=e.target.closest('[data-mq]');if(mq){mrQ=+mq.dataset.mq;mrUI();return}
+ if(e.target.id==='mrReset'){if(S.A.mrSel)delete S.A.mrSel[mrQ];later();return}
  const sq=e.target.closest('[data-sq]');if(sq){openSheet(+sq.dataset.sq);return}
  if(e.target.id==='openSheet'){openSheet(sheetQ);return}
  if(e.target.id==='closeSheet'||e.target.id==='sheet'){$('#sheet').hidden=true;return}
