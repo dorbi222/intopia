@@ -509,8 +509,9 @@ function run(G,A){
   let chipMade=0;const xPlan={};
   {const tn=Math.min(t+1,Q+1),gxNow=at(A.gX,t),gyN=at(A.gY,Math.min(tn,Q)),cpN=CONV[gxNow]?.[gyN]||0;
    const onN=r=>P.filter(p=>p.p==='Y'&&p.r===r&&p.on<=tn).length;
-   const needN=R.reduce((a,r)=>a+Math.round(onN(r)*G.cap.Y[r]*A.util.Y/100)*cpN+(onN(r)||r==='US'?A.chipCons[r]:0),0)+(!A.onlyNeeded&&tn>=Math.max(A.b2bFrom,G.dealFrom)?(+A.b2b||0):0);
    const capR={};R.forEach(r=>capR[r]=on.X[r]*G.cap.X[r]);const capT=R.reduce((a,r)=>a+capR[r],0);
+   const ownN=R.reduce((a,r)=>a+Math.round(onN(r)*G.cap.Y[r]*A.util.Y/100)*cpN+(onN(r)||r==='US'?A.chipCons[r]:0),0);
+   const needN=ownN+(!A.onlyNeeded&&tn>=Math.max(A.b2bFrom,G.dealFrom)?Math.min(+A.b2b||0,Math.max(0,capT+R.reduce((a,r)=>a+ci[r],0)-ownN)):0);
    if(A.xAuto&&capT>0){const left=R.reduce((a,r)=>a+ci[r],0);let tgt=Math.max(0,needN-left);if(tgt>capT)wr.push(`ברבעון ${t+1} צריך ${nu(needN)} צ'יפים והמפעלים מייצרים עד ${nu(capT)}: לסגור רכש של ${nu(tgt-capT)} או לבנות מפעל צ'יפים נוסף`);
     tgt=Math.min(tgt,capT);R.forEach(r=>{xPlan[r]=capR[r]?Math.min(capR[r],Math.ceil(tgt*capR[r]/capT/1000)*1000):0})}
    else R.forEach(r=>xPlan[r]=Math.round(on.X[r]*G.cap.X[r]*A.util.X/100))}
@@ -817,7 +818,7 @@ function shipLine(x){const G=S.G;
 function dealList(){
  const rows=res.rows,A=S.A,G=S.G,Q=res.Q,D=A.deals,L=[];
  rows.forEach((r,i)=>{const t=r.t,nx=rows[i+1];if(t<G.dealFrom)return;
-  const su=Math.min(A.b2b,Math.floor(r.availB/500)*500),anyS=R.some(d=>D[`sellX-${t}-${d}`]);
+  const su=Math.min(A.b2b,Math.round(r.availB)),anyS=R.some(d=>D[`sellX-${t}-${d}`]);
   if((!A.onlyNeeded&&t>=A.b2bFrom&&su>=1000)||anyS)r.rank.forEach((d,j)=>{const k=`sellX-${t}-${d}`,fr=r.frU[d]/G.fx.US,mn=Math.ceil(r.unitChip/G.fx.US+fr),bc=Math.floor(r.buyCeil[d]/G.fx.US),tp=Math.min(Math.max(bc,mn),Math.max(Math.round(r.pS+fr),Math.round(mn+(bc-mn)*0.4)));
    L.push({k,t,ty:'sell',d,o:'US',best:j===0,title:`מכירת צ'יפים X${r.gXs} ל${RN[d]}`,who:`יצרני מחשבים ב${RN[d]} בלי מפעל צ'יפים`,u:su,p:tp,
     tg:[['כמות',nu(su)+" יח'"],['מחיר מטרה',fl(tp,'US')],['מינימום',fl(mn,'US')],['הקונה יכול עד',fl(bc,'US')]],
