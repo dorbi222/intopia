@@ -93,6 +93,10 @@ tr.best td{background:color-mix(in srgb,var(--acc) 12%,transparent);font-weight:
 .nowq{display:flex;align-items:center;gap:6px;font-weight:700;border:2px solid var(--acc);border-radius:8px;padding:2px 6px}.nowq b{font-size:20px;min-width:1.2em;text-align:center}.nowq .btn{min-height:34px;min-width:34px;border:0;font-size:20px;padding:0}
 th.now,td.now{background:color-mix(in srgb,var(--acc) 10%,transparent)}.card.past{opacity:.72}.card.now{border:2px solid var(--acc)}
 #actt input{min-width:84px;min-height:36px}#actt input.note{min-width:180px;text-align:right;direction:rtl}.dif{font-size:12px;color:var(--mut);display:block}
+.quote{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px;margin:12px 0 4px}
+.qc{border:1px solid var(--line);border-top:5px solid var(--acc);border-radius:8px;padding:10px 12px}.qc span{display:block;font-size:14px;color:var(--mut);font-weight:700}
+.qc strong{display:block;font-size:34px;font-weight:800;line-height:1.1;direction:ltr;text-align:right}.qc em{font-style:normal;font-size:18px;font-weight:700;color:var(--mut);direction:ltr;display:block;text-align:right}.qc p{margin:6px 0 0;font-size:14px}
+.qc.t{border-top-color:var(--blu)}.qc.m{border-top-color:var(--ink)}
 @media (max-width:760px){.mini>span:not(.sync){display:none}.top{grid-template-columns:1fr}.capr{grid-template-columns:3.5em minmax(0,1fr) 8.5em}}
 </style>
 </head>
@@ -123,9 +127,10 @@ th.now,td.now{background:color-mix(in srgb,var(--acc) 10%,transparent)}.card.pas
  <h2>מחירון למשא ומתן</h2>
  <p class="lead">כל השכבות בין הייצור שלנו לבין המחיר שהקונה יכול לשלם, לצ'יפ, בדולר, כולל שילוח (אנחנו משלמים אותו). רבעון = רבעון המכירה. הצ'יפ יוצר ברבעון שלפניו.</p>
  <div class="qsel" id="pq"></div>
- <div class="pbc" style="border-top-color:var(--ink);margin-bottom:14px"><h3>מחשבון רווח לפי מחיר</h3><p class="sub">לרבעון שנבחר למעלה. מחיר כולל שילוח, כמו בחוזה.</p>
-  <div class="grid" id="calcin"></div><div class="kpis" id="calcout" style="font-size:15px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-top:10px"></div>
-  <div class="scroll" style="margin-top:10px"><table id="calct"></table></div></div>
+ <div class="pbc" style="border-top-color:var(--ink);margin-bottom:14px"><h3>איזו הצעת מחיר לתת</h3><p class="sub">ממלאים מי הקונה וכמה הוא רוצה, ומקבלים את המחיר להציע. לפי הרבעון שנבחר למעלה. המחירים כוללים שילוח, כי אנחנו משלמים אותו.</p>
+  <div class="grid" id="calcin"></div><div class="quote" id="quote"></div>
+  <details><summary>הקונה הציע מחיר אחר? לבדוק כמה הוא משאיר לנו</summary><div class="grid" id="calcp" style="margin-top:8px"></div><div class="kpis" id="calcout" style="font-size:15px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-top:10px"></div>
+  <div class="scroll" style="margin-top:10px"><table id="calct"></table></div></details></div>
  <div class="pbc" style="border-top-color:var(--blu);margin-bottom:14px"><h3>מחשבון המרה</h3><p class="sub">הקונה מציע מחיר במטבע שלו? כמה זה יוצא לנו בדולר וב־SF, לפי השער של הרבעון שנבחר למעלה (לשונית מעקב ושערים).</p>
   <div class="grid" id="fxin"></div><div class="kpis" id="fxout" style="font-size:15px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-top:10px"></div>
   <p><button class="btn sm" type="button" id="fxUse">להעביר את המחיר בדולר למחשבון הרווח</button></p></div>
@@ -415,7 +420,15 @@ function fxOut(){const c=S.A.conv,fx={...fxAt(S.G,S.A,pq),SF:1},v=+c.v||0,sf=v*f
  if(com)cards.push(['אחרי עמלת המרה',u$(usd*(1-com/100)),`${com}% כשממירים ${sym[c.c].trim()} לדולר באזור`]);
  if(p)cards.push(['מול העלות המלאה',`<span class="${usd<p.full?'bad':''}">${u$(usd-p.full)}</span>`,`עלות מלאה ל${RN[d]} ${u$(p.full)} · אחרי מס ${u$((usd-p.full)*(1-S.G.tax.US/100))}`]);
  $('#fxout').innerHTML=cards.map(([a,b,x])=>`<div class="k"><span>${a}</span><strong>${b}</strong><small>${x}</small></div>`).join('')}
-function calcForm(){$('#calcin').innerHTML=[sel('A.calc.d','איפה הקונה',R.map(r=>[r,RN[r]])),sel('A.calc.m','שילוח',[['surf','ימי (חוזה לכמה רבעונים)'],['air','אווירי']]),inp('A.calc.u','יחידות לרבעון',{step:500,min:1000}),inp('A.calc.p','מחיר לצ\'יפ ($)',{step:.5}),inp('A.calc.n','לכמה רבעונים',{min:1})].join('')}
+function calcForm(){$('#calcin').innerHTML=[sel('A.calc.d','איפה הקונה',R.map(r=>[r,RN[r]])),inp('A.calc.u','כמה צ\'יפים לרבעון',{step:500,min:1000}),inp('A.calc.n','לכמה רבעונים',{min:1}),sel('A.calc.m','שילוח',[['surf','ימי (חוזה לכמה רבעונים)'],['air','אווירי']])].join('');
+ $('#calcp').innerHTML=inp('A.calc.p','המחיר שהקונה הציע ($ לצ\'יפ)',{step:.5})}
+function quoteOut(){const c=S.A.calc,p=price(S.G,S.A,res,pq,c.d,+c.u,c.m),el=$('#quote');if(!el)return;if(!p){el.innerHTML='';return}
+ const fq=fxAt(S.G,S.A,pq),tx=S.G.tax.US/100,u=+c.u,n=+c.n||1,loc=v=>c.d==='US'?'':`${CUR[c.d]}${(v/fq[c.d]).toFixed(2)}`;
+ const mn=Math.ceil(p.full),op=Math.max(p.open,mn+2),tg=Math.max(mn+1,Math.round((Math.max(p.lead,mn)+op)/2));
+ const card=(cls,lab,v,txt)=>`<div class="qc ${cls}"><span>${lab}</span><strong>$${v}</strong>${loc(v)?`<em>${loc(v)}</em>`:''}<p>${txt}</p><p style="display:flex;justify-content:space-between;gap:6px"><span style="color:inherit;font-weight:400;font-size:14px">רווח לרבעון אחרי מס</span><b>${k$((v-p.full)*(1-tx)*u/1000)}</b></p><p style="display:flex;justify-content:space-between;gap:6px"><span style="color:inherit;font-weight:400;font-size:14px">לכל ${n} הרבעונים</span><b>${k$((v-p.full)*(1-tx)*u*n/1000)}</b></p></div>`;
+ el.innerHTML=card('o','מציעים',op,'מחיר הפתיחה. נמוך ממה שיעלה לו לבנות מפעל צ\'יפים ולחכות שני רבעונים.')+card('t','שמחים לסגור על',tg,'היעד. עדיין זול לקונה מלייצר בעצמו.')+card('m','לא יורדים מתחת',mn,'העלות המלאה שלנו עד הלקוח. מתחת לזה החוזה לא מחזיר את המפעל.')
+  +`<p class="tip" style="grid-column:1/-1">הקונה יכול לשלם עד $${p.ceil.toFixed(0)}${loc(p.ceil)?' ('+loc(p.ceil)+')':''} לפני שהמחשב שלו מפסיד, אז אם הוא מסכים מהר למחיר הפתיחה, כנראה היה אפשר יותר. ${c.d==='BR'?'<b>בברזיל הקונה הוא מתחרה שלנו במחשבים.</b>':''}</p>`}
+
 function calcOut(){const c=S.A.calc,p=price(S.G,S.A,res,pq,c.d,+c.u,c.m);if(!p){$('#calcout').innerHTML='';$('#calct').innerHTML='';return}const tx=S.G.tax.US/100,u=+c.u,n=+c.n||1;
  const m=v=>({pre:v-p.full,post:(v-p.full)*(1-tx),pct:v?(v-p.full)/v*100:0,cm:v-p.floor});const x=m(+c.p);
  $('#calcout').innerHTML=[['עלות מלאה לצ\'יפ',u$(p.full),`רצפה ${u$(p.floor)}`],['רווח לצ\'יפ לפני מס',`<span class="${x.pre<0?'bad':''}">${u$(x.pre)}</span>`,`שולי רווח <span class="n">${x.pct<0?'−':''}${Math.abs(x.pct).toFixed(0)}%</span>`],['רווח לצ\'יפ אחרי מס',u$(x.post),`מס ${S.G.tax.US}% בארה"ב`],['רווח לרבעון אחרי מס',k$(x.post*u/1000),`על ${u.toLocaleString('en-US')} צ'יפים`],[`רווח ל־${n} רבעונים`,k$(x.post*u*n/1000),'אחרי מס'],['תרומה מעל הרצפה',k$(x.cm*u/1000),'לרבעון, לפני מס'],...(c.d!=='US'?[[`המחיר ב${c.d==='EU'?'יורו':'ריאל'}`,`<span class="n">${CUR[c.d]}${(+c.p/fxAt(S.G,S.A,pq)[c.d]).toFixed(2)}</span>`,`עלות מלאה ${CUR[c.d]}${(p.full/fxAt(S.G,S.A,pq)[c.d]).toFixed(2)}`]]:[]),['שילוח',u$(p.fr),c.m==='surf'?`ימי, כולל רבעון מלאי. אווירי ${'$'+p.frA.toFixed(2)}`:`אווירי. ימי ${'$'+p.frS.toFixed(2)}`]]
@@ -425,7 +438,7 @@ function calcOut(){const c=S.A.calc,p=price(S.G,S.A,res,pq,c.d,+c.u,c.m);if(!p){
  $('#calct').innerHTML=`<tr><th>מחיר</th>${c.d!=='US'?`<th>ב${c.d==='EU'?'יורו':'ריאל'}</th>`:''}<th>רווח לצ'יפ אחרי מס</th><th>שולי רווח</th><th>לרבעון אחרי מס</th><th>ל־${n} רבעונים</th></tr>`+ps.map(v=>{const y=m(v);return `<tr class="${v===+c.p?'best':''}"><td>${u$(v)}${tag(v)}</td>${c.d!=='US'?`<td><span class="n">${CUR[c.d]}${(v/fxAt(S.G,S.A,pq)[c.d]).toFixed(2)}</span></td>`:''}<td class="${y.pre<0?'bad':''}">${u$(y.post)}</td><td><span class="n">${y.pct<0?'−':''}${Math.abs(y.pct).toFixed(0)}%</span></td><td>${k$(y.post*u/1000)}</td><td>${k$(y.post*u*n/1000)}</td></tr>`}).join('')}
 function priceUI(){const qs=pQs();if(!qs.length){$('#pq').innerHTML='';$('#pbody').innerHTML='<p class="lead">אין עדיין ייצור צ\'יפים בתוכנית.</p>';$('#ptable').innerHTML='';return}
  if(!qs.includes(pq))pq=qs[0];
- calcOut();fxOut();$('#pq').innerHTML=qs.map(t=>`<button type="button" data-pq="${t}" aria-pressed="${t===pq}">רבעון ${t}</button>`).join('')+`<select data-k="A.pbm" data-str="1" style="width:auto;min-height:40px" aria-label="שילוח במחירון"><option value="surf"${S.A.pbm==='surf'?' selected':''}>שילוח ימי</option><option value="air"${S.A.pbm==='air'?' selected':''}>שילוח אווירי</option></select>`;
+ quoteOut();calcOut();fxOut();$('#pq').innerHTML=qs.map(t=>`<button type="button" data-pq="${t}" aria-pressed="${t===pq}">רבעון ${t}</button>`).join('')+`<select data-k="A.pbm" data-str="1" style="width:auto;min-height:40px" aria-label="שילוח במחירון"><option value="surf"${S.A.pbm==='surf'?' selected':''}>שילוח ימי</option><option value="air"${S.A.pbm==='air'?' selected':''}>שילוח אווירי</option></select>`;
  $('#pbody').innerHTML=R.map(d=>{const p=price(S.G,S.A,res,pq,d,volFor(pq,d),S.A.pbm);if(!p)return '';const fxq=fxAt(S.G,S.A,pq),L=v=>d==='US'?'':` <span class="dif" style="display:inline">${CUR[d]}${(v/fxq[d]).toFixed(2)}</span>`;const cur=priceFor(pq,d),prod=p.vr+p.mi+p.fix+p.dep+p.rd;
   const tr=(a,b,c='')=>`<tr class="${c}"><td>${a}</td><td>${b}</td></tr>`;
   const mx=Math.max(p.ceil,cur||0,p.open)*1.02;const rung=(c,lab,v)=>`<div class="rung ${c}"><span>${lab}</span><i style="width:${Math.max(2,v/mx*100)}%"></i><b>$${v.toFixed(v<100?2:0)}</b></div>`;
