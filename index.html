@@ -145,6 +145,7 @@ th.now,td.now{background:color-mix(in srgb,var(--acc) 10%,transparent)}.card.pas
  <p class="lead">כל חברה שמוכרים לה צ'יפים. חוזה מחייב לפי החוקים רק מ־3,000 יחידות לרבעון ולפחות 3 רבעונים. "מתוכנן" נכנס למודל רק כשהמתג למטה דלוק. "סגור" נכנס תמיד.</p>
  <div class="cap" id="cap"></div>
  <label class="f" style="max-width:340px"><span>חוזים מתוכננים נכנסים למודל</span><select data-k="A.useAll"><option value="1">כן, תוכנית מלאה</option><option value="0">לא, רק חוזים סגורים</option></select></label>
+ <div class="pbc" style="border-top-color:var(--acc);margin:12px 0"><h3>כל מה שמייצרים נמכר</h3><p class="sub">ההנחה: מה שלא הולך למחשבים שלנו בברזיל ולא לחוזים שלמטה, נמכר לקונים נוספים. כבוי = מייצרים רק לפי החוזים.</p><div class="grid" id="restin"></div></div>
  <div style="display:grid;gap:10px;margin-top:12px" id="clist"></div>
  <p><button class="btn" id="addC" type="button">+ חוזה חדש</button></p>
 </section>
@@ -223,7 +224,7 @@ const DA={
  rdX:[150,150,150,150,150,150,150,150],rdY:[70,70,70,70,70,70,70,70],mrSel:{},
  mk:{d0:9000,pe:2.2,ae:0.8,thr:80,cso:5,lift:4,decay:75},msim:{p:900,n:1,ads:80},
  loan:{amt:1000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},
- pol:{open:30},calc:{d:'EU',u:15000,p:40,n:6,m:'surf'},pbm:'surf',conv:{v:26,c:'EU'},mi:{X:[0,20,20,20,20,20,20,20],Y:[0,0,0,0,0,0,0,0]},now:1,act:{},fxq:{EU:[],BR:[]}};
+ pol:{open:30},rest:{on:1,from:3,p:35,d:'EU',m:'surf'},calc:{d:'EU',u:15000,p:40,n:6,m:'surf'},pbm:'surf',conv:{v:26,c:'EU'},mi:{X:[0,20,20,20,20,20,20,20],Y:[0,0,0,0,0,0,0,0]},now:1,act:{},fxq:{EU:[],BR:[]}};
 function mktY(G,A,r,t){const gy=at(A.gY,Math.max(1,t-1));return Math.round(G.base.Y[r]*(1+G.gpY[r]*gy/100)/G.step.Y[r])*G.step.Y[r]}
 function norm(G,A){const Q=Math.max(1,Math.round(G.quarters)),pad=a=>{while(a.length<Q)a.push(a.length?a[a.length-1]:0);return a};
  ['gX','gY','rdX','rdY'].forEach(k=>pad(A[k]));if(!A.mi)A.mi={X:[],Y:[]};['X','Y'].forEach(k=>{if(!A.mi[k])A.mi[k]=[];pad(A.mi[k])});if(!A.pBR||!A.pBR.length){A.pBR=[];for(let t=1;t<=Q;t++)A.pBR.push(mktY(G,A,'BR',t))}pad(A.pBR);if(!A.fxq)A.fxq={EU:[],BR:[]};['EU','BR'].forEach(k=>{if(!A.fxq[k]||!A.fxq[k].length)A.fxq[k]=Array(Q).fill(G.fx[k]);pad(A.fxq[k])});if(!A.act)A.act={}}
@@ -308,6 +309,11 @@ function run(G,A){
    b2bU+=tot;b2bRev+=rv;sales.push({i:c.i,co:c.co,d:c.d,u:tot,p:c.p,st:c.st,rv,fr,mode:c.used||'air'})});
   if(b2bU){const nCl=sales.filter(x=>x.st==='closed'&&x.u).length,nPl=sales.filter(x=>x.st!=='closed'&&x.u).length;
    ev.push(['sell',`מוכרים ${nu(b2bU)} צ'יפי X${gxs} ל־${nCl+nPl} חברות (${nCl} סגורים, ${nPl} מתוכננים), ממוצע ${l$(b2bRev*1000/b2bU,'US')} לצ'יפ: ${k$(b2bRev)}`])}
+  let restU=0,restRev=0;const RS=A.rest||{};
+  if(+RS.on&&t>=+RS.from){const tot=R.reduce((s,r)=>s+ci[r],0);if(tot>0){const sm=RS.m==='surf'&&t>+RS.from?'surf':'air';let fr=0;
+   R.forEach(o=>{const u=ci[o];if(u<=0)return;const v=u*avg(o),x=u*(+RS.p||0)/1000,f=u*shipU(G,o,RS.d,tot,sm)*fx[o]/1000;g[o].rev+=x;g[o].cogs+=v;g[o].fr+=f;fr+=f;ci[o]=0;cv[o]=0;restU+=u;restRev+=x;sched(recvR,t,x,o)});
+   b2bU+=restU;b2bRev+=restRev;sales.push({i:-1,co:'קונים נוספים (מעבר לחוזים)',d:RS.d,u:restU,p:+RS.p,st:'rest',rv:restRev,fr,mode:sm});
+   ev.push(['sell',`מוכרים עוד ${nu(restU)} צ'יפים מעבר לחוזים, ל${RN[RS.d]} ב־${l$(+RS.p,'US')}: ${k$(restRev)}`])}}
   R.forEach(r=>g[r].car+=ci[r]*G.carry.X[r]*fx[r]/1000);
   const chipLeft=R.reduce((s,r)=>s+ci[r],0);
   // chip production for next quarter
@@ -315,8 +321,8 @@ function run(G,A){
   const ownN=R.reduce((s,r)=>s+Math.round(onAt('Y',r,tn)*G.cap.Y[r]*A.util/100)*cpN,0);
   const conN=(t<Q?active(tn):active(t)).reduce((s,c)=>s+c.u,0);
   const capR2={};R.forEach(r=>capR2[r]=on.X[r]*G.cap.X[r]);const capT=R.reduce((s,r)=>s+capR2[r],0);
-  let tgt=Math.max(0,ownN+conN-chipLeft);const xPlan={US:0,EU:0,BR:0};
-  if(capT>0){if(tgt>capT)wr.push(`לרבעון ${tn} צריך ${nu(ownN+conN)} צ'יפים (${nu(ownN)} למחשבים שלנו, ${nu(conN)} לחוזים) והמפעלים מייצרים עד ${nu(capT)}`);
+  let tgt=+RS.on&&tn>=+RS.from?Infinity:Math.max(0,ownN+conN-chipLeft);const xPlan={US:0,EU:0,BR:0};
+  if(capT>0){if(tgt>capT&&tgt!==Infinity)wr.push(`לרבעון ${tn} צריך ${nu(ownN+conN)} צ'יפים (${nu(ownN)} למחשבים שלנו, ${nu(conN)} לחוזים) והמפעלים מייצרים עד ${nu(capT)}`);
    tgt=Math.min(tgt,capT);R.forEach(r=>{xPlan[r]=capR2[r]?Math.min(capR2[r],Math.ceil(tgt*capR2[r]/capT/1000)*1000):0})}
   let chipMade=0;R.forEach(r=>{const u=xPlan[r];if(!u)return;const vc=u*A.varX[r]*mult.X[r]*(1+G.gcX*at(A.gX,t)/100)*fx[r]/1000;ci[r]+=u;cv[r]+=vc;sched(payR,t,vc,r);chipMade+=u;F.prodX[r]=Array(on.X[r]).fill(Math.round(u/on.X[r]/1000*10)/10);
    ev.push(['prod',`מייצרים ${nu(u)} צ'יפי X${at(A.gX,t)} ב${RN[r]} (${Math.round(u/capR2[r]*100)}% מהקיבולת), למכירה ולמחשבים ברבעון ${tn}`])});
@@ -340,7 +346,7 @@ function run(G,A){
   if(cash<0)wr.push(`המזומן יורד ל־${k$(cash)}: אשראי ספקים ב־${G.scRate}% לרבעון`);
   ev.push(['note',`מו"פ צ'יפים ${k$(rdX)}, מו"פ מחשבים ${k$(rdY)}, מחקרי שוק ${k$(mr)}${miCost?`, שיפור שיטות ${k$(miCost)}`:''}`]);
   const nX=R.reduce((s,r)=>s+on.X[r],0);
-  rows.push({mult,red,miCost,miX:+at(A.mi.X,t)||0,t,ev,wr,net:(ac.net!==undefined&&ac.net!==''&&!isNaN(+ac.net))?+ac.net:net,planNet,planCash,act:ac,fx,cash,tax,rev:sum('rev'),capex,chipMade,capT,nX,toPC,shipPC,b2bU,b2bRev,dem,sales,chipLeft,made,pcSold,pcPrice,gX:at(A.gX,t),gY:gy,gxs,gys,cp,
+  rows.push({restU,restRev,mult,red,miCost,miX:+at(A.mi.X,t)||0,t,ev,wr,net:(ac.net!==undefined&&ac.net!==''&&!isNaN(+ac.net))?+ac.net:net,planNet,planCash,act:ac,fx,cash,tax,rev:sum('rev'),capex,chipMade,capT,nX,toPC,shipPC,b2bU,b2bRev,dem,sales,chipLeft,made,pcSold,pcPrice,gX:at(A.gX,t),gY:gy,gxs,gys,cp,
    on,F,mrl,mr,rdY,fixX:R.reduce((s,r)=>s+fixR.X[r],0),depX:R.reduce((s,r)=>s+depR.X[r],0),rdX});
  }
  const ar=R.reduce((s,r)=>s+recvR[r].slice(Q+1).reduce((a,b)=>a+b,0),0),ap=R.reduce((s,r)=>s+payR[r].slice(Q+1).reduce((a,b)=>a+b,0),0);
@@ -404,7 +410,7 @@ function draw(){const s=$('#chart');if(!s||!res||$('#plan').hidden)return;const 
 const pl=(r,p)=>{const t=R.filter(k=>r.on[p][k]).map(k=>`${r.on[p][k]} ב${RN[k]}`).join(', ');return t||'–'};
 function qTable(){const rows=res.rows,N=+S.A.now,nc=r=>r.t===N?' class="now"':'',h=`<tr><th>רבעון</th>${rows.map(r=>`<th${nc(r)}>${r.t}${r.t===N?' · עכשיו':''}</th>`).join('')}</tr>`;
  const line=(lab,f,cls='')=>`<tr class="${cls}"><td>${lab}</td>${rows.map(r=>`<td${nc(r)}>${f(r)}</td>`).join('')}</tr>`,sec=t=>`<tr class="sec"><td>${t}</td>${rows.map(()=>'<td></td>').join('')}</tr>`;
- $('#qt').innerHTML=h+sec("צ'יפים")+line('מפעלים פעילים',r=>pl(r,'X'))+line('דרג שנמכר',r=>r.b2bU||r.toPC?'X'+r.gxs:'–')+line('נמכרים לחברות',r=>r.b2bU?nu(r.b2bU):'–')+line('נשלחים למחשבים שלנו',r=>r.toPC?nu(r.toPC):'–')
+ $('#qt').innerHTML=h+sec("צ'יפים")+line('מפעלים פעילים',r=>pl(r,'X'))+line('דרג שנמכר',r=>r.b2bU||r.toPC?'X'+r.gxs:'–')+line('נמכרים לחברות',r=>r.b2bU?nu(r.b2bU):'–')+line('מזה מעבר לחוזים',r=>r.restU?nu(r.restU):'–')+line('נשלחים למחשבים שלנו',r=>r.toPC?nu(r.toPC):'–')
   +line('מיוצרים לרבעון הבא',r=>r.chipMade?nu(r.chipMade):'–')+line('עלות משתנה לצ\'יפ',r=>r.chipMade?u$(S.A.varX.US*(r.mult.X.US||1)*(1+S.G.gcX*r.gX/100)):'–')+line('ניצולת',r=>r.capT?`<span class="n">${Math.round(r.chipMade/r.capT*100)}%</span>`:'–')+line('הכנסה מצ\'יפים',r=>r.b2bRev?k$(r.b2bRev):'–')
   +sec('מחשבים')+line('מפעלים פעילים',r=>pl(r,'Y'))+line('דרג שמייצרים',r=>r.made.BR?'Y'+r.gY:'–')+line('מיוצרים',r=>r.made.BR?nu(r.made.BR):'–')+line('דרג שנמכר',r=>r.pcSold.BR?'<b>Y'+r.gys+'</b>':'–')+line('נמכרים',r=>r.pcSold.BR?nu(r.pcSold.BR):'–')+line('מחיר',r=>r.pcPrice.BR?l$(r.pcPrice.BR,'BR'):'–')
   +sec('כסף')+line('הכנסות',r=>k$(r.rev))+line('רווח נקי',r=>k$(r.net),'hi')+line('מזומן בסוף',r=>`<span class="${r.cash<0?'bad':''}">${k$(r.cash)}</span>`)}
@@ -458,10 +464,11 @@ function priceUI(){const qs=pQs();if(!qs.length){$('#pq').innerHTML='';$('#pbody
 
 // ---------- contracts ----------
 function capUI(){const all=!!+S.A.useAll;$('#cap').innerHTML='<b>כמה צ\'יפים יש למכור בכל רבעון</b>'+QO().filter(t=>t>=3).map(t=>{const pr=res.rows[t-2],r=res.rows[t-1];const cap=pr?pr.capT:0;if(!cap)return '';
-  const own=r.toPC,cl=actC(t,false).reduce((s,c)=>s+(+c.u||0),0),pl=all?actC(t,true).reduce((s,c)=>s+(+c.u||0),0)-cl:0,free=cap-own-cl-pl,w=v=>`${Math.max(0,v/cap*100)}%`;
-  return `<div class="capr"><span>רבעון ${t}</span><span class="bar" title="קיבולת ${cap}"><i class="pc" style="width:${w(own)}"></i><i class="cl" style="width:${w(cl)}"></i><i class="pl" style="width:${w(pl)}"></i></span><em class="${free<0?'bad':''}">${free<0?'חסר':'פנוי'} ${nu(Math.abs(free))} מתוך ${nu(cap)}</em></div>`}).join('')
-  +`<div class="legend" style="flex-wrap:wrap"><span><i style="background:var(--blu)"></i>למחשבים שלנו</span><span><i style="background:var(--ink)"></i>חוזים סגורים</span><span><i></i>חוזים מתוכננים</span></div>`}
-function ctrForms(){$('#clist').innerHTML=S.A.contracts.map((c,i)=>`<div class="ctr ${c.st}" id="cc-${i}"><div class="cf">
+  const own=r.toPC,cl=actC(t,false).reduce((s,c)=>s+(+c.u||0),0),pl=all?actC(t,true).reduce((s,c)=>s+(+c.u||0),0)-cl:0,rs=r.restU||0,free=cap-own-cl-pl-rs,w=v=>`${Math.max(0,v/cap*100)}%`;
+  return `<div class="capr"><span>רבעון ${t}</span><span class="bar" title="קיבולת ${cap}"><i class="pc" style="width:${w(own)}"></i><i class="cl" style="width:${w(cl)}"></i><i class="pl" style="width:${w(pl)}"></i><i style="width:${w(rs)};background:var(--ok)"></i></span><em class="${free<0?'bad':''}">${free<0?'חסר':'פנוי'} ${nu(Math.abs(free))} מתוך ${nu(cap)}</em></div>`}).join('')
+  +`<div class="legend" style="flex-wrap:wrap"><span><i style="background:var(--blu)"></i>למחשבים שלנו</span><span><i style="background:var(--ink)"></i>חוזים סגורים</span><span><i></i>חוזים מתוכננים</span><span><i style="background:var(--ok)"></i>קונים נוספים</span></div>`}
+function restForm(){$('#restin').innerHTML=[sel('A.rest.on','מוכרים את כל הייצור',[[1,'כן'],[0,'לא, רק חוזים']]),inp('A.rest.from','מרבעון',{min:3}),inp('A.rest.p','מחיר לצ\'יפ לשאר ($, כולל שילוח)',{step:.5}),sel('A.rest.d','לאן בעיקר',R.filter(r=>r!=='BR').map(r=>[r,RN[r]])),sel('A.rest.m','שילוח',[['surf','ימי'],['air','אווירי']])].join('')}
+function ctrForms(){restForm();$('#clist').innerHTML=S.A.contracts.map((c,i)=>`<div class="ctr ${c.st}" id="cc-${i}"><div class="cf">
  <label class="f" style="grid-column:span 2"><span>חברה</span><input type="text" data-c="${i}" data-f="co" value="${esc(c.co)}"></label>
  <label class="f"><span>איפה הקונה</span><select data-c="${i}" data-f="d">${R.map(r=>`<option value="${r}"${c.d===r?' selected':''}>${RN[r]}</option>`).join('')}</select></label>
  <label class="f"><span>מרבעון</span><input type="number" min="3" max="${S.G.quarters}" data-c="${i}" data-f="from" value="${c.from}"></label>
@@ -597,7 +604,7 @@ function sheetHTML(t){const r=res.rows[t-1],F=r.F,G=S.G;let h='',ho='';
   a+=frm('A3','כספים',[tr.f>0?'מעבירים מהמשרד הראשי מה שהאזור צריך, עם מרווח 10%.':'',tr.back>0?'מחזירים עודף מזומן למשרד הראשי.':'',k==='BR'&&F.dep>0?`הפיקדון של ברזיל מושקע ומחודש כל רבעון עד רבעון ${G.brDepLastQ}.`:''].filter(Boolean).join(' '),a3);
   if(a)h+=`<section class="sarea"><h3>${RN[k]} (אזור ${AN[k]})</h3>${a}</section>`});
  let h6='';F.ship.forEach(x=>{h6+=frm('H6',`העברה פנימית ${RN[x.o]} ← ${RN[x.d]}`,"צ'יפים למפעל המחשבים שלנו. מחיר העברה = עלות + שילוח.",[['Seller / Buyer','שלנו / שלנו'],['Area from → to',`${AN[x.o]} → ${AN[x.d]}`],['Product · Grade',`X · ${x.g}`],['Units (000s)',u0(x.u)],['Currency',`${CNAME[CN[x.o]]} (${CN[x.o]})`],['Unit price',x.tp.toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Mode of transport','אווירי (A)']])});
- const nx=res.rows[t]?res.rows[t].sales.filter(x=>x.u&&x.mode==='surf').map(x=>({...x,arr:t+1})):[];[...r.sales.filter(x=>x.u&&x.mode!=='surf'),...nx].forEach(x=>{h6+=frm('H6',`מכירת צ'יפים ל${esc(x.co)}${x.arr?` · ימי, מגיע ברבעון ${x.arr}`:''}`,x.st==='closed'?'חוזה סגור. אנחנו מגישים, הקונה חותם.':'עוד לא סגור: ערכים מהתוכנית.',[['Buyer company',esc(x.co)],['Area from → to',`1 → ${AN[x.d]}`],['Product · Grade',`X · ${x.arr?r.gX:r.gxs}`],['Units (000s)',u0(x.u)],['Currency','דולר (1)'],['Unit price',(+x.p).toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Mode of transport',x.arr?'ימי (S)':'אווירי (A)'],['שילוח, עלינו',k$(x.fr)]],x.st==='closed'?'':'מתוכנן')});
+ const nx=res.rows[t]?res.rows[t].sales.filter(x=>x.u&&x.mode==='surf').map(x=>({...x,arr:t+1})):[];[...r.sales.filter(x=>x.u&&x.mode!=='surf'),...nx].forEach(x=>{h6+=frm('H6',`מכירת צ'יפים ל${esc(x.co)}${x.arr?` · ימי, מגיע ברבעון ${x.arr}`:''}`,x.st==='closed'?'חוזה סגור. אנחנו מגישים, הקונה חותם.':x.st==='rest'?'כל מה שנשאר אחרי החוזים: מחלקים בין הקונים שנסגרו.':'עוד לא סגור: ערכים מהתוכנית.',[['Buyer company',esc(x.co)],['Area from → to',`1 → ${AN[x.d]}`],['Product · Grade',`X · ${x.arr?r.gX:r.gxs}`],['Units (000s)',u0(x.u)],['Currency','דולר (1)'],['Unit price',(+x.p).toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Mode of transport',x.arr?'ימי (S)':'אווירי (A)'],['שילוח, עלינו',k$(x.fr)]],x.st==='closed'?'':'מתוכנן')});
  if(h6)h+=`<section class="sarea"><h3>מכירות והעברות (H6)</h3>${h6}</section>`;
  if(r.wr.length)h+=`<section class="sarea"><h3>לשים לב</h3>${r.wr.map(w=>`<p class="snote" style="color:var(--acc)">${w}</p>`).join('')}</section>`;return h}
 function openSheet(t){sheetQ=Math.max(1,Math.min(res.Q,t||sheetQ));$('#sheetT').textContent=`מה מזינים ברבעון ${sheetQ}`;
