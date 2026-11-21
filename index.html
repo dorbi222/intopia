@@ -210,12 +210,12 @@ const DG={quarters:8,capital:8000,fx:{US:1,EU:1.5,BR:0.5},scRate:7,cashRate:0.5,
 const CONV=[[1,2,3,0,0,0,0,0,0,0],[1,1,2,3,4,0,0,0,0,0],[1,1,2,2,3,0,0,0,0,0],[0,1,1,2,2,3,3,5,0,0],[0,1,1,1,2,3,3,4,0,0],[0,0,0,1,1,2,2,3,0,0],[0,0,0,0,0,2,2,2,3,0],[0,0,0,0,0,1,1,2,3,0],[0,0,0,0,0,0,0,1,2,3],[0,0,0,0,0,0,0,0,1,2]];
 const at=(a,t)=>a[Math.max(0,Math.min(t-1,a.length-1))];
 const DA={
- plants:[{r:'US',p:'X',q:1},{r:'BR',p:'Y',q:2},{r:'US',p:'X',q:3}],
+ plants:[{r:'US',p:'X',q:1},{r:'BR',p:'Y',q:2},{r:'US',p:'X',q:4}],
  contracts:[
   {co:'יצרן מחשבים באירופה 1',d:'EU',from:3,to:8,u:15000,p:40,st:'plan',mode:'surf'},
   {co:'יצרן מחשבים באירופה 2',d:'EU',from:3,to:8,u:10000,p:40,st:'plan',mode:'surf'},
   {co:'יצרן מחשבים בארה"ב 1',d:'US',from:3,to:8,u:15000,p:40,st:'plan',mode:'surf'},
-  {co:'יצרן מחשבים בארה"ב 2',d:'US',from:5,to:8,u:20000,p:40,st:'plan',mode:'surf'}],
+  {co:'יצרן מחשבים בארה"ב 2',d:'US',from:6,to:8,u:20000,p:40,st:'plan',mode:'surf'}],
  useAll:1,
  gX:[0,0,1,1,2,3,3,4],gY:[0,0,0,0,1,1,2,2],
  varX:{US:7,EU:8,BR:30},varY:{US:45,EU:35,BR:220},
