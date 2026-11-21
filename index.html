@@ -227,8 +227,8 @@ function mktY(G,A,r,t){const gy=at(A.gY,Math.max(1,t-1));return Math.round(G.bas
 function norm(G,A){const Q=Math.max(1,Math.round(G.quarters)),pad=a=>{while(a.length<Q)a.push(a.length?a[a.length-1]:0);return a};
  ['gX','gY','rdX','rdY'].forEach(k=>pad(A[k]));if(!A.mi)A.mi={X:[],Y:[]};['X','Y'].forEach(k=>{if(!A.mi[k])A.mi[k]=[];pad(A.mi[k])});if(!A.pBR||!A.pBR.length){A.pBR=[];for(let t=1;t<=Q;t++)A.pBR.push(mktY(G,A,'BR',t))}pad(A.pBR);if(!A.fxq)A.fxq={EU:[],BR:[]};['EU','BR'].forEach(k=>{if(!A.fxq[k]||!A.fxq[k].length)A.fxq[k]=Array(Q).fill(G.fx[k]);pad(A.fxq[k])});if(!A.act)A.act={}}
 const fxAt=(G,A,t)=>({US:1,EU:+at(A.fxq.EU,t)||G.fx.EU,BR:+at(A.fxq.BR,t)||G.fx.BR});
-function airU(G,o,d,u){const c=G.air[o][d],bp=G.airBp[o][d];u=Math.max(1,u);return (Math.min(u,bp)*c+Math.max(0,u-bp)*c*2/3)/u}
-function surfU(G,o,d,u){const c=G.surf[o][d],bp=G.surfBp[o][d];u=Math.max(1,u);return (Math.min(u,bp)*c+Math.max(0,u-bp)*c*2/3)/u}
+function airU(G,o,d,u){const c=G.air[o][d],bp=G.airBp[o][d];u=Math.max(1,u);if(o===d)return c;return (Math.min(u,bp)*c+Math.max(0,u-bp)*c*2/3)/u}
+function surfU(G,o,d,u){const c=G.surf[o][d],bp=G.surfBp[o][d];u=Math.max(1,u);if(o===d)return c;return (Math.min(u,bp)*c+Math.max(0,u-bp)*c/2)/u}
 const shipU=(G,o,d,u,m)=>m==='surf'?surfU(G,o,d,u)+G.carry.X[o]:airU(G,o,d,u);
 function fixedFor(G,pr,r,n){if(!n)return 0;const a=G.fixed[pr][r];return n<=3?a[n-1]:a[2]+(n-3)*(a[2]-a[1])}
 const MRN={2:'מכירות לצרכנים לפי חברה, מוצר ואזור',3:'סה"כ מכירות לשוק לפי אזור ומוצר',4:'כמה חברות פרסמו בכל שוק',5:'סה"כ פרסום בתעשייה',6:'פרסום לפי חברה ומוצר',11:'כמה חברות מוכרות לצרכנים בכל שוק',12:'כמה חברות משקיעות במו"פ',13:'סה"כ מו"פ לפי מוצר',14:'השקעה ממוצעת במו"פ לחברה',19:'מלאי סופי בתעשייה לפי אזור',23:'מלאי סופי לפי חברה, אזור ודגם',24:'היקף ייצור אופטימלי לפי אזור',25:'משרדי מכירות לכל חברה',27:'יחסים פיננסיים שלנו',29:'דרגים במלאי לפי חברה',30:'איזה דרג כל חברה מייצרת ברבעון הבא',40:'מספר מפעלים לכל חברה ואזור',76:'יצוא לפי אזור ומוצר',77:'יבוא לפי אזור ומוצר',79:'נתח שוק ורמה טכנולוגית לכל חברה',81:'אופטימיזציה של משרדי מכירות'};
