@@ -133,6 +133,7 @@ th.now,td.now{background:color-mix(in srgb,var(--acc) 10%,transparent)}.card.pas
   <div class="scroll" style="margin-top:10px"><table id="calct"></table></div></details></div>
  <div class="pbc" style="border-top-color:var(--blu);margin-bottom:14px"><h3>מחשבון המרה</h3><p class="sub">הקונה מציע מחיר במטבע שלו? כמה זה יוצא לנו בדולר וב־SF, לפי השער של הרבעון שנבחר למעלה (לשונית מעקב ושערים).</p>
   <div class="grid" id="fxin"></div><div class="kpis" id="fxout" style="font-size:15px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-top:10px"></div>
+  <div class="scroll" style="margin-top:10px"><table id="fxx"></table></div>
   <p><button class="btn sm" type="button" id="fxUse">להעביר את המחיר בדולר למחשבון הרווח</button></p></div>
  <div class="pb" id="pbody"></div>
  <h2>טבלת מחירים לכל המשחק</h2>
@@ -419,6 +420,8 @@ function fxOut(){const c=S.A.conv,fx={...fxAt(S.G,S.A,pq),SF:1},v=+c.v||0,sf=v*f
  const cards=[['בדולר',u$(usd),`שער ${sym[c.c]}1 = SF ${fx[c.c]}`],['ב־SF',`<span class="n">SF ${sf.toFixed(2)}</span>`,'לצ\'יפ'],['ביורו',`<span class="n">€${(sf/fx.EU).toFixed(2)}</span>`,''],['בריאל',`<span class="n">R$${(sf/fx.BR).toFixed(2)}</span>`,'']];
  if(com)cards.push(['אחרי עמלת המרה',u$(usd*(1-com/100)),`${com}% כשממירים ${sym[c.c].trim()} לדולר באזור`]);
  if(p)cards.push(['מול העלות המלאה',`<span class="${usd<p.full?'bad':''}">${u$(usd-p.full)}</span>`,`עלות מלאה ל${RN[d]} ${u$(p.full)} · אחרי מס ${u$((usd-p.full)*(1-S.G.tax.US/100))}`]);
+ const K=['US','EU','BR','SF'],nm={US:'דולר',EU:'יורו',BR:'ריאל',SF:'פרנק (SF)'},sy={US:'$',EU:'€',BR:'R$',SF:'SF '};
+ $('#fxx').innerHTML=`<tr><th>1 יחידה של</th>${K.map(k=>`<th>ב${nm[k]}</th>`).join('')}</tr>`+K.map(a=>`<tr><td>${sy[a].trim()}1 (${nm[a].replace(' (SF)','')})</td>${K.map(b=>`<td>${a===b?'–':`<span class="n">${sy[b]}${(fx[a]/fx[b]).toFixed(4).replace(/\.?0+$/,'')}</span>`}</td>`).join('')}</tr>`).join('');
  $('#fxout').innerHTML=cards.map(([a,b,x])=>`<div class="k"><span>${a}</span><strong>${b}</strong><small>${x}</small></div>`).join('')}
 function calcForm(){$('#calcin').innerHTML=[sel('A.calc.d','איפה הקונה',R.map(r=>[r,RN[r]])),inp('A.calc.u','כמה צ\'יפים לרבעון',{step:500,min:1000}),inp('A.calc.n','לכמה רבעונים',{min:1}),sel('A.calc.m','שילוח',[['surf','ימי (חוזה לכמה רבעונים)'],['air','אווירי']])].join('');
  $('#calcp').innerHTML=inp('A.calc.p','המחיר שהקונה הציע ($ לצ\'יפ)',{step:.5})}
