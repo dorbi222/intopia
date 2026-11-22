@@ -407,7 +407,7 @@ function kpis(){const rows=res.rows,cum=rows.reduce((s,r)=>s+r.net,0),mc=rows.re
   ['צ\'יפים לחברות ברבעון האחרון',nu(last.b2bU),`${rev?Math.round(chipRev/rev*100):0}% מההכנסות במשחק`],['מחשבים בברזיל ברבעון האחרון',nu(last.pcSold.BR),'השוק בברזיל רק שלנו']]
   .map(([a,b,c])=>`<div class="k"><span>${a}</span><strong>${b}</strong><small>${c}</small></div>`).join('');
  const r6=res.rows.find(r=>r.t===Math.min(6,res.Q))||last,cn=r6.b2bU-(r6.restU||0);
- $('#finding').innerHTML=`צ'יפים מארה"ב ומחשבים בברזיל. ברבעון ${r6.t}: ${nu(cn)} צ'יפים בחוזים, ${nu(r6.restU||0)} לקונים נוספים ו־${nu(r6.pcSold.BR)} מחשבים בברזיל. רווח מצטבר ${k$(cum)}, והמזומן לא יורד מתחת ל־${k$(mc.cash)}.`;
+ $('#finding').innerHTML=`צ'יפים מארה"ב ומחשבים בברזיל. ברבעון ${r6.t}: ${nu(cn)} צ'יפים בחוזים, ${nu(r6.restU||0)} לקונים נוספים ו־${nu(r6.pcSold.BR)} מחשבים בברזיל. רווח מצטבר ${k$(cum)}, והמזומן לא יורד מתחת ל־${k$(mc.cash)}.`}
 function draw(){const s=$('#chart');if(!s||!res||$('#plan').hidden)return;const W=s.clientWidth||600,H=s.clientHeight||300,rows=res.rows;
  const vals=rows.flatMap(r=>[r.net,r.cash,0]),mx=Math.max(...vals),mn=Math.min(...vals),pad=(mx-mn)*.08||1,lo=mn-pad,hi=mx+pad;
  const L=46,Rr=8,T=10,B=26,bw=(W-L-Rr)/rows.length,x=i=>L+bw*(i+.5),y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
