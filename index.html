@@ -255,14 +255,15 @@ function mrAuto(G,A,t,Q){const L=[],gX=k=>at(A.gX,k),gY=k=>at(A.gY,k);
  const seen=new Set();return L.filter(([n])=>!seen.has(n)&&seen.add(n)).slice(0,3).map(([n,w])=>({n,d:MRN[n],w,c:MRC[n]??10}))}
 function mrList(G,A,t,Q){const s=A.mrSel&&A.mrSel[t];if(Array.isArray(s)){const au=mrAuto(G,A,t,Q);return s.map(n=>{const a=au.find(x=>x.n===n);return {n,d:MRN[n]||('מחקר '+n),w:a?a.w:'נבחר ידנית',c:MRC[n]??10}})}return mrAuto(G,A,t,Q)}
 const AN={US:1,EU:2,BR:3},CN={US:1,EU:2,BR:3};
-function run(G,A){
+function run(G,A){let s=null,r;for(let i=0;i<3;i++){r=run0(G,A,s);s=r.rows.map(x=>x.F.sec)}return r}
+function run0(G,A,SEC){
  norm(G,A);const Q=Math.max(1,Math.min(16,Math.round(G.quarters)));
  const P=A.plants.map(p=>({...p,q:+p.q,on:+p.q+1,cost:G.plantCost[p.p][p.r]*fxAt(G,A,+p.q)[p.r]}));
  const recvR={},payR={};R.forEach(r=>{recvR[r]=Array(Q+5).fill(0);payR[r]=Array(Q+5).fill(0)});
  const sched=(arr,t,v,r)=>{const pt=G.cashPat[r];for(let k=0;k<3;k++)arr[r][t+k]+=v*pt[k]/100};
  const ci={US:0,EU:0,BR:0},cv={US:0,EU:0,BR:0},pi={US:0,EU:0,BR:0},pv={US:0,EU:0,BR:0},pvc={US:0,EU:0,BR:0},avg=r=>ci[r]>0?cv[r]/ci[r]:0;
- const carryL={US:0,EU:0,BR:0,HO:0},soldEver={US:0,EU:0,BR:0},regCash={US:0,EU:0,BR:0},ctrl={US:0,EU:0,BR:0},taxR={US:0,EU:0,BR:0};
- let cash=G.capital,taxDue=0,loan=0,bond=0,depHeld=0;
+ const carryL={US:0,EU:0,BR:0,HO:0},soldEver={US:0,EU:0,BR:0},regCash={US:0,EU:0,BR:0},ctrl={US:0,EU:0,BR:0},taxR={US:0,EU:0,BR:0},taxPrev={US:0,EU:0,BR:0,HO:0};
+ let hoCash=G.capital,cash=G.capital,taxDue=0,loan=0,bond=0,depHeld=0;
  const L=A.loan,lr=L.rate/100,term=Math.max(1,Math.round(L.term)),pmt=L.type==='amort'&&L.amt>0?L.amt*lr/(1-Math.pow(1+lr,-term)):0;
  const CT=(A.contracts||[]).map((c,i)=>({...c,i,u:+c.u||0,p:+c.p||0,from:+c.from,to:+c.to})).filter(c=>c.st==='closed'||(c.st==='plan'&&+A.useAll));
  const active=t=>CT.filter(c=>t>=c.from&&t<=c.to&&cU(c,t)>0);
@@ -275,7 +276,8 @@ function run(G,A){
   if(rdX>0&&rdX<G.rdMinX)wr.push(`מו"פ צ'יפים מתחת למינימום של ${G.rdMinX}K SF: אין סיכוי לפטנט`);
   if(rdY>0&&rdY<G.rdMinY)wr.push(`מו"פ מחשבים מתחת למינימום של ${G.rdMinY}K SF: אין סיכוי לפטנט`);
   let fin=0,prin=0,capex=0,depOut=0,depBack=0;
-  if(cash>0){const kp=Math.min(cash,+A.keepHO||0);h.inc+=kp*G.cashRate/100+(cash-kp)*G.secRate/100}else h.int+=-cash*G.scRate/100;
+  if(SEC){const sc=Math.max(0,SEC[t-1]||0);h.inc+=sc*G.secRate/100+Math.max(0,hoCash-sc)*G.cashRate/100}else if(cash>0){const kp=Math.min(cash,+A.keepHO||0);h.inc+=kp*G.cashRate/100+(cash-kp)*G.secRate/100}
+  if(cash<0)h.int+=-cash*G.scRate/100;
   if(t===1){if(L.amt>0){loan=L.amt;fin+=L.amt;F.loan={...L,term};ev.push(['fin',`הלוואה ארוכת טווח: ${k$(L.amt)}, ${L.rate}% לרבעון, ${L.type==='balloon'?'בלון':'תשלומים שווים'} ל־${term} רבעונים (אפשר רק ברבעון 1)`])}}
   else if(loan>0){const i=loan*lr;h.int+=i;if(L.type==='amort'){const pr=Math.min(loan,pmt-i);prin+=pr;loan-=pr;if(loan<0.01)loan=0}else if(t===1+term){prin+=loan;ev.push(['fin',`פירעון קרן ההלוואה ${k$(loan)}`]);loan=0}}
   if(bond>0)h.int+=bond*G.bondRate/100;
@@ -343,16 +345,17 @@ function run(G,A){
   // profit and tax
   ['X','Y'].forEach(pr=>R.forEach(r=>{PX[pr].fix+=fixR[pr][r];PX[pr].dep+=depR[pr][r]}));
   const prof={};R.forEach(r=>{const x=g[r];prof[r]=x.rev+x.inc-x.cogs-x.sell-x.ads-x.fix-x.dep-x.fr-x.car-(x.mi||0)});prof.HO=h.inc-h.rd-h.mr-h.int;
-  let tax=0;[...R,'HO'].forEach(k=>{const rate=k==='HO'?G.taxHO:G.tax[k],tb=prof[k]-carryL[k];carryL[k]=tb<0?-tb:0;if(tb>0)tax+=tb*rate/100});
-  R.forEach(r=>{const x=g[r];const out=payR[r][t]+capR[r]+(r==='BR'?depOut:0)+x.sell+x.ads+x.fix+x.fr+x.car+(x.mi||0)+taxR[r],inn=recvR[r][t]+(r==='BR'?depBack:0)+x.inc;
+  let tax=0;const taxK={};[...R,'HO'].forEach(k=>{const rate=k==='HO'?G.taxHO:G.tax[k],tb=prof[k]-carryL[k];carryL[k]=tb<0?-tb:0;taxK[k]=tb>0?tb*rate/100:0;tax+=taxK[k]});
+  R.forEach(r=>{const x=g[r];const out=payR[r][t]+capR[r]+(r==='BR'?depOut:0)+x.sell+x.ads+x.fix+x.fr+x.car+(x.mi||0)+taxPrev[r],inn=recvR[r][t]+(r==='BR'?depBack:0)+x.inc;
    const nd=out-inn-regCash[r];let f=0;if(nd>0){f=Math.ceil(nd*1.1/50)*50;ctrl[r]+=f}regCash[r]+=inn-out+f;
    let back=0;if(!f&&t>=3&&t<Q&&regCash[r]-out*1.2>500){back=Math.floor((regCash[r]-out*1.2)/100)*100;regCash[r]-=back;ctrl[r]-=back}
-   F.tr[r]={f:f/fx[r],back:back/fx[r]};taxR[r]=Math.max(0,prof[r]-0)*0});
+   F.tr[r]={f:f/fx[r],back:back/fx[r]}});
   {const cand=R.filter(r=>prof[r]>0&&ctrl[r]>0).sort((a,b)=>G.tax[b]-G.tax[a])[0];if(cand&&G.tax[cand]>G.taxHO){const sf=Math.min(ctrl[cand]*0.1,prof[cand]);if(sf>=50)F.w1={r:cand,amt:Math.floor(sf/fx[cand]),save:sf*(G.tax[cand]-G.taxHO)/100}}}
   const sum=f=>R.reduce((s,r)=>s+g[r][f],0),net=R.reduce((s,r)=>s+prof[r],0)+prof.HO-tax;
   const recv=R.reduce((s,r)=>s+recvR[r][t],0),pay=R.reduce((s,r)=>s+payR[r][t],0);
   const opCash=sum('sell')+sum('ads')+sum('fix')+sum('fr')+sum('car')+miCost+h.rd+h.mr+h.int;
-  cash=cash+fin+recv-pay-capex-depOut+depBack-opCash+sum('inc')+h.inc-taxDue-prin;taxDue=tax;
+  {const fOut=R.reduce((s,r)=>s+F.tr[r].f*fx[r],0);F.sec=Math.max(0,Math.floor((hoCash+fin-fOut-h.rd-h.mr-h.int-prin-taxPrev.HO-(+A.keepHO||0))/50)*50)}
+  cash=cash+fin+recv-pay-capex-depOut+depBack-opCash+sum('inc')+h.inc-taxDue-prin;taxDue=tax;Object.assign(taxPrev,taxK);hoCash=cash-R.reduce((s,r)=>s+regCash[r],0);F.hoEnd=hoCash;F.reg={...regCash};
   const ac=A.act[t]||{};const planCash=cash,planNet=net;if(ac.cash!==undefined&&ac.cash!==''&&!isNaN(+ac.cash))cash=+ac.cash;
   if(cash<0)wr.push(`המזומן יורד ל־${k$(cash)}: אשראי ספקים ב־${G.scRate}% לרבעון`);
   ev.push(['note',`מו"פ צ'יפים ${k$(rdX)}, מו"פ מחשבים ${k$(rdY)}, מחקרי שוק ${k$(mr)}${miCost?`, שיפור שיטות ${k$(miCost)}`:''}`]);
@@ -642,7 +645,7 @@ function frm(code,title,why,rows,flag){if(!rows.length)return '';return `<div cl
 function sheetHTML(t){const r=res.rows[t-1],F=r.F,G=S.G;let h='',ho='';
  if(F.loan)ho+=frm('H3','הלוואה ארוכת טווח','רק ברבעון 1.',[['סכום (אלפי SF)',k0(F.loan.amt)],['ריבית לרבעון',F.loan.rate+'%'],['מסלול',F.loan.type==='balloon'?'בלון: קרן בסוף':'תשלומים שווים'],['תקופה',F.loan.term+' רבעונים']]);
  ho+=frm('H1','החלטות משרד ראשי','מו"פ לכל מוצר ו־3 מחקרי שוק. 17, 28 ו־74 בחינם.',[['R&D Product X (000s SF)',k0(r.rdX)],['R&D Product Y (000s SF)',k0(r.rdY)],...r.mrl.map((x,i)=>[`MR Item ${i+1} · ${x.d}`,String(x.n)]),['Dividends','0']]);
- ho+=frm('H2','השקעה באג"ח ממשלתיות','כל המזומן במשרד הראשי מעל SF 300K, ב־2% לרבעון במקום 0.5%. מחדשים כל רבעון, אחרת זה חוזר למזומן.',[['Currency','פרנק (4)'],['Amount (000s)','היתרה מעל 300, לפי התזרים של הכספים']]);
+ ho+=frm('H2','השקעה בניירות ערך ממשלתיים','2% לרבעון במקום 0.5% על מזומן. הסכום = המזומן במשרד הראשי בתחילת הרבעון, פחות ההעברות לאזורים, המו"פ, מחקרי השוק, הריבית, החזרי הלוואה ומס של המשרד הראשי ברבעון הזה, פחות כרית של SF 300K. מחדשים כל רבעון בסכום החדש, אחרת הכסף חוזר למזומן.',[['Currency','פרנק (4)'],['Amount (000s)',k0(F.sec||0)]]);
  if(F.bond)ho+=frm('H2','אג"ח','בפרנקים, 10 רבעונים.',[['Currency','פרנק (4)'],['Amount (000s)',k0(F.bond)],['Interest %',G.bondRate.toFixed(2)]]);
  const w3=R.filter(k=>F.tr[k]&&F.tr[k].f>0);if(w3.length)ho+=frm('W3','המרת מטבע במשרד הראשי','קונים במשרד הראשי את המטבע של האזור לפני ההעברה (עמלה 0.4%).',[['Area','H'],...w3.map(k=>[`B · ${CNAME[CN[k]]} (${CN[k]})`,k0(F.tr[k].f)])]);
  if(F.w1)ho+=frm('W1','תשלום שירות למשרד הראשי','מעביר רווח מאזור במס גבוה למס של 15%. עד 10% מחשבון הבקרה.',[['Area receiving','H'],['Area paying',`${RN[F.w1.r]} (${AN[F.w1.r]})`],['Currency',`${CNAME[CN[F.w1.r]]} (${CN[F.w1.r]})`],['Amount (000s)',k0(F.w1.amt)],['חיסכון משוער במס',k$(F.w1.save)]],'אופציונלי');
@@ -694,7 +697,7 @@ function decHTML(t){const r=res.rows[t-1],F=r.F,G=S.G,A=S.A,nx=res.rows[t],rows=
  add('משרד ראשי','מחקרי שוק','H1',r.mrl.map(x=>`<b>${x.n}</b>`).join(', '));
  if(F.loan)add('משרד ראשי','הלוואה ארוכת טווח','H3',`<b>${F.loan.amt}</b> אלף SF, ${F.loan.rate}%, בלון ל־${F.loan.term} רבעונים`);
  if(F.bond)add('משרד ראשי','אג"ח','H2',`<b>${F.bond}</b> אלף SF`);
- add('משרד ראשי','השקעת עודפים','H2','כל מה שמעל SF 300K, בפרנקים (מטבע 4)');
+ add('משרד ראשי','ניירות ערך ממשלתיים','H2',F.sec>0?`<b>${F.sec}</b> אלף SF, מטבע 4 (פרנק)`:'0, אין עודף במשרד הראשי ברבעון הזה');
  R.forEach(k=>{const tr=F.tr[k]||{};if(tr.f>0)add('כסף','העברה מהמשרד הראשי','W3 + A3 · '+RN[k],`<b>${Math.round(tr.f)}</b> אלף ${CNAME[CN[k]]} (קונים במשרד הראשי ב־W3 ושולחים ב־A3, F)`);if(tr.back>0)add('כסף','החזרה למשרד הראשי','A3 · '+RN[k],`<b>${Math.round(tr.back)}</b> אלף ${CNAME[CN[k]]} (R)`)});
  if(F.dep>0)add('כסף','פיקדון בברזיל','A3 · ברזיל',`<b>${Math.round(F.dep)}</b> אלף ריאל (I), חובה עד רבעון ${G.brDepLastQ}`);
  if(F.w1)add('כסף','תשלום שירות למשרד הראשי','W1',`<b>${F.w1.amt}</b> אלף ${CNAME[CN[F.w1.r]]} מ${RN[F.w1.r]}`);
