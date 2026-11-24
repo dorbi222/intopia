@@ -215,7 +215,7 @@ const DG={quarters:8,capital:8000,fx:{US:1,EU:1.5,BR:0.5},scRate:7,cashRate:0.5,
 const CONV=[[1,2,3,0,0,0,0,0,0,0],[1,1,2,3,4,0,0,0,0,0],[1,1,2,2,3,0,0,0,0,0],[0,1,1,2,2,3,3,5,0,0],[0,1,1,1,2,3,3,4,0,0],[0,0,0,1,1,2,2,3,0,0],[0,0,0,0,0,2,2,2,3,0],[0,0,0,0,0,1,1,2,3,0],[0,0,0,0,0,0,0,1,2,3],[0,0,0,0,0,0,0,0,1,2]];
 const at=(a,t)=>a[Math.max(0,Math.min(t-1,a.length-1))];
 const DA={
- plants:[{r:'US',p:'X',q:1},{r:'BR',p:'Y',q:2},{r:'US',p:'X',q:4}],
+ plants:[{r:'US',p:'X',q:1},{r:'BR',p:'Y',q:2},{r:'US',p:'X',q:4},{r:'BR',p:'Y',q:6}],
  contracts:[
   {co:'יצרן מחשבים באירופה 1',d:'EU',from:3,to:8,u:15000,p:40,st:'plan',mode:'surf'},
   {co:'יצרן מחשבים באירופה 2',d:'EU',from:3,to:8,u:10000,p:40,st:'plan',mode:'surf'},
@@ -224,7 +224,7 @@ const DA={
  useAll:1,
  gX:[0,0,1,1,2,3,3,4],gY:[0,0,0,0,1,1,2,2],
  varX:{US:7,EU:8,BR:30},varY:{US:45,EU:35,BR:220},
- util:85,sell:100,ads:80,adsQ:[0,0,0,80,100,120,160,120],ch:{m:'cso',q:4,o:2},
+ util:85,sell:100,ads:80,adsQ:[0,0,0,80,100,120,160,160],ch:{m:'cso',q:4,o:2},
  pBR:[],
  rdX:[150,150,150,150,150,150,150,150],rdY:[70,70,70,70,70,70,70,70],mrSel:{},
  mk:{d0:9000,pe:2.2,ae:0.8,thr:80,cso:5,lift:4,decay:75},msim:{p:900,n:2,ads:80},
@@ -398,6 +398,7 @@ try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&j.G&&j.A){S.G=de
 const AIR5={3:30000,4:31300,5:24950,6:18600,7:0};const DEAL5={co:'חברה 5 (ברק ניב)',coNo:5,d:'EU',from:3,to:7,u:36000,p:25,cur:'EU',pay:[50,50,0],mode:'mix',st:'closed',sched:{3:{u:30000,p:25,air:30000},4:{u:36000,p:25,air:31300},5:{u:36000,p:25,air:24950},6:{u:36000,p:28,air:18600},7:{u:36000,p:28,air:0}}};
 function migrate(){let ch=false;if(!S.A.m5){S.A.contracts=[JSON.parse(JSON.stringify(DEAL5))];S.A.m5=1;ch=true}
  if(!S.A.m6){(S.A.contracts||[]).forEach(c=>{if(String(c.co).startsWith('חברה 5')&&c.sched){c.coNo=5;c.mode='mix';Object.keys(AIR5).forEach(q=>{if(c.sched[q])c.sched[q].air=AIR5[q]})}});S.A.pcShip={m:'surf',from:4};S.A.rdX=Array(8).fill(150);S.A.rdY=Array(8).fill(70);S.A.m6=1;ch=true}
+ if(!S.A.m12){if(!(S.A.plants||[]).some(p=>p.r==='BR'&&p.p==='Y'&&p.q===6))S.A.plants.push({r:'BR',p:'Y',q:6});if(S.A.adsQ)S.A.adsQ[7]=160;S.A.m12=1;ch=true}
  if(!S.A.m11){S.A.ch={...(S.A.ch||{}),m:'cso',q:4,o:2};if(S.A.msim)S.A.msim.n=2;S.A.m11=1;ch=true}
  if(!S.A.m10){(S.A.contracts||[]).forEach(c=>{if(String(c.co).startsWith('חברה 5')&&c.sched)Object.keys(AIR5).forEach(q=>{if(c.sched[q])c.sched[q].air=AIR5[q]})});S.A.util=85;S.A.m10=1;S.A.m9=1;S.A.m8=1;ch=true}
  if(!S.A.m9){(S.A.contracts||[]).forEach(c=>{if(String(c.co).startsWith('חברה 5')&&c.sched)Object.keys(AIR5).forEach(q=>{if(c.sched[q])c.sched[q].air=AIR5[q]})});S.A.util=8000/90;S.A.m9=1;S.A.m8=1;ch=true}
