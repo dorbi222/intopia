@@ -808,7 +808,7 @@ const RES={
  plants:[
   ['חברה 1',[1,0,0,2,0,0],'צ\'יפים בארה"ב, מחשבים באירופה'],
   ['חברה 2',[2,1,0,0,0,0],'צ\'יפים ומחשבים בארה"ב. מוכרת צ\'יפים לחברות'],
-  ['חברה 3 (אנחנו)',[1,0,0,0,0,1],'מפעל צ\'יפים שני בארה"ב ברבעון 4'],
+  ['חברה 3 (אנחנו)',[1,0,0,0,0,1],'מפעל צ\'יפים שני בארה"ב נבנה ברבעון 4 ומייצר מרבעון 5'],
   ['חברה 4',[0,1,0,3,0,0],'אין לה מפעל צ\'יפים. קונה הכל'],
   ['חברה 5',[0,0,0,2,0,0],'אין לה מפעל צ\'יפים. הקונה שלנו'],
   ['חברה 6',[1,1,0,1,0,0],''],
@@ -834,7 +834,7 @@ const RES={
   'תשלום השירותים (W1) של $110K העביר רווח מארה"ב (מס 50%) למשרד הראשי.'
  ]
 };
-function resOut(){const el=$('#resb');if(!el)return;const f=v=>typeof v!=='number'?esc(String(v)):`<span class="n">${v<0?'−':''}${Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:1})}</span>`;
+function resOut(){const el=$('#resb');if(!el)return;const f=v=>typeof v!=='number'?esc(String(v)):`<bdi dir="ltr" style="white-space:nowrap">${Math.round(v)<0?'−':''}${Math.abs(Math.round(v)).toLocaleString('en-US')}</bdi>`;
  const hd=(x=['רבעון 1','רבעון 2','רבעון 3'])=>`<tr><th></th>${x.map(q=>`<th>${q}</th>`).join('')}<th></th></tr>`;
  const tb=(rows)=>`<div class="scroll"><table class="rt">${hd()}${rows.map(r=>r[0]==='sec'?`<tr class="sec"><td colspan="5">${r[1]}</td></tr>`:r[0]==='hi'?`<tr class="hi"><td>${r[1]}</td>${r[2].map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>`:`<tr><td>${r[0]}</td>${r[1].map(v=>`<td>${f(v)}</td>`).join('')}<td class="nt">${r[2]||''}</td></tr>`).join('')}</table></div>`;
  const A=RES.act,P=RES.plan,cum=A.net.reduce((s,v)=>s+v,0),eq3=RES.co.eq[2],rk=[...eq3].sort((a,b)=>b-a).indexOf(eq3[2])+1;
@@ -846,7 +846,7 @@ function resOut(){const el=$('#resb');if(!el)return;const f=v=>typeof v!=='numbe
  h+=`<h2>תוכנית מול בפועל</h2><p class="lead">באלפי SF. מזומן = מזומן וניירות ערך, בלי הפיקדון בברזיל.</p><div class="scroll"><table class="rt">${hd()}
   <tr><td>רווח נקי בתוכנית</td>${P.net.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
   <tr class="hi"><td>רווח נקי בפועל</td>${A.net.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
-  <tr><td>הפרש</td>${A.net.map((v,i)=>`<td style="color:var(--${v-P.net[i]>=0?'ok':'acc'})">${f(Math.round((v-P.net[i])*10)/10)}</td>`).join('')}<td class="nt">רבעון 3: 4,700 צ'יפים שנשלחו בים נרשמו כבר עכשיו, מול עלות צ'יפ גבוהה מהתכנון</td></tr>
+  <tr><td>הפרש</td>${A.net.map((v,i)=>`<td style="color:var(--${v-P.net[i]>=0?'ok':'acc'})">${f(v-P.net[i])}</td>`).join('')}<td class="nt">רבעון 3: 4,700 צ'יפים שנשלחו בים נרשמו כבר עכשיו, מול עלות צ'יפ גבוהה מהתכנון</td></tr>
   <tr><td>מזומן בתוכנית</td>${P.cash.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
   <tr class="hi"><td>מזומן בפועל</td>${A.cash.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr></table></div>`;
  h+=`<h2>דוח רווח והפסד</h2><p class="lead">באלפי SF, מאוחד. כתבתי מחדש את השורות של הדוח כדי שיהיה ברור מאיפה בא כל שקל. העברות כסף בין המשרד הראשי לארה"ב (W1) מתקזזות ולא מופיעות.</p>${tb(RES.pl)}`;
