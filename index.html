@@ -99,6 +99,7 @@ th.now,td.now{background:color-mix(in srgb,var(--acc) 10%,transparent)}.card.pas
 .qc.t{border-top-color:var(--blu)}.qc.m{border-top-color:var(--ink)}
 table.dec td{position:static;padding:6px 8px;text-align:right}table.dec td:nth-child(2){white-space:nowrap;font-size:13px}table.dec tr.sec td{background:var(--soft)}
 @media (max-width:760px){.mini>span:not(.sync){display:none}.top{grid-template-columns:1fr}.capr{grid-template-columns:3.5em minmax(0,1fr) 8.5em}}
+table.rt td.nt{color:var(--mut);font-size:13px;white-space:normal;min-width:14em;text-align:right}table.rt td,table.rt th{white-space:nowrap}.cards .card h3{margin:0 0 2px;font-size:16px}
 </style>
 </head>
 <body>
@@ -111,6 +112,7 @@ table.dec td{position:static;padding:6px 8px;text-align:right}table.dec td:nth-c
   <button role="tab" id="t-ctr" data-tab="ctr">חוזי צ'יפים</button>
   <button role="tab" id="t-mk" data-tab="mk">שיווק בברזיל</button>
   <button role="tab" id="t-rd" data-tab="rd">מו"פ ומחקרים</button>
+  <button role="tab" id="t-res" data-tab="res">תוצאות</button>
   <button role="tab" id="t-trk" data-tab="trk">מעקב ושערים</button>
   <button role="tab" id="t-as" data-tab="as">הנחות</button>
  </div>
@@ -172,6 +174,9 @@ table.dec td{position:static;padding:6px 8px;text-align:right}table.dec td:nth-c
  <p class="lead">3 מחקרים ברבעון. 17, 28 ו־74 מגיעים בחינם. ההמלצה מסומנת, ואפשר להחליף מהרשימה.</p>
  <div class="scroll"><table id="mrq"></table></div>
 </section>
+<section id="res" hidden>
+ <h2>תוצאות בפועל</h2><p class="lead">מתוך דוחות ה־MIS של רבעונים 1–3 (תיקיית "תוצאות").</p><div id="resb"></div>
+</section>
 <section id="trk" hidden>
  <h2>מה קרה בפועל</h2>
  <p class="lead">בסוף כל רבעון מכניסים את המספרים מהדוחות. מזומן בפועל מחליף את המזומן של המודל, והתוכנית קדימה ממשיכה ממנו. רווח בפועל נכנס לרווח המצטבר. צ'יפים ומחשבים בפועל הם להשוואה, ואת המחירים והחוזים מעדכנים בלשוניות שלהם.</p>
@@ -211,7 +216,7 @@ const DG={quarters:8,capital:8000,fx:{US:1,EU:1.5,BR:0.5},scRate:7,cashRate:0.5,
  surfBp:{US:{US:18000,EU:20000,BR:12000},EU:{US:20000,EU:19000,BR:12000},BR:{US:16000,EU:16000,BR:12000}},
  airBp:{US:{US:10000,EU:10000,BR:6000},EU:{US:10000,EU:10000,BR:6000},BR:{US:8000,EU:8000,BR:6000}},
  base:{Y:{US:155,EU:130,BR:800}},step:{Y:{US:5,EU:10,BR:20}},gpY:{US:8,EU:5,BR:3},
- gcX:10,gcY:5,obs:{X:{US:3,EU:2,BR:1.5},Y:{US:2,EU:1.5,BR:1}},miMax:{X:{US:15,EU:10,BR:6},Y:{US:10,EU:7,BR:4}},miK:{X:60,Y:120},miKeep:50,brCap:1400,rdMinX:40,rdMinY:70,bondRate:5.8,bondTerm:10,bondMax:2000};
+ gcX:3,gcY:5,obs:{X:{US:3,EU:2,BR:1.5},Y:{US:2,EU:1.5,BR:1}},miMax:{X:{US:15,EU:10,BR:6},Y:{US:10,EU:7,BR:4}},miK:{X:60,Y:120},miKeep:50,brCap:1400,rdMinX:40,rdMinY:70,bondRate:5.8,bondTerm:10,bondMax:2000};
 const CONV=[[1,2,3,0,0,0,0,0,0,0],[1,1,2,3,4,0,0,0,0,0],[1,1,2,2,3,0,0,0,0,0],[0,1,1,2,2,3,3,5,0,0],[0,1,1,1,2,3,3,4,0,0],[0,0,0,1,1,2,2,3,0,0],[0,0,0,0,0,2,2,2,3,0],[0,0,0,0,0,1,1,2,3,0],[0,0,0,0,0,0,0,1,2,3],[0,0,0,0,0,0,0,0,1,2]];
 const at=(a,t)=>a[Math.max(0,Math.min(t-1,a.length-1))];
 const DA={
@@ -223,13 +228,13 @@ const DA={
   {co:'יצרן מחשבים בארה"ב 2',d:'US',from:6,to:8,u:20000,p:40,st:'plan',mode:'surf'}],
  useAll:1,
  gX:[0,0,1,1,2,3,3,4],gY:[0,0,0,0,1,1,2,2],
- varX:{US:7,EU:8,BR:30},varY:{US:45,EU:35,BR:220},
+ varX:{US:8.53,EU:8,BR:30},varY:{US:45,EU:35,BR:180},
  util:85,sell:100,ads:80,adsQ:[0,0,0,80,100,120,160,160],ch:{m:'cso',q:4,o:2},
  pBR:[],
  rdX:[150,150,150,150,150,150,150,150],rdY:[70,70,70,70,70,70,70,70],mrSel:{},
  mk:{d0:9000,pe:2.2,ae:0.8,thr:80,cso:5,lift:4,decay:75},msim:{p:900,n:2,ads:80},
- loan:{amt:1000,rate:4,type:'balloon',term:7},bond:{q2:0,q3:0},
- pol:{open:30},keepHO:300,pcShip:{m:'surf',from:4},rest:{on:1,from:3,p:35,d:'EU',m:'surf'},calc:{d:'EU',u:15000,p:40,n:6,m:'surf'},pbm:'surf',conv:{v:26,c:'EU'},mi:{X:[0,20,20,20,20,20,20,20],Y:[0,0,0,0,0,0,0,0]},now:1,act:{},fxq:{EU:[],BR:[]}};
+ loan:{amt:1000,rate:3,type:'balloon',term:8},bond:{q2:0,q3:0},
+ pol:{open:30},pcFix:{3:8000},keepHO:300,pcShip:{m:'surf',from:4},rest:{on:1,from:3,p:35,d:'EU',m:'surf'},calc:{d:'EU',u:15000,p:40,n:6,m:'surf'},pbm:'surf',conv:{v:26,c:'EU'},mi:{X:[0,20,20,20,20,20,20,20],Y:[0,0,0,0,0,0,0,0]},now:1,act:{},fxq:{EU:[],BR:[]}};
 function mktY(G,A,r,t){const gy=at(A.gY,Math.max(1,t-1));return Math.round(G.base.Y[r]*(1+G.gpY[r]*gy/100)/G.step.Y[r])*G.step.Y[r]}
 function norm(G,A){const Q=Math.max(1,Math.round(G.quarters)),pad=a=>{while(a.length<Q)a.push(a.length?a[a.length-1]:0);return a};
  ['gX','gY','rdX','rdY'].forEach(k=>pad(A[k]));if(!Array.isArray(A.adsQ)||!A.adsQ.length)A.adsQ=Array(Q).fill(+A.ads||0);pad(A.adsQ);if(!A.mi)A.mi={X:[],Y:[]};['X','Y'].forEach(k=>{if(!A.mi[k])A.mi[k]=[];pad(A.mi[k])});if(!A.pBR||!A.pBR.length){A.pBR=[];for(let t=1;t<=Q;t++)A.pBR.push(mktY(G,A,'BR',t))}pad(A.pBR);if(!A.fxq)A.fxq={EU:[],BR:[]};['EU','BR'].forEach(k=>{if(!A.fxq[k]||!A.fxq[k].length)A.fxq[k]=Array(Q).fill(G.fx[k]);pad(A.fxq[k])});if(!A.act)A.act={}}
@@ -278,7 +283,7 @@ function run0(G,A,SEC){
   let fin=0,prin=0,capex=0,depOut=0,depBack=0;
   if(SEC){const sc=Math.max(0,SEC[t-1]||0);h.inc+=sc*G.secRate/100+Math.max(0,hoCash-sc)*G.cashRate/100}else if(cash>0){const kp=Math.min(cash,+A.keepHO||0);h.inc+=kp*G.cashRate/100+(cash-kp)*G.secRate/100}
   if(cash<0)h.int+=-cash*G.scRate/100;
-  if(t===1){if(L.amt>0){loan=L.amt;fin+=L.amt;F.loan={...L,term};ev.push(['fin',`הלוואה ארוכת טווח: ${k$(L.amt)}, ${L.rate}% לרבעון, ${L.type==='balloon'?'בלון':'תשלומים שווים'} ל־${term} רבעונים (אפשר רק ברבעון 1)`])}}
+  if(t===1){if(L.amt>0){loan=L.amt;fin+=L.amt;F.loan={...L,term};h.int+=L.amt*lr;ev.push(['fin',`הלוואה ארוכת טווח: ${k$(L.amt)}, ${L.rate}% לרבעון, ${L.type==='balloon'?'בלון, הקרן חוזרת ברבעון '+(1+term):'תשלומים שווים ל־'+term+' רבעונים'} (אפשר רק ברבעון 1)`])}}
   else if(loan>0){const i=loan*lr;h.int+=i;if(L.type==='amort'){const pr=Math.min(loan,pmt-i);prin+=pr;loan-=pr;if(loan<0.01)loan=0}else if(t===1+term){prin+=loan;ev.push(['fin',`פירעון קרן ההלוואה ${k$(loan)}`]);loan=0}}
   if(bond>0)h.int+=bond*G.bondRate/100;
   [2,3].forEach(bq=>{const amt=Math.min(+A.bond['q'+bq]||0,G.bondMax);if(amt<=0)return;if(t===bq){bond+=amt;fin+=amt;F.bond+=amt;ev.push(['fin',`אג"ח ${k$(amt)}, ${G.bondRate}% לרבעון ל־${G.bondTerm} רבעונים`])}if(t===bq+G.bondTerm){prin+=amt;bond-=amt}});
@@ -300,7 +305,7 @@ function run0(G,A,SEC){
    let need=plan*cp,got=0;const use=(o,u)=>{if(u<=0)return;const v=u*avg(o);ci[o]-=u;cv[o]-=v;got+=u;pcChip[d]+=v;toPC+=u;
     if(o!==d){const pm=A.pcShip&&A.pcShip.m==='surf'&&t>=+A.pcShip.from?'surf':'air',f=u*(pm==='surf'?surfU(G,o,d,u):airU(G,o,d,u))*fx[o]/1000;g[o].fr+=f;PX.Y.fr+=f;shipPC+=u;F.ship.push({o,d,u,g:gxs,mode:pm,tp:(v+f)*1000/u/fx[o],fr:f});ev.push(['ship',`${pm==='surf'?'מגיעים בים (נשלחו ברבעון הקודם)':'שולחים באוויר'} ${nu(u)} צ'יפים מ${RN[o]} למפעל המחשבים ב${RN[d]}: ${k$(f)}`])}};
    use(d,Math.min(ci[d],need));R.filter(o=>o!==d).sort((a,b)=>G.air[a][d]*fx[a]-G.air[b][d]*fx[b]).forEach(o=>use(o,Math.min(ci[o],need-got)));
-   made[d]=Math.min(plan,Math.floor(got/cp));if(made[d]<plan)wr.push(made[d]?`חסרים צ'יפים ב${RN[d]}: מייצרים ${nu(made[d])} מחשבים מתוך ${nu(plan)}`:`מפעל המחשבים ב${RN[d]} עומד: אין צ'יפים`)});
+   made[d]=Math.min(plan,Math.floor(got/cp));if(A.pcFix&&A.pcFix[t]&&d==='BR')made[d]=+A.pcFix[t];if(made[d]<plan&&!(A.pcFix&&A.pcFix[t]))wr.push(made[d]?`חסרים צ'יפים ב${RN[d]}: מייצרים ${nu(made[d])} מחשבים מתוך ${nu(plan)}`:`מפעל המחשבים ב${RN[d]} עומד: אין צ'יפים`)});
   // PC sales from opening stock
   const pcSold={US:0,EU:0,BR:0},pcPrice={};
   R.forEach(r=>{if(pi[r]<=0)return;const s=Math.round(pi[r]*A.sell/100),unit=pv[r]/pi[r],pr=r==='BR'?at(A.pBR,t):mktY(G,A,r,t),rev=s*pr*fx[r]/1000;
@@ -311,16 +316,19 @@ function run0(G,A,SEC){
    F.prodY[r]=Array(on.Y[r]).fill(Math.round(made[r]/on.Y[r]/1000*10)/10);ev.push(['prod',`מייצרים ${nu(made[r])} מחשבי Y${gy} ב${RN[r]}`])});
   R.forEach(r=>{const cy=Math.max(0,pi[r]-made[r])*G.carry.Y[r]*fx[r]/1000;g[r].car+=cy;PX.Y.car+=cy;if(soldEver[r]>0&&r==='BR'){const ad=+at(A.adsQ,t)||0;g[r].ads+=ad*fx[r];PX.Y.ads+=ad*fx[r];F.ads=ad}});
   // chip contracts
-  const act=active(t),dem=act.reduce((s,c)=>s+cU(c,t),0),avail=R.reduce((s,r)=>s+ci[r],0),scale=dem>avail&&dem>0?avail/dem:1;
-  if(scale<1)wr.push(`החוזים ברבעון ${t} דורשים ${nu(dem)} צ'יפים ויש רק ${nu(avail)}: כל חוזה מקבל ${Math.round(scale*100)}%`);
+  const airOf=(c,q)=>{const x=c.sched&&c.sched[q];if(x&&x.air!==undefined&&x.air!=='')return Math.min(cU(c,q),+x.air);return c.mode==='surf'&&q>c.from?0:cU(c,q)};
+  const aNow=active(t),aNx=active(t+1),act=[...new Set([...aNow,...aNx])],needA=c=>aNow.includes(c)?airOf(c,t):0,needS=c=>aNx.includes(c)?cU(c,t+1)-airOf(c,t+1):0;
+  const dem=act.reduce((s,c)=>s+needA(c)+needS(c),0),avail=R.reduce((s,r)=>s+ci[r],0),scale=dem>avail&&dem>0?avail/dem:1;
+  if(scale<1)wr.push(`החוזים ברבעון ${t} דורשים ${nu(dem)} צ'יפים (כולל מה שיוצא בים לרבעון הבא) ויש רק ${nu(avail)}: כל חוזה מקבל ${Math.round(scale*100)}%`);
   let b2bU=0,b2bRev=0;const sales=[];
-  act.forEach(c=>{c.aU=0;c.sU=0;const cu=cU(c,t),psf=cPSF(G,A,c,t);let left=Math.floor(cu*scale),tot=0,rv=0,fr=0;[...R].sort((a,b)=>ci[b]-ci[a]).forEach(o=>{const u=Math.min(ci[o],left);if(u<=0)return;const sp=c.sched&&c.sched[t]&&c.sched[t].air!==undefined&&c.sched[t].air!=='',sm=sp?'mix':c.mode==='surf'&&t>c.from?'surf':'air',aU=sp?Math.min(u,+c.sched[t].air):sm==='air'?u:0,sU=u-aU,v=u*avg(o),x=u*psf/1000,f=(aU?aU*airU(G,o,c.d,aU):0)+(sU?sU*surfU(G,o,c.d,sU):0);c.used=sm;c.aU=(c.aU||0)+aU;c.sU=(c.sU||0)+sU;const ff=f*fx[o]/1000;
-    g[o].rev+=x;g[o].cogs+=v;g[o].fr+=ff;PX.X.rev+=x;PX.X.cogs+=v;PX.X.fr+=ff;fr+=ff;ci[o]-=u;cv[o]-=v;left-=u;tot+=u;rv+=x;if(Array.isArray(c.pay)){for(let k=0;k<3;k++)recvR[o][t+k]+=x*(+c.pay[k]||0)/100}else sched(recvR,t,x,o)});
-   b2bU+=tot;b2bRev+=rv;sales.push({i:c.i,co:c.co,d:c.d,u:tot,p:cP(c,t),cur:c.cur||'US',pay:c.pay,st:c.st,rv,fr,mode:c.used||'air',air:c.aU||0,surf:c.sU||0,coNo:c.coNo})});
+  act.forEach(c=>{let la=Math.floor(needA(c)*scale),ls=Math.floor(needS(c)*scale);if(la+ls<=0)return;const pA=cPSF(G,A,c,t),pS=cPSF(G,A,c,t+1);let tot=0,rv=0,fr=0,aT=0,sT=0;
+   [...R].sort((a,b)=>ci[b]-ci[a]).forEach(o=>{const u=Math.min(ci[o],la+ls);if(u<=0)return;const aU=Math.min(u,la),sU=u-aU;la-=aU;ls-=sU;const v=u*avg(o),x=(aU*pA+sU*pS)/1000,f=(aU?aU*airU(G,o,c.d,aU):0)+(sU?sU*surfU(G,o,c.d,sU):0),ff=f*fx[o]/1000;
+    g[o].rev+=x;g[o].cogs+=v;g[o].fr+=ff;PX.X.rev+=x;PX.X.cogs+=v;PX.X.fr+=ff;fr+=ff;ci[o]-=u;cv[o]-=v;tot+=u;rv+=x;aT+=aU;sT+=sU;if(Array.isArray(c.pay)){for(let k=0;k<3;k++)recvR[o][t+k]+=x*(+c.pay[k]||0)/100}else sched(recvR,t,x,o)});
+   b2bU+=tot;b2bRev+=rv;sales.push({i:c.i,co:c.co,d:c.d,u:tot,p:cP(c,t),pS:cP(c,t+1),cur:c.cur||'US',pay:c.pay,st:c.st,rv,fr,mode:sT&&aT?'mix':sT?'surf':'air',air:aT,surf:sT,coNo:c.coNo})});
   if(b2bU){const nCl=sales.filter(x=>x.st==='closed'&&x.u).length,nPl=sales.filter(x=>x.st!=='closed'&&x.u).length;
    ev.push(['sell',`מוכרים ${nu(b2bU)} צ'יפי X${gxs} ל־${nCl+nPl} חברות (${nCl} סגורים, ${nPl} מתוכננים), ממוצע ${l$(b2bRev*1000/b2bU,'US')} לצ'יפ: ${k$(b2bRev)}`])}
   let restU=0,restRev=0;const RS=A.rest||{};
-  const tN=t+1,qN=Math.min(tN,Q),cpR=CONV[at(A.gX,t)]?.[at(A.gY,qN)]||1;let resv=active(qN).reduce((s,c)=>{const x=c.sched&&c.sched[qN];if(x&&x.air!==undefined&&x.air!=='')return s+Math.max(0,cU(c,qN)-(+x.air));return s+(c.mode==='surf'&&qN>c.from?cU(c,qN):0)},0);
+  const tN=t+1,qN=Math.min(tN,Q),cpR=CONV[at(A.gX,t)]?.[at(A.gY,qN)]||1;let resv=0;
   if(A.pcShip&&A.pcShip.m==='surf'&&tN>=+A.pcShip.from)resv+=R.reduce((s,r)=>s+Math.round(onAt('Y',r,tN)*G.cap.Y[r]*A.util/100)*cpR,0);
   if(+RS.on&&t>=+RS.from){const tot0=R.reduce((s,r)=>s+ci[r],0),tot=Math.max(0,tot0-resv);if(tot>0){let need=tot;const sm=RS.m==='surf'&&t>+RS.from?'surf':'air';let fr=0;
    R.forEach(o=>{const u=Math.min(ci[o],need);if(u<=0)return;need-=u;const v=u*avg(o),x=u*(+RS.p||0)/1000,f=u*(sm==='surf'?surfU(G,o,RS.d,tot):airU(G,o,RS.d,tot))*fx[o]/1000;g[o].rev+=x;g[o].cogs+=v;g[o].fr+=f;PX.X.rev+=x;PX.X.cogs+=v;PX.X.fr+=f;fr+=f;ci[o]-=u;cv[o]-=v;restU+=u;restRev+=x;sched(recvR,t,x,o)});
@@ -356,7 +364,7 @@ function run0(G,A,SEC){
   const opCash=sum('sell')+sum('ads')+sum('fix')+sum('fr')+sum('car')+miCost+h.rd+h.mr+h.int;
   {const fOut=R.reduce((s,r)=>s+F.tr[r].f*fx[r],0);F.sec=Math.max(0,Math.floor((hoCash+fin-fOut-h.rd-h.mr-h.int-prin-taxPrev.HO-(+A.keepHO||0))/50)*50)}
   cash=cash+fin+recv-pay-capex-depOut+depBack-opCash+sum('inc')+h.inc-taxDue-prin;taxDue=tax;Object.assign(taxPrev,taxK);hoCash=cash-R.reduce((s,r)=>s+regCash[r],0);F.hoEnd=hoCash;F.reg={...regCash};
-  const ac=A.act[t]||{};const planCash=cash,planNet=net;if(ac.cash!==undefined&&ac.cash!==''&&!isNaN(+ac.cash))cash=+ac.cash;
+  const ac=A.act[t]||{};const planCash=cash,planNet=net;if(ac.cash!==undefined&&ac.cash!==''&&!isNaN(+ac.cash)){hoCash+=+ac.cash-cash;cash=+ac.cash}
   if(cash<0)wr.push(`המזומן יורד ל־${k$(cash)}: אשראי ספקים ב־${G.scRate}% לרבעון`);
   ev.push(['note',`מו"פ צ'יפים ${k$(rdX)}, מו"פ מחשבים ${k$(rdY)}, מחקרי שוק ${k$(mr)}${miCost?`, שיפור שיטות ${k$(miCost)}`:''}`]);
   const nX=R.reduce((s,r)=>s+on.X[r],0);
@@ -398,6 +406,7 @@ try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j&&j.G&&j.A){S.G=de
 const AIR5={3:30000,4:31300,5:24950,6:18600,7:0};const DEAL5={co:'חברה 5 (ברק ניב)',coNo:5,d:'EU',from:3,to:7,u:36000,p:25,cur:'EU',pay:[50,50,0],mode:'mix',st:'closed',sched:{3:{u:30000,p:25,air:30000},4:{u:36000,p:25,air:31300},5:{u:36000,p:25,air:24950},6:{u:36000,p:28,air:18600},7:{u:36000,p:28,air:0}}};
 function migrate(){let ch=false;if(!S.A.m5){S.A.contracts=[JSON.parse(JSON.stringify(DEAL5))];S.A.m5=1;ch=true}
  if(!S.A.m6){(S.A.contracts||[]).forEach(c=>{if(String(c.co).startsWith('חברה 5')&&c.sched){c.coNo=5;c.mode='mix';Object.keys(AIR5).forEach(q=>{if(c.sched[q])c.sched[q].air=AIR5[q]})}});S.A.pcShip={m:'surf',from:4};S.A.rdX=Array(8).fill(150);S.A.rdY=Array(8).fill(70);S.A.m6=1;ch=true}
+ if(!S.A.m13){S.A.varX={...S.A.varX,US:8.53};S.A.varY={...S.A.varY,BR:180};S.G.gcX=3;S.A.loan={...S.A.loan,rate:3,term:8};S.A.pcFix={3:8000};S.A.act={...(S.A.act||{}),1:{net:-161.2,cash:6839.5},2:{net:-441.9,cash:5115.2},3:{net:237.3,cash:4692.5}};S.A.now=4;S.A.m13=1;ch=true}
  if(!S.A.m12){if(!(S.A.plants||[]).some(p=>p.r==='BR'&&p.p==='Y'&&p.q===6))S.A.plants.push({r:'BR',p:'Y',q:6});if(S.A.adsQ)S.A.adsQ[7]=160;S.A.m12=1;ch=true}
  if(!S.A.m11){S.A.ch={...(S.A.ch||{}),m:'cso',q:4,o:2};if(S.A.msim)S.A.msim.n=2;S.A.m11=1;ch=true}
  if(!S.A.m10){(S.A.contracts||[]).forEach(c=>{if(String(c.co).startsWith('חברה 5')&&c.sched)Object.keys(AIR5).forEach(q=>{if(c.sched[q])c.sched[q].air=AIR5[q]})});S.A.util=85;S.A.m10=1;S.A.m9=1;S.A.m8=1;ch=true}
@@ -590,8 +599,8 @@ document.addEventListener('click',e=>{const t=e.target;
  if(t.id==='resetA'&&confirmReset(t)){S.A=clone(DA);norm(S.G,S.A);buildForms();later();return}
  if(t.id==='resetG'&&confirmReset(t)){S.G=clone(DG);buildForms();later();return}});
 function confirmReset(b){if(b.dataset.armed){delete b.dataset.armed;return true}b.dataset.armed=1;const o=b.textContent;b.textContent='לחצו שוב לאישור';setTimeout(()=>{delete b.dataset.armed;b.textContent=o},3000);return false}
-const TABS=['plan','price','ctr','mk','rd','trk','as'];
-function route(){const h=(location.hash||'#plan').slice(1),t=TABS.includes(h)?h:'plan';TABS.forEach(x=>{$('#'+x).hidden=x!==t;$('#t-'+x).setAttribute('aria-selected',x===t)});if(t==='plan')draw()}
+const TABS=['plan','price','ctr','mk','rd','res','trk','as'];
+function route(){const h=(location.hash||'#plan').slice(1),t=TABS.includes(h)?h:'plan';TABS.forEach(x=>{$('#'+x).hidden=x!==t;$('#t-'+x).setAttribute('aria-selected',x===t)});if(t==='plan')draw();if(t==='res')resOut()}
 window.addEventListener('hashchange',route);new ResizeObserver(draw).observe($('#chart'));
 const THN={auto:'אוטומטי',light:'בהיר',dark:'כהה'};let theme='auto';try{theme=localStorage.getItem('intopia-theme')||'auto'}catch(e){}
 function applyTheme(){if(theme==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);$('#themeBtn').textContent='מצב: '+THN[theme];try{localStorage.setItem('intopia-theme',theme)}catch(e){};setTimeout(draw,0)}
@@ -666,7 +675,7 @@ function sheetHTML(t){const r=res.rows[t-1],F=r.F,G=S.G;let h='',ho='';
  let h6='';const me=S.A.myNo||3,nx=res.rows[t],cv=c=>c==='US'?'N':'Y';
  const ships=[...F.ship.filter(x=>x.mode!=='surf').map(x=>({...x,md:'A',arr:t})),...(nx?nx.F.ship.filter(x=>x.mode==='surf').map(x=>({...x,md:'S',arr:t+1})):[])];
  ships.forEach(x=>{h6+=frm('H6',`העברה פנימית ${RN[x.o]} ← ${RN[x.d]}${x.md==='S'?` · ימי, מגיע ברבעון ${x.arr}`:''}`,"צ'יפים למפעל המחשבים שלנו. מחיר ההעברה = העלות הישירה + השילוח, המינימום שמותר.",[['Seller company',`${me} (אנחנו)`],['Area from',`${AN[x.o]} (${RN[x.o]})`],['Buyer company',`${me} (אנחנו)`],['Area to',`${AN[x.d]} (${RN[x.d]})`],['Product · Grade',`X · ${r.gxs}`],['Units transferred (000s)',u0(x.u)],['Currency',`${CNAME[CN[x.o]]} (${CN[x.o]})`],['Unit price',x.tp.toFixed(2)],['Payment Cash / A/P1 / A/P2','100 / 0 / 0'],['Conversion of cash part','N'],['Mode of transport',x.md==='S'?'S (ימי)':'A (אווירי)'],['Quarter of execution',String(t)]])});
- const lines=[];[...r.sales.filter(x=>x.u&&(x.air||(!x.surf&&x.mode!=='surf'))).map(x=>({...x,uu:x.air||x.u,md:'A',arr:t})),...(nx?nx.sales.filter(x=>x.surf).map(x=>({...x,uu:x.surf,md:'S',arr:t+1})):[])].forEach(x=>{
+ const lines=[];[...r.sales.filter(x=>x.air).map(x=>({...x,uu:x.air,md:'A',arr:t})),...r.sales.filter(x=>x.surf).map(x=>({...x,uu:x.surf,md:'S',arr:t+1,p:x.st==='rest'?x.p:(x.pS??x.p)}))].forEach(x=>{
   const cur=x.cur||'US',gr=r.gxs;lines.push({x,cur,gr});
   h6+=frm('H6',`מכירת צ'יפים ל${esc(x.co)}${x.md==='S'?` · ימי, מגיע ברבעון ${x.arr}`:''}`,x.st==='closed'?'אנחנו ממלאים ומגישים, והקונה חותם על אותו טופס.':x.st==='rest'?'הנחת התוכנית: מחלקים בין הקונים שייסגרו.':'עוד לא סגור: ערכים מהתוכנית.',
    [['Seller company',`${me} (אנחנו)`],['Area from','1 (ארה"ב)'],['Buyer company',x.coNo?String(x.coNo):'מספר הקונה'],['Area to',`${AN[x.d]} (${RN[x.d]})`],['Product · Grade',`X · ${gr}`],['Units transferred (000s)',u0(x.uu)],['Currency',`${CNAME[CN[cur]]} (${CN[cur]})`],['Unit price',(+x.p).toFixed(2)],['Payment Cash / A/P1 / A/P2',x.pay?`${x.pay[0]} / ${x.pay[1]} / ${x.pay[2]||0}`:'100 / 0 / 0'],['Conversion of cash part',`${cv(cur)}${cv(cur)==='Y'?' (לדולר)':''}`],['Mode of transport',x.md==='S'?'S (ימי)':'A (אווירי)'],['Quarter of execution',String(t)],['Buyer signature','חתימת הקונה']],x.st==='closed'?'':'מתוכנן')});
@@ -681,9 +690,9 @@ function decHTML(t){const r=res.rows[t-1],F=r.F,G=S.G,A=S.A,nx=res.rows[t],rows=
  if(r.pcPrice.BR)add('מחירים','מחיר מחשב בברזיל','A1 · ברזיל',`<b>R$${r.pcPrice.BR}</b> לדגם סטנדרט (Y${r.gys})`);
  else if(r.made.BR)add('מחירים','מחיר מחשב בברזיל','A1 · ברזיל',`<b>אין מה למכור עדיין.</b> המחשבים שמייצרים ברבעון הזה נמכרים ברבעון ${t+1}, ב־R$${at(A.pBR,t+1)}`);
  add('מחירים',"מחיר צ'יפ לצרכנים",'A1 · ארה"ב','<b>לא מזינים.</b> לפי האסטרטגיה לא מוכרים צ\'יפים לצרכנים');
- const sl=[...r.sales.filter(x=>x.u&&x.st!=='rest'&&(x.air||(!x.surf&&x.mode!=='surf'))).map(x=>({...x,uu:x.air||x.u,md:'A',arr:t})),...(nx?nx.sales.filter(x=>x.surf&&x.st!=='rest').map(x=>({...x,uu:x.surf,md:'S',arr:t+1})):[])];
+ const sl=[...r.sales.filter(x=>x.air&&x.st!=='rest').map(x=>({...x,uu:x.air,md:'A',arr:t})),...r.sales.filter(x=>x.surf&&x.st!=='rest').map(x=>({...x,uu:x.surf,md:'S',arr:t+1,p:x.pS??x.p}))];
  sl.forEach(x=>add('מחירים',`צ'יפים ל${esc(x.co)}`,'H6',`<b>${nu(x.uu)}</b> צ'יפים X${r.gxs} ב־<b>${CUR[x.cur||'US']}${(+x.p).toFixed(2)}</b>, ${x.md==='S'?`בים, מגיע ברבעון ${x.arr}`:'באוויר, מגיע ברבעון הזה'}, תשלום ${x.pay?x.pay[0]+'/'+x.pay[1]:'100/0'}`));
- const rs=[...r.sales.filter(x=>x.st==='rest'&&x.u&&x.mode!=='surf').map(x=>({...x,uu:x.u,arr:t})),...(nx?nx.sales.filter(x=>x.st==='rest'&&x.surf).map(x=>({...x,uu:x.surf,arr:t+1})):[])];
+ const rs=r.sales.filter(x=>x.st==='rest'&&x.u).map(x=>({...x,uu:x.u,arr:x.mode==='surf'?t+1:t}));
  rs.forEach(x=>add('מחירים','צ\'יפים לקונים נוספים (עוד לא נסגר)','H6',`יעד: ${nu(x.uu)} צ'יפים ב־$${(+x.p).toFixed(0)}. לא מזינים בלי חוזה חתום`));
  const sh=[...F.ship.filter(x=>x.mode!=='surf').map(x=>({...x,arr:t})),...(nx?nx.F.ship.filter(x=>x.mode==='surf').map(x=>({...x,arr:t+1})):[])];
  sh.forEach(x=>add('מחירים','צ\'יפים למפעל שלנו בברזיל','H6',`<b>${nu(x.u)}</b> צ'יפים X${r.gxs} ב־<b>$${x.tp.toFixed(2)}</b> (המינימום: עלות + שילוח), ${x.arr>t?`בים, מגיע ברבעון ${x.arr}`:'באוויר'}`));
@@ -722,6 +731,138 @@ function trkOut(){if(!res||!$('#actt'))return;res.rows.forEach(r=>{const a=r.act
  const c1=res.rows.reduce((s,r)=>s+r.net,0),c0=r0.rows.reduce((s,r)=>s+r.net,0),d=c1-c0;
  const fq=S.A.fxq,brD=fq.BR.some(v=>+v<S.G.fx.BR),brU=fq.BR.some(v=>+v>S.G.fx.BR),euU=fq.EU.some(v=>+v>S.G.fx.EU),euD=fq.EU.some(v=>+v<S.G.fx.EU);
  $('#fximp').innerHTML=Math.abs(d)<1?'השערים כמו בחוקי המשחק לאורך כל הדרך.':[`השפעת השערים על הרווח המצטבר: <b>${d>0?'+':''}${k$(d)}</b> לעומת שערים קבועים.`,brD?'ריאל חלש מוריד את מה שמחשב בברזיל שווה ב־SF. אפשר לפצות במחיר בריאל.':'',brU?'ריאל חזק מעלה את מה שמחשב בברזיל שווה ב־SF.':'',euU?'יורו חזק מייקר לקונים באירופה לייצר צ\'יפים בעצמם, וזה מחזק אותנו במשא ומתן.':'',euD?'יורו חלש מוזיל לקונים באירופה לבנות מפעל צ\'יפים: לבדוק את המחיר המוביל במחירון.':''].filter(Boolean).join(' ')}
+
+// ---------- actual results (MIS reports Q1-Q3) ----------
+const RES={
+ q:[1,2,3],
+ plan:{net:[-116,-438,168],cash:[6884,5179,4711]},
+ act:{net:[-161.2,-441.9,237.3],cash:[6839.5,5115.2,4692.5]},
+ pl:[
+  ['sec','מכירות'],
+  ['מכירת צ\'יפים לחברה 5',[0,0,1301.3],'30,000 באוויר ו־4,700 בים, €25 לצ\'יפ'],
+  ['עלות הצ\'יפים שנמכרו',[0,0,-283.3],'34,700 × $8.16'],
+  ['רווח רישומי על צ\'יפים לברזיל',[0,0,39.9],'מכירה לעצמנו: ארה"ב "מרוויחה" וברזיל משלמת יותר. בסה"כ מתקזז כשהמחשבים נמכרים'],
+  ['hi','רווח גולמי',[0,0,1057.8]],
+  ['sec','הוצאות תפעול'],
+  ['שילוח',[0,0,-141.3],'חברה 5 וברזיל, אוויר וים'],
+  ['פתיחת משרדי מכירות בברזיל',[0,0,-10.0],'עלות חד־פעמית של המעבר מסוכנים למשרדים'],
+  ['שיפור שיטות',[0,-20,-20]],
+  ['פחת ועלויות קבועות',[0,-240,-300],'מפעל הצ\'יפים מרבעון 2, מפעל המחשבים מרבעון 3'],
+  ['hi','רווח תפעולי',[0,-260,586.6]],
+  ['sec','משרד ראשי ומימון'],
+  ['ריבית מניירות ערך ומזומן',[128.3,118.0,110.2],'2% על ניירות הערך, 4.5% על הפיקדון בברזיל'],
+  ['מו"פ',[-220,-220,-220],'צ\'יפים 150, מחשבים 70'],
+  ['מחקרי שוק',[-30,-35,-8]],
+  ['ריבית על ההלוואה ואשראי',[-30,-31.4,-34.8],'הלוואה 1M ב־3% ועוד אשראי ספקים קטן'],
+  ['עמלות המרה',[-8.8,-6.0,-4.7]],
+  ['hi','רווח לפני מס',[-160.5,-434.3,429.3]],
+  ['מס',[-0.7,-7.5,-192.0],'רבעון 3: מס של 50% בארה"ב'],
+  ['hi','רווח נקי',[-161.2,-441.9,237.3]]
+ ],
+ bs:[
+  ['sec','נכסים'],
+  ['מזומן',[589.5,565.2,492.5]],
+  ['ניירות ערך',[6250,5050,4700],'ברבעונים 2–3 כולל הפיקדון בברזיל (R$1M = 500)'],
+  ['לקוחות (חברה 5 משלמת ברבעון הבא)',[0,0,749.5]],
+  ['מלאי',[0,408.2,1348.0],'רבעון 3: 50,000 צ\'יפים בארה"ב, 7,650 צ\'יפים ו־8,000 מחשבים בברזיל'],
+  ['מפעלים נטו',[2000,2640,2440]],
+  ['hi','סה"כ נכסים',[8839.5,8663.4,9730.0]],
+  ['sec','התחייבויות'],
+  ['ספקים',[0.7,252.4,1076.7]],
+  ['אשראי ספקים (חריגה במזומן)',[0,13.9,19.0],'בארה"ב. ריבית 5.5% לרבעון'],
+  ['הלוואה',[1000,1000,1000],'3% לרבעון, הקרן חוזרת ברבעון 9'],
+  ['hi','הון עצמי',[7838.8,7397.0,7634.2]]
+ ],
+ ops:[
+  ['sec','צ\'יפים (ארה"ב)'],
+  ['ייצור',['–','50,000 X0','50,000 X1']],
+  ['עלות משתנה לצ\'יפ',['–','$8.16','$8.48']],
+  ['נמכרו לחברה 5',['–','–','34,700 (30,000 אוויר + 4,700 ים)']],
+  ['נשלחו לברזיל',['–','–','15,300 (7,650 אוויר + 7,650 ים)']],
+  ['מלאי בסוף',['–','50,000 X0','50,000 X1']],
+  ['sec','מחשבים (ברזיל)'],
+  ['ייצור',['–','–','8,000 Y0']],
+  ['עלות למחשב כולל הצ\'יפ',['–','–','R$213 ($106)']],
+  ['צ\'יפים בהשלמת חירום',['–','–','350 ב־R$223 לצ\'יפ (R$78K)']],
+  ['מלאי בסוף',['–','–','8,000 מחשבים, 7,650 צ\'יפים']],
+  ['משרדי מכירות',['–','–','מרכזי + 2 (פעילים מרבעון 4)']],
+  ['sec','כסף'],
+  ['ניירות ערך במשרד הראשי (H2)',['6,250','4,550','4,200']],
+  ['העברות לאזורים',['$2.2M לארה"ב','$50K לארה"ב, R$2.9M לברזיל','$50K לארה"ב, R$300K לברזיל']],
+  ['תשלום שירותים לראשי (W1)',['–','–','$110K מארה"ב']]
+ ],
+ co:{
+  eq:[[7766,7751,7839,7812,8074,7452,7603,8138],[7234,6987,7397,7459,7797,6443,6976,8278],[6718,6913,7634,5759,7026,5169,6080,8422]],
+  net:[[-234,-249,-161,-188,74,-548,-397,138],[-531,-764,-442,-353,-277,-1009,-627,140],[-517,-74,237,-1700,-771,-1274,-896,143]],
+  q3:[
+   ['מכירות לצרכנים',[0,244,0,0,0,315,0,0]],
+   ['מכירות צ\'יפים לחברות',[0,1788,1301,0,0,0,0,0]],
+   ['צ\'יפים שנכנסו למחשבים (עלות)',[713,181,92,1788,1125,592,118,0]],
+   ['פרסום',[45,75,0,300,0,195,75,0]],
+   ['מלאי',[2712,2053,1348,4562,2660,3200,782,0]],
+   ['מזומן וניירות ערך',[2372,2462,5192,3379,8060,2886,3254,8447]],
+   ['אשראי ספקים',[0,0,19,4939,4644,1155,0,0]],
+   ['הלוואות ואג"ח',[1322,2490,1000,0,0,3000,0,0]]
+  ]
+ },
+ plants:[
+  ['חברה 1',[1,0,0,2,0,0],'צ\'יפים בארה"ב, מחשבים באירופה'],
+  ['חברה 2',[2,1,0,0,0,0],'צ\'יפים ומחשבים בארה"ב. מוכרת צ\'יפים לחברות'],
+  ['חברה 3 (אנחנו)',[1,0,0,0,0,1],'מפעל צ\'יפים שני בארה"ב ברבעון 4'],
+  ['חברה 4',[0,1,0,3,0,0],'אין לה מפעל צ\'יפים. קונה הכל'],
+  ['חברה 5',[0,0,0,2,0,0],'אין לה מפעל צ\'יפים. הקונה שלנו'],
+  ['חברה 6',[1,1,0,1,0,0],''],
+  ['חברה 7',[0,0,1,1,0,0],'היחידה עם צ\'יפים באירופה'],
+  ['חברה 8',[0,0,0,0,0,0],'בלי מפעלים. משקיעה בניירות ערך']
+ ],
+ mr:[
+  {h:'אנחנו מייצרים מעל הכמות היעילה',s:'מחקר 24, רבעון 1',t:'הכמות היעילה למפעל צ\'יפים בארה"ב היא 37–43 אלף, ולמפעל מחשבים בברזיל 5.8–6.7 אלף. אנחנו מייצרים 50,000 צ\'יפים ו־8,000 מחשבים, ולכן הצ\'יפ עולה $8.16–8.48 ולא $7. עדכנתי את המודל לעלות בפועל.'},
+  {h:'ברזיל רק שלנו, הלקוחות באירופה',s:'מחקרים 40 ו־30',t:'רק לנו יש מפעל מחשבים בברזיל, ואף אחד לא מייצר שם צ\'יפים. באירופה יש 9 מפעלי מחשבים (חברות 1, 4, 5, 6, 7) ורק מפעל צ\'יפים אחד (חברה 7). שם נמצאים הקונים שלנו.'},
+  {h:'המחיר שלנו גבוה מהשוק באירופה',s:'מחקר 77, רבעון 3',t:'לאירופה יובאו 137,700 צ\'יפים, בממוצע 27 SF לצ\'יפ. אנחנו מקבלים 37.5 SF (€25), אז כל השאר מוכרים בערך ב־23.5 SF (כ־€15.6). חברה 5 משלמת לנו פרמיה. בחוזים חדשים המחיר יהיה נמוך יותר, וההנחה של $30 לקונים נוספים אופטימית.'},
+  {h:'שדרוג ל־X1 משתלם',s:'מחקרים 31 ו־51, רבעון 2',t:'השוק משלם על X1 יותר: 33–45% בארה"ב ו־26–36% באירופה. לפי היועצים העלות עולה 29–34%, אבל בפועל העלות שלנו עלתה רק 4% (מ־$8.16 ל־$8.48).'},
+  {h:'קונה פוטנציאלי: חברה 4',s:'מחקר 74, רבעון 3',t:'יש לה 4 מפעלי מחשבים ואין לה מפעל צ\'יפים. ברבעון 3 קנתה צ\'יפים ב־1.79M SF, כנראה מחברה 2. יש לה 4.9M SF אשראי ספקים, אז תנאי תשלום נוחים יכולים לשכנע אותה יותר ממחיר.'},
+  {h:'סיכון גבייה מחברה 5',s:'מחקר 74, רבעון 3',t:'לחברה 5 יש 4.6M SF אשראי ספקים, והיא חייבת לנו 750K SF שמגיעים ברבעון 4. כדאי לעקוב שהכסף נכנס לפני שמגדילים לה אשראי.'},
+  {h:'אין עדיין מכירות מחשבים לצרכנים',s:'מחקרים 11, 17 ו־28, רבעון 3',t:'ברבעון 3 רק חברות 2 ו־6 מכרו לצרכנים, ורק צ\'יפים בארה"ב, ב־$45. אף אחד עוד לא מוכר מחשבים לצרכנים. ברבעון 4 אנחנו הראשונים בברזיל.'},
+  {h:'אנחנו במקום 2 מתוך 8',s:'מחקר 74',t:'הון עצמי 7.63M SF, שני רק לחברה 8 (שאין לה מפעלים). ברבעון 3 אנחנו היחידים מבין החברות המייצרות שהרוויחו. חברות 4 ו־6 הפסידו 1.7M ו־1.27M, עם הרבה מלאי ואשראי ספקים.'}
+ ],
+ lessons:[
+  'הכסף לא במקום הנכון: בארה"ב המזומן יורד לאפס כל רבעון ונפתח אשראי ספקים של $14–19K ב־5.5%. צריך להעביר לארה"ב עוד קצת.',
+  'בברזיל יתרת דולר שלילית של $66K (על תשלום הצ\'יפים מארה"ב), שעולה ריבית חריגה. לקנות דולרים לברזיל או לשלם את ההעברה הפנימית בריאל.',
+  'הוזן ייצור של 8,000 מחשבים כשהיו רק 7,650 צ\'יפים, והמערכת השלימה 350 צ\'יפים ב־R$223 כל אחד. ברבעון 4 מזינים 7.65 בדיוק.',
+  'מכירה בים נרשמת כבר ברבעון השליחה: 4,700 הצ\'יפים שיצאו בים לחברה 5 נכנסו להכנסות של רבעון 3. עדכנתי את המודל ככה.',
+  'ההלוואה היא ב־3% לרבעון (30K SF), והקרן חוזרת רק ברבעון 9. במודל היה 4%.',
+  'תשלום השירותים (W1) של $110K העביר רווח מארה"ב (מס 50%) למשרד הראשי.'
+ ]
+};
+function resOut(){const el=$('#resb');if(!el)return;const f=v=>typeof v!=='number'?esc(String(v)):`<span class="n">${v<0?'−':''}${Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:1})}</span>`;
+ const hd=(x=['רבעון 1','רבעון 2','רבעון 3'])=>`<tr><th></th>${x.map(q=>`<th>${q}</th>`).join('')}<th></th></tr>`;
+ const tb=(rows)=>`<div class="scroll"><table class="rt">${hd()}${rows.map(r=>r[0]==='sec'?`<tr class="sec"><td colspan="5">${r[1]}</td></tr>`:r[0]==='hi'?`<tr class="hi"><td>${r[1]}</td>${r[2].map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>`:`<tr><td>${r[0]}</td>${r[1].map(v=>`<td>${f(v)}</td>`).join('')}<td class="nt">${r[2]||''}</td></tr>`).join('')}</table></div>`;
+ const A=RES.act,P=RES.plan,cum=A.net.reduce((s,v)=>s+v,0),eq3=RES.co.eq[2],rk=[...eq3].sort((a,b)=>b-a).indexOf(eq3[2])+1;
+ let h=`<div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:18px">
+  <div class="k"><span>רווח נקי ברבעון 3</span><strong>${f(237)}K</strong><small>בתוכנית ${f(168)}K</small></div>
+  <div class="k"><span>רווח מצטבר 1–3</span><strong>${f(Math.round(cum))}K</strong><small>בתוכנית ${f(P.net.reduce((s,v)=>s+v,0))}K</small></div>
+  <div class="k"><span>הון עצמי</span><strong>7.63M</strong><small>מקום ${rk} מתוך 8</small></div>
+  <div class="k"><span>מזומן וניירות ערך</span><strong>4.69M</strong><small>בתוכנית 4.71M</small></div></div>`;
+ h+=`<h2>תוכנית מול בפועל</h2><p class="lead">באלפי SF. מזומן = מזומן וניירות ערך, בלי הפיקדון בברזיל.</p><div class="scroll"><table class="rt">${hd()}
+  <tr><td>רווח נקי בתוכנית</td>${P.net.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
+  <tr class="hi"><td>רווח נקי בפועל</td>${A.net.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
+  <tr><td>הפרש</td>${A.net.map((v,i)=>`<td style="color:var(--${v-P.net[i]>=0?'ok':'acc'})">${f(Math.round((v-P.net[i])*10)/10)}</td>`).join('')}<td class="nt">רבעון 3: 4,700 צ'יפים שנשלחו בים נרשמו כבר עכשיו, מול עלות צ'יפ גבוהה מהתכנון</td></tr>
+  <tr><td>מזומן בתוכנית</td>${P.cash.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
+  <tr class="hi"><td>מזומן בפועל</td>${A.cash.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr></table></div>`;
+ h+=`<h2>דוח רווח והפסד</h2><p class="lead">באלפי SF, מאוחד. כתבתי מחדש את השורות של הדוח כדי שיהיה ברור מאיפה בא כל שקל. העברות כסף בין המשרד הראשי לארה"ב (W1) מתקזזות ולא מופיעות.</p>${tb(RES.pl)}`;
+ h+=`<h2>מאזן</h2><p class="lead">באלפי SF, סוף כל רבעון.</p>${tb(RES.bs)}`;
+ h+=`<h2>מה קרה בתפעול</h2>${tb(RES.ops)}`;
+ h+=`<h2>מה למדנו מהדוחות</h2><div class="cards">${RES.lessons.map(x=>`<div class="card"><p style="margin:0">${x}</p></div>`).join('')}</div>`;
+ h+=`<h2>תובנות ממחקרי השוק</h2><div class="cards">${RES.mr.map(x=>`<div class="card"><h3>${x.h}</h3><p style="margin:4px 0 6px">${x.t}</p><small style="color:var(--mut)">${x.s}</small></div>`).join('')}</div>`;
+ const CO=[1,2,3,4,5,6,7,8],ch=`<tr><th></th>${CO.map(c=>`<th${c===3?' style="color:var(--acc)"':''}>${c===3?'אנחנו':'חברה '+c}</th>`).join('')}</tr>`,cr=(l,a,cls='')=>`<tr class="${cls}"><td>${l}</td>${a.map((v,i)=>`<td${i===2?' style="font-weight:800"':''}>${f(v)}</td>`).join('')}</tr>`;
+ h+=`<h2>המתחרים</h2><p class="lead">באלפי SF, מתוך מחקר 74. כל החברות התחילו עם 8,000.</p><div class="scroll"><table class="rt">${ch}
+  <tr class="sec"><td colspan="9">הון עצמי</td></tr>${RES.co.eq.map((a,i)=>cr(`רבעון ${i+1}`,a,i===2?'hi':'')).join('')}
+  <tr class="sec"><td colspan="9">רווח נקי</td></tr>${RES.co.net.map((a,i)=>cr(`רבעון ${i+1}`,a,i===2?'hi':'')).join('')}
+  <tr class="sec"><td colspan="9">רבעון 3</td></tr>${RES.co.q3.map(x=>cr(x[0],x[1])).join('')}</table></div>`;
+ h+=`<h2>מי בונה מה ואיפה</h2><p class="lead">מספר מפעלים, מחקרים 40 ו־30.</p><div class="scroll"><table class="rt"><tr><th></th><th>צ'יפים ארה"ב</th><th>מחשבים ארה"ב</th><th>צ'יפים אירופה</th><th>מחשבים אירופה</th><th>צ'יפים ברזיל</th><th>מחשבים ברזיל</th><th></th></tr>
+  ${RES.plants.map(p=>`<tr${p[0].includes('אנחנו')?' class="hi"':''}><td>${p[0]}</td>${p[1].map(v=>`<td>${v||'–'}</td>`).join('')}<td class="nt">${p[2]}</td></tr>`).join('')}
+  <tr class="hi"><td>סה"כ</td>${[0,1,2,3,4,5].map(i=>`<td>${RES.plants.reduce((s,p)=>s+p[1][i],0)}</td>`).join('')}<td></td></tr></table></div>`;
+ el.innerHTML=h}
 const FB={apiKey:"AIzaSyDzZCtwsfmQAuTX9JC8gjACHnemRYFQtDg",authDomain:"intopia-planner.firebaseapp.com",projectId:"intopia-planner",storageBucket:"intopia-planner.firebasestorage.app",messagingSenderId:"1073216274261",appId:"1:1073216274261:web:95620a3596d78569b7f9dc"};
 const SY={ref:null,can:true,lastV:null,timer:0,writing:false,again:false,at:0};
 function syncUI(st,txt){const el=$('#sync');el.className='sync '+st;el.querySelector('span').textContent=txt}
