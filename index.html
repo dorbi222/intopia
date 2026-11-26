@@ -100,6 +100,7 @@ th.now,td.now{background:color-mix(in srgb,var(--acc) 10%,transparent)}.card.pas
 table.dec td{position:static;padding:6px 8px;text-align:right}table.dec td:nth-child(2){white-space:nowrap;font-size:13px}table.dec tr.sec td{background:var(--soft)}
 @media (max-width:760px){.mini>span:not(.sync){display:none}.top{grid-template-columns:1fr}.capr{grid-template-columns:3.5em minmax(0,1fr) 8.5em}}
 table.rt td.nt{color:var(--mut);font-size:13px;white-space:normal;min-width:14em;text-align:right}table.rt td,table.rt th{white-space:nowrap}.cards .card h3{margin:0 0 2px;font-size:16px}
+details.acc{margin-top:10px;padding:0;border-radius:10px}details.acc>summary{padding:12px 16px;gap:2px 12px;flex-wrap:wrap;font-size:18px;list-style:none}details.acc>summary::-webkit-details-marker{display:none}details.acc>summary::before{content:"‹";display:inline-block;transition:transform .15s;color:var(--acc);font-size:22px;width:14px}details.acc[open]>summary::before{transform:rotate(-90deg)}details.acc>summary small{font-weight:400;font-size:14px;color:var(--mut);flex-basis:100%;padding-inline-start:26px}details.acc[open]>summary{border-bottom:1px solid var(--line)}.accb{padding:4px 16px 14px}.accb h3{margin:16px 0 6px}
 </style>
 </head>
 <body>
@@ -175,7 +176,7 @@ table.rt td.nt{color:var(--mut);font-size:13px;white-space:normal;min-width:14em
  <div class="scroll"><table id="mrq"></table></div>
 </section>
 <section id="res" hidden>
- <h2>תוצאות בפועל</h2><p class="lead">מתוך דוחות ה־MIS של רבעונים 1–3 (תיקיית "תוצאות").</p><div id="resb"></div>
+ <h2>תוצאות בפועל</h2><p class="lead">מתוך דוחות ה־MIS של רבעונים 1–3. למעלה התמונה הכללית, ומתחת כל נושא נפתח בלחיצה.</p><div id="resb"></div>
 </section>
 <section id="trk" hidden>
  <h2>מה קרה בפועל</h2>
@@ -882,35 +883,75 @@ function cfoOut(){const tb=rows=>`<div class="scroll"><table class="rt"><tr><th>
  return `<div style="border-top:3px solid var(--ink);margin-top:28px;padding-top:6px"><h2 style="margin-top:8px">פינת ה־CFO</h2><p class="lead">איפה כל הכסף, מה חייבים לנו ומה אנחנו חייבים, ואיפה נפתח אשראי ספקים. באלפים, במטבע של כל מקום, סוף כל רבעון.</p>
  <h3>איפה הכסף</h3>${tb(CFO.where)}<h3>חובות ואשראי</h3>${tb(CFO.owe)}<h3>ריבית: כמה קיבלנו וכמה שילמנו</h3>${tb(CFO.int)}
  <h3>מה עושים ברבעון 4</h3><div class="cards">${CFO.act.map(x=>`<div class="card"><h3>${x.h}</h3><p style="margin:4px 0 0">${x.t}</p></div>`).join('')}</div></div>`}
+const RAT={ext:[0,2032,1301,0,0,315,0,0],op:[-74,500,587,-901,-198,-412,-517,0],gm:[552,1522,1058,0,0,443,0,0],net:[-517,-74,237,-1700,-771,-1274,-896,143],eq:[6718,6913,7634,5759,7026,5169,6080,8422],ta:[9836,10625,9730,13071,13000,10985,6435,8447],ca:[5876,5555,7290,7941,10720,6455,4035,8447],cl:[1796,1222,1096,7312,5974,2815,355,25],tl:[3118,3712,2096,7312,5974,5815,355,25],sc:[0,0,19,4939,4644,1155,0,0],inv:[2712,2053,1348,4562,2660,3200,782,0],rd:[290,250,220,250,0,220,400,0],cash:[2372,2462,5192,3379,8060,2886,3254,8447],eq0:8000};
+function ratOut(){const R=RAT,C=[0,1,2,3,4,5,6,7],pct=v=>v==null||!isFinite(v)?'–':`<bdi dir="ltr">${v<0?'−':''}${Math.abs(v*100).toFixed(0)}%</bdi>`,x=v=>v==null||!isFinite(v)?'–':`<bdi dir="ltr">${v.toFixed(1)}</bdi>`;
+ const rows=[
+  ['sec','רווחיות, רבעון 3'],
+  {l:'שולי רווח גולמי',v:C.map(i=>R.ext[i]?R.gm[i]/R.ext[i]:null),f:pct,hi:1,n:'רווח גולמי מתוך המכירות החיצוניות (לצרכנים ולחברות אחרות). רק חברות 2, 6 ואנחנו מוכרות החוצה'},
+  {l:'שולי רווח תפעולי',v:C.map(i=>R.ext[i]?R.op[i]/R.ext[i]:null),f:pct,hi:1,n:'כמה נשאר אחרי שילוח, מפעלים ופחת. אצלנו 45%, אצל חברה 2 (המתחרה הישירה בצ\'יפים) 25%'},
+  {l:'שולי רווח נקי',v:C.map(i=>R.ext[i]?R.net[i]/R.ext[i]:null),f:pct,hi:1,n:'אחרי מו"פ, מימון ומס'},
+  {l:'תשואה על ההון ברבעון',v:C.map(i=>R.net[i]/R.eq[i]),f:pct,hi:1,n:'רווח נקי מתוך ההון העצמי. 3.1% לרבעון זה כ־13% בשנה'},
+  {l:'תשואה מתחילת המשחק',v:C.map(i=>R.eq[i]/R.eq0-1),f:pct,hi:1,n:'כולם התחילו עם 8,000. רק חברה 8, שלא מייצרת, מעל 0'},
+  ['sec','איתנות ונזילות, סוף רבעון 3'],
+  {l:'יחס שוטף',v:C.map(i=>R.ca[i]/R.cl[i]),f:x,hi:1,n:'נכסים שוטפים לחלק להתחייבויות שוטפות. מעל 2 טוב. חברה 4 ב־1.1, כמעט בלי מרווח'},
+  {l:'מינוף (התחייבויות להון)',v:C.map(i=>R.tl[i]/R.eq[i]),f:x,hi:0,n:'כמה חוב על כל שקל הון. אצלנו 0.27, אצל חברות 4 ו־6 מעל 1'},
+  {l:'אשראי ספקים מתוך ההון',v:C.map(i=>R.sc[i]/R.eq[i]),f:pct,hi:0,n:'האשראי היקר (5.5%–6.5%). חברות 4 ו־5 על 66%–86%: לחוצות במזומן, וזה סיכון גבייה מולן'},
+  {l:'מזומן וניירות ערך מתוך הנכסים',v:C.map(i=>R.cash[i]/R.ta[i]),f:pct,hi:1,n:'כמה מהנכסים נזילים'},
+  ['sec','איך משתמשים בנכסים'],
+  {l:'מלאי מתוך הנכסים',v:C.map(i=>R.inv[i]/R.ta[i]),f:pct,hi:0,n:'מלאי גבוה = כסף תקוע. חברות 1, 4 ו־6 על 28%–35%'},
+  {l:'מכירות חיצוניות מתוך הנכסים',v:C.map(i=>R.ext[i]/R.ta[i]),f:pct,hi:1,n:'כמה מכירות מייצר כל שקל נכסים ברבעון'},
+  {l:'מו"פ ברבעון (אלפי SF)',v:C.map(i=>R.rd[i]),f:v=>`<bdi dir="ltr">${v}</bdi>`,hi:-1,n:'חברה 7 משקיעה הכי הרבה (400). אנחנו 220'}
+ ];
+ const ch=`<tr><th></th>${C.map(i=>`<th${i===2?' style="color:var(--acc)"':''}>${i===2?'אנחנו':'חברה '+(i+1)}</th>`).join('')}<th>הדירוג שלנו</th><th></th></tr>`;
+ const rk=r=>{if(r.hi<0)return '';const ok=r.v.map((v,i)=>({v,i})).filter(o=>o.v!=null&&isFinite(o.v));if(!ok.some(o=>o.i===2))return '–';ok.sort((a,b)=>r.hi?b.v-a.v:a.v-b.v);return `${ok.findIndex(o=>o.i===2)+1} מתוך ${ok.length}`};
+ return `<p class="lead">יחסים מתוך מחקר 74 של רבעון 3. בעמודת הדירוג, 1 = הכי טוב (במינוף, באשראי ספקים ובמלאי, נמוך = טוב).</p><div class="scroll"><table class="rt">${ch}${rows.map(r=>Array.isArray(r)?`<tr class="sec"><td colspan="11">${r[1]}</td></tr>`:`<tr><td>${r.l}</td>${r.v.map((v,i)=>`<td${i===2?' style="font-weight:800;color:var(--acc)"':''}>${r.f(v)}</td>`).join('')}<td style="font-weight:800">${rk(r)}</td><td class="nt">${r.n}</td></tr>`).join('')}</table></div>
+ <h3>הצ'יפ שלנו ברבעון 3</h3><div class="scroll"><table class="rt"><tr><th></th><th>לצ'יפ</th><th></th></tr>
+  <tr><td>מחיר לחברה 5</td><td><bdi dir="ltr">$37.50</bdi></td><td class="nt">€25</td></tr>
+  <tr><td>עלות ייצור משתנה</td><td><bdi dir="ltr">−$8.16</bdi></td><td></td></tr>
+  <tr><td>שילוח לאירופה</td><td><bdi dir="ltr">−$2.56</bdi></td><td class="nt">$89K על 34,700 צ'יפים, רובם באוויר. בים זה בערך חצי</td></tr>
+  <tr><td>מפעל, פחת ושיפור שיטות</td><td><bdi dir="ltr">−$5.20</bdi></td><td class="nt">$260K לרבעון על 50,000 צ'יפים</td></tr>
+  <tr class="hi"><td>רווח תפעולי לצ'יפ</td><td><bdi dir="ltr">$21.58</bdi></td><td class="nt">58% מהמחיר. במחיר השוק באירופה (כ־$23.5) נשאר רק כ־$7.6 לצ'יפ</td></tr></table></div>`}
 function resOut(){const el=$('#resb');if(!el)return;const f=v=>typeof v!=='number'?esc(String(v)):`<bdi dir="ltr" style="white-space:nowrap">${Math.round(v)<0?'−':''}${Math.abs(Math.round(v)).toLocaleString('en-US')}</bdi>`;
  const hd=(x=['רבעון 1','רבעון 2','רבעון 3'])=>`<tr><th></th>${x.map(q=>`<th>${q}</th>`).join('')}<th></th></tr>`;
  const tb=(rows)=>`<div class="scroll"><table class="rt">${hd()}${rows.map(r=>r[0]==='sec'?`<tr class="sec"><td colspan="5">${r[1]}</td></tr>`:r[0]==='hi'?`<tr class="hi"><td>${r[1]}</td>${r[2].map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>`:`<tr><td>${r[0]}</td>${r[1].map(v=>`<td>${f(v)}</td>`).join('')}<td class="nt">${r[2]||''}</td></tr>`).join('')}</table></div>`;
  const A=RES.act,P=RES.plan,cum=A.net.reduce((s,v)=>s+v,0),eq3=RES.co.eq[2],rk=[...eq3].sort((a,b)=>b-a).indexOf(eq3[2])+1;
- let h=`<div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:18px">
+ const sec=(id,t,sub,body,open)=>`<details class="acc" id="r-${id}"${open?' open':''}><summary><span>${t}</span><small>${sub}</small></summary><div class="accb">${body}</div></details>`;
+ const top=`<div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:14px">
   <div class="k"><span>רווח נקי ברבעון 3</span><strong>${f(237)}K</strong><small>בתוכנית ${f(168)}K</small></div>
   <div class="k"><span>רווח מצטבר 1–3</span><strong>${f(Math.round(cum))}K</strong><small>בתוכנית ${f(P.net.reduce((s,v)=>s+v,0))}K</small></div>
   <div class="k"><span>הון עצמי</span><strong>7.63M</strong><small>מקום ${rk} מתוך 8</small></div>
-  <div class="k"><span>מזומן וניירות ערך</span><strong>4.69M</strong><small>בתוכנית 4.71M</small></div></div>`;
- h+=`<h2>תוכנית מול בפועל</h2><p class="lead">באלפי SF. מזומן = מזומן וניירות ערך, בלי הפיקדון בברזיל.</p><div class="scroll"><table class="rt">${hd()}
+  <div class="k"><span>שולי רווח תפעולי</span><strong>45%</strong><small>חברה 2: 25%</small></div></div>
+  <div class="cards" style="margin-bottom:6px">
+   <div class="card"><h3>מה הולך טוב</h3><p style="margin:4px 0 0">היחידים מבין החברות המייצרות שהרוויחו ברבעון 3. מינוף נמוך, נזילות טובה, ושולי רווח תפעולי של 45% מול 25% אצל חברה 2.</p></div>
+   <div class="card"><h3>מה צריך לתקן</h3><p style="margin:4px 0 0">ארה"ב על אשראי ספקים, מינוס בדולר בברזיל, ו־350 צ'יפים שהושלמו במחיר חירום. פירוט בפינת ה־CFO ובמה שלמדנו.</p></div>
+   <div class="card"><h3>הסיכון הגדול</h3><p style="margin:4px 0 0">חברה 5 משלמת פרמיה של כ־60% מעל השוק ויש לה 4.6M SF אשראי ספקים. אם היא לא מחדשת, או לא משלמת, הרווח בצ'יפים יורד חזק.</p></div></div>`;
+ const pva=`<div class="scroll"><table class="rt">${hd()}
   <tr><td>רווח נקי בתוכנית</td>${P.net.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
   <tr class="hi"><td>רווח נקי בפועל</td>${A.net.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
   <tr><td>הפרש</td>${A.net.map((v,i)=>`<td style="color:var(--${v-P.net[i]>=0?'ok':'acc'})">${f(v-P.net[i])}</td>`).join('')}<td class="nt">רבעון 3: 4,700 צ'יפים שנשלחו בים נרשמו כבר עכשיו, מול עלות צ'יפ גבוהה מהתכנון</td></tr>
   <tr><td>מזומן בתוכנית</td>${P.cash.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr>
-  <tr class="hi"><td>מזומן בפועל</td>${A.cash.map(v=>`<td>${f(v)}</td>`).join('')}<td></td></tr></table></div>`;
- h+=`<h2>דוח רווח והפסד</h2><p class="lead">באלפי SF, מאוחד. כתבתי מחדש את השורות של הדוח כדי שיהיה ברור מאיפה בא כל שקל. העברות כסף בין המשרד הראשי לארה"ב (W1) מתקזזות ולא מופיעות.</p>${tb(RES.pl)}`;
- h+=`<h2>מאזן</h2><p class="lead">באלפי SF, סוף כל רבעון.</p>${tb(RES.bs)}`;
- h+=`<h2>מה קרה בתפעול</h2>${tb(RES.ops)}`;
- h+=`<h2>מה למדנו מהדוחות</h2><div class="cards">${RES.lessons.map(x=>`<div class="card"><p style="margin:0">${x}</p></div>`).join('')}</div>`;
- h+=`<h2>תובנות ממחקרי השוק</h2><div class="cards">${RES.mr.map(x=>`<div class="card"><h3>${x.h}</h3><p style="margin:4px 0 6px">${x.t}</p><small style="color:var(--mut)">${x.s}</small></div>`).join('')}</div>`;
+  <tr class="hi"><td>מזומן בפועל</td>${A.cash.map(v=>`<td>${f(v)}</td>`).join('')}<td class="nt">מזומן וניירות ערך, בלי הפיקדון בברזיל</td></tr></table></div>`;
  const CO=[1,2,3,4,5,6,7,8],ch=`<tr><th></th>${CO.map(c=>`<th${c===3?' style="color:var(--acc)"':''}>${c===3?'אנחנו':'חברה '+c}</th>`).join('')}</tr>`,cr=(l,a,cls='')=>`<tr class="${cls}"><td>${l}</td>${a.map((v,i)=>`<td${i===2?' style="font-weight:800"':''}>${f(v)}</td>`).join('')}</tr>`;
- h+=`<h2>המתחרים</h2><p class="lead">באלפי SF, מתוך מחקר 74. כל החברות התחילו עם 8,000.</p><div class="scroll"><table class="rt">${ch}
+ const comp=`<p class="lead">באלפי SF, מתוך מחקר 74. כל החברות התחילו עם 8,000.</p><div class="scroll"><table class="rt">${ch}
   <tr class="sec"><td colspan="9">הון עצמי</td></tr>${RES.co.eq.map((a,i)=>cr(`רבעון ${i+1}`,a,i===2?'hi':'')).join('')}
   <tr class="sec"><td colspan="9">רווח נקי</td></tr>${RES.co.net.map((a,i)=>cr(`רבעון ${i+1}`,a,i===2?'hi':'')).join('')}
-  <tr class="sec"><td colspan="9">רבעון 3</td></tr>${RES.co.q3.map(x=>cr(x[0],x[1])).join('')}</table></div>`;
- h+=`<h2>מי בונה מה ואיפה</h2><p class="lead">מספר מפעלים, מחקרים 40 ו־30.</p><div class="scroll"><table class="rt"><tr><th></th><th>צ'יפים ארה"ב</th><th>מחשבים ארה"ב</th><th>צ'יפים אירופה</th><th>מחשבים אירופה</th><th>צ'יפים ברזיל</th><th>מחשבים ברזיל</th><th></th></tr>
+  <tr class="sec"><td colspan="9">רבעון 3</td></tr>${RES.co.q3.map(x=>cr(x[0],x[1])).join('')}</table></div>
+  <h3>מי בונה מה ואיפה</h3><p class="lead">מספר מפעלים, מחקרים 40 ו־30.</p><div class="scroll"><table class="rt"><tr><th></th><th>צ'יפים ארה"ב</th><th>מחשבים ארה"ב</th><th>צ'יפים אירופה</th><th>מחשבים אירופה</th><th>צ'יפים ברזיל</th><th>מחשבים ברזיל</th><th></th></tr>
   ${RES.plants.map(p=>`<tr${p[0].includes('אנחנו')?' class="hi"':''}><td>${p[0]}</td>${p[1].map(v=>`<td>${v||'–'}</td>`).join('')}<td class="nt">${p[2]}</td></tr>`).join('')}
   <tr class="hi"><td>סה"כ</td>${[0,1,2,3,4,5].map(i=>`<td>${RES.plants.reduce((s,p)=>s+p[1][i],0)}</td>`).join('')}<td></td></tr></table></div>`;
- h+=cfoOut();el.innerHTML=h}
+ const cards=a=>`<div class="cards">${a.map(x=>typeof x==='string'?`<div class="card"><p style="margin:0">${x}</p></div>`:`<div class="card"><h3>${x.h}</h3><p style="margin:4px 0 6px">${x.t}</p>${x.s?`<small style="color:var(--mut)">${x.s}</small>`:''}</div>`).join('')}</div>`;
+ const keep=[...el.querySelectorAll('details.acc[open]')].map(d=>d.id);
+ el.innerHTML=top+
+  sec('pva','תוכנית מול בפועל','רווח נקי ומזומן, רבעון אחרי רבעון',pva,1)+
+  sec('rat','יחסים פיננסיים מול המתחרים','שולי רווח, תשואה על ההון, נזילות ומינוף. איפה אנחנו בדירוג',ratOut())+
+  sec('cfo','פינת ה־CFO','איפה הכסף, אשראי ספקים, ריבית ומה עושים ברבעון 4',cfoOut().replace(/<h2[^>]*>פינת ה־CFO<\/h2>/,'').replace('border-top:3px solid var(--ink);margin-top:28px;padding-top:6px',''))+
+  sec('mr','תובנות ממחקרי השוק','מה אנחנו מבינים מהמחקרים, בלי כל הטבלאות',cards(RES.mr))+
+  sec('les','מה למדנו מהדוחות','טעויות ותיקונים לרבעונים הבאים',cards(RES.lessons))+
+  sec('pl','דוח רווח והפסד','מאוחד, באלפי SF, בשורות ברורות',`<p class="lead">כתבתי מחדש את השורות של הדוח כדי שיהיה ברור מאיפה בא כל שקל. דמי השירות (W1) בין ארה"ב למשרד הראשי מתקזזים ולא מופיעים.</p>${tb(RES.pl)}`)+
+  sec('bs','מאזן','נכסים, התחייבויות והון בסוף כל רבעון',tb(RES.bs))+
+  sec('ops','תפעול','ייצור, עלויות, משלוחים ומלאי',tb(RES.ops))+
+  sec('co','המתחרים','הון, רווח ונתוני רבעון 3 של כל 8 החברות, ומי בונה מה',comp);
+ keep.forEach(id=>{const d=document.getElementById(id);if(d)d.open=true})}
 const FB={apiKey:"AIzaSyDzZCtwsfmQAuTX9JC8gjACHnemRYFQtDg",authDomain:"intopia-planner.firebaseapp.com",projectId:"intopia-planner",storageBucket:"intopia-planner.firebasestorage.app",messagingSenderId:"1073216274261",appId:"1:1073216274261:web:95620a3596d78569b7f9dc"};
 const SY={ref:null,can:true,lastV:null,timer:0,writing:false,again:false,at:0};
 function syncUI(st,txt){const el=$('#sync');el.className='sync '+st;el.querySelector('span').textContent=txt}
