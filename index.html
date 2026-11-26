@@ -887,14 +887,14 @@ const RAT={ext:[0,2032,1301,0,0,315,0,0],op:[-74,500,587,-901,-198,-412,-517,0],
 function ratOut(){const R=RAT,C=[0,1,2,3,4,5,6,7],pct=v=>v==null||!isFinite(v)?'–':`<bdi dir="ltr">${v<0?'−':''}${Math.abs(v*100).toFixed(0)}%</bdi>`,x=v=>v==null||!isFinite(v)?'–':`<bdi dir="ltr">${v.toFixed(1)}</bdi>`;
  const rows=[
   ['sec','רווחיות, רבעון 3'],
-  {l:'שולי רווח גולמי',v:C.map(i=>R.ext[i]?R.gm[i]/R.ext[i]:null),f:pct,hi:1,n:'רווח גולמי מתוך המכירות החיצוניות (לצרכנים ולחברות אחרות). רק חברות 2, 6 ואנחנו מוכרות החוצה'},
+  {l:'שולי רווח גולמי',v:C.map(i=>R.ext[i]?R.gm[i]/R.ext[i]:null),f:pct,hi:1,n:'רווח גולמי מתוך המכירות החיצוניות (לצרכנים ולחברות אחרות). רק חברות 2, 6 ואנחנו מוכרות החוצה. אצל חברה 6 מעל 100% כי חלק מהרווח הגולמי שלה בא מהעברות פנימיות'},
   {l:'שולי רווח תפעולי',v:C.map(i=>R.ext[i]?R.op[i]/R.ext[i]:null),f:pct,hi:1,n:'כמה נשאר אחרי שילוח, מפעלים ופחת. אצלנו 45%, אצל חברה 2 (המתחרה הישירה בצ\'יפים) 25%'},
   {l:'שולי רווח נקי',v:C.map(i=>R.ext[i]?R.net[i]/R.ext[i]:null),f:pct,hi:1,n:'אחרי מו"פ, מימון ומס'},
   {l:'תשואה על ההון ברבעון',v:C.map(i=>R.net[i]/R.eq[i]),f:pct,hi:1,n:'רווח נקי מתוך ההון העצמי. 3.1% לרבעון זה כ־13% בשנה'},
   {l:'תשואה מתחילת המשחק',v:C.map(i=>R.eq[i]/R.eq0-1),f:pct,hi:1,n:'כולם התחילו עם 8,000. רק חברה 8, שלא מייצרת, מעל 0'},
   ['sec','איתנות ונזילות, סוף רבעון 3'],
   {l:'יחס שוטף',v:C.map(i=>R.ca[i]/R.cl[i]),f:x,hi:1,n:'נכסים שוטפים לחלק להתחייבויות שוטפות. מעל 2 טוב. חברה 4 ב־1.1, כמעט בלי מרווח'},
-  {l:'מינוף (התחייבויות להון)',v:C.map(i=>R.tl[i]/R.eq[i]),f:x,hi:0,n:'כמה חוב על כל שקל הון. אצלנו 0.27, אצל חברות 4 ו־6 מעל 1'},
+  {l:'מינוף (התחייבויות להון)',v:C.map(i=>R.tl[i]/R.eq[i]),f:v=>`<bdi dir="ltr">${v.toFixed(2)}</bdi>`,hi:0,n:'כמה חוב על כל שקל הון. אצלנו 0.27, אצל חברות 4 ו־6 מעל 1'},
   {l:'אשראי ספקים מתוך ההון',v:C.map(i=>R.sc[i]/R.eq[i]),f:pct,hi:0,n:'האשראי היקר (5.5%–6.5%). חברות 4 ו־5 על 66%–86%: לחוצות במזומן, וזה סיכון גבייה מולן'},
   {l:'מזומן וניירות ערך מתוך הנכסים',v:C.map(i=>R.cash[i]/R.ta[i]),f:pct,hi:1,n:'כמה מהנכסים נזילים'},
   ['sec','איך משתמשים בנכסים'],
@@ -903,7 +903,7 @@ function ratOut(){const R=RAT,C=[0,1,2,3,4,5,6,7],pct=v=>v==null||!isFinite(v)?'
   {l:'מו"פ ברבעון (אלפי SF)',v:C.map(i=>R.rd[i]),f:v=>`<bdi dir="ltr">${v}</bdi>`,hi:-1,n:'חברה 7 משקיעה הכי הרבה (400). אנחנו 220'}
  ];
  const ch=`<tr><th></th>${C.map(i=>`<th${i===2?' style="color:var(--acc)"':''}>${i===2?'אנחנו':'חברה '+(i+1)}</th>`).join('')}<th>הדירוג שלנו</th><th></th></tr>`;
- const rk=r=>{if(r.hi<0)return '';const ok=r.v.map((v,i)=>({v,i})).filter(o=>o.v!=null&&isFinite(o.v));if(!ok.some(o=>o.i===2))return '–';ok.sort((a,b)=>r.hi?b.v-a.v:a.v-b.v);return `${ok.findIndex(o=>o.i===2)+1} מתוך ${ok.length}`};
+ const rk=r=>{if(r.hi<0)return '';const ok=r.v.map((v,i)=>({v,i})).filter(o=>o.v!=null&&isFinite(o.v));if(!ok.some(o=>o.i===2))return '–';const rd=v=>Math.round(v*100)/100,me=rd(ok.find(o=>o.i===2).v);return `${ok.filter(o=>r.hi?rd(o.v)>me:rd(o.v)<me).length+1} מתוך ${ok.length}`};
  return `<p class="lead">יחסים מתוך מחקר 74 של רבעון 3. בעמודת הדירוג, 1 = הכי טוב (במינוף, באשראי ספקים ובמלאי, נמוך = טוב).</p><div class="scroll"><table class="rt">${ch}${rows.map(r=>Array.isArray(r)?`<tr class="sec"><td colspan="11">${r[1]}</td></tr>`:`<tr><td>${r.l}</td>${r.v.map((v,i)=>`<td${i===2?' style="font-weight:800;color:var(--acc)"':''}>${r.f(v)}</td>`).join('')}<td style="font-weight:800">${rk(r)}</td><td class="nt">${r.n}</td></tr>`).join('')}</table></div>
  <h3>הצ'יפ שלנו ברבעון 3</h3><div class="scroll"><table class="rt"><tr><th></th><th>לצ'יפ</th><th></th></tr>
   <tr><td>מחיר לחברה 5</td><td><bdi dir="ltr">$37.50</bdi></td><td class="nt">€25</td></tr>
